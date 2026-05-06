@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bangru - Send Tips</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  
+  <style>
+    body { font-family: 'Prompt', system-ui, sans-serif; }
+    .led-glow { box-shadow: 0 0 25px rgb(236 72 153); }
+  </style>
+</head>
+<body class="bg-black text-white min-h-screen">
+
+  <div class="max-w-md mx-auto pb-24">
+
+    <!-- Logo -->
+    <div class="text-center py-6">
+      <div class="inline-block bg-black p-4 rounded-xl led-glow">
+        <h1 class="text-3xl font-bold tracking-widest">BANG<span class="text-pink-500">RU</span></h1>
+        <p class="text-xs text-pink-400 tracking-[4px] -mt-1">KALASIN SOCIETY</p>
+      </div>
+    </div>
+
+    <!-- Step 1: อัพโหลดรูป -->
+    <div class="px-4 mb-6">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center text-xs font-bold">01</div>
+        <h2 class="text-lg font-semibold">อัพโหลดรูป (ติด LED)</h2>
+      </div>
+      <input type="file" id="photoInput" accept="image/*" class="hidden">
+      <div id="uploadArea" class="border-2 border-dashed border-pink-500/50 rounded-2xl h-52 flex flex-col items-center justify-center cursor-pointer hover:border-pink-400">
+        <i class="fas fa-camera text-4xl text-pink-400 mb-3"></i>
+        <p class="text-pink-300 text-center">แตะเพื่อเลือกภาพ<br><span class="text-xs">รูปติด LED สวยๆ</span></p>
+      </div>
+      <img id="preview" class="hidden w-full rounded-2xl mt-3 object-cover">
+    </div>
+
+    <!-- Step 2: ข้อมูล -->
+    <div class="px-4 mb-6">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center text-xs font-bold">02</div>
+        <h2 class="text-lg font-semibold">ข้อมูลผู้ส่ง</h2>
+      </div>
+      <input type="text" id="nameInput" placeholder="ชื่อ / ชื่อเล่น *" 
+             class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-4 mb-3 focus:outline-none focus:border-pink-500">
+      <textarea id="messageInput" placeholder="ส่งข้อความถึงดีเจ / ทีมงาน..." rows="3"
+                class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-4 focus:outline-none focus:border-pink-500"></textarea>
+    </div>
+
+    <!-- Step 3: เลือก Tips -->
+    <div class="px-4 mb-8">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center text-xs font-bold">03</div>
+        <h2 class="text-lg font-semibold">เลือกจำนวน Tips</h2>
+      </div>
+      <div class="grid grid-cols-3 gap-3" id="tipOptions"></div>
+    </div>
+
+  </div>
+
+  <!-- ปุ่มส่ง -->
+  <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-md px-4">
+    <button id="sendBtn" 
+            class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-lg py-5 rounded-2xl flex items-center justify-center gap-2 disabled:opacity-50">
+      <i class="fas fa-paper-plane"></i>
+      <span id="btnText">ส่ง Tips</span>
+    </button>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
+
+    // Config ที่คุณส่งมา
+    const firebaseConfig = {
+      apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
+      authDomain: "bangru-kalasin.firebaseapp.com",
+      databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
+      projectId: "bangru-kalasin",
+      storageBucket: "bangru-kalasin.firebasestorage.app",
+      messagingSenderId: "150447340465",
+      appId: "1:150447340465:web:d39c310e5e32030aea1b90",
+      measurementId: "G-YDGMDD1EEL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
+
+    let selectedAmount = 50;
+    let uploadedFile = null;
+    const amounts = [50, 100, 200, 300, 500, 1000];
+
+    function renderTipButtons() {
+      const container = document.getElementById('tipOptions');
+      container.innerHTML = '';
+      amounts.forEach(amount => {
+        const btn = document.createElement('button');
+        btn.className = `tip-btn bg-zinc-900 hover:bg-pink-500/20 border-2 border-transparent hover:border-pink-500 rounded-2xl py-4 text-center transition-all active:scale-95 ${amount === selectedAmount ? '!border-pink-500 bg-pink-500/10' : ''}`;
+        btn.innerHTML = `<div class="text-2xl font-bold">${amount === 1000 ? '1K' : amount}</div><div class="text-xs text-gray-400">บาท</div>`;
+        btn.onclick = () => { selectedAmount = amount; renderTipButtons(); };
+        container.appendChild(btn);
+      });
+    }
+
+    // Upload Photo
+    document.getElementById('uploadArea').onclick = () => document.getElementById('photoInput').click();
+    document.getElementById('photoInput').onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadedFile = file;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          document.getElementById('preview').src = ev.target.result;
+          document.getElementById('preview').classList.remove('hidden');
+          document.getElementById('uploadArea').classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    // Send Button
+    document.getElementById('sendBtn').onclick = async () => {
+      const name = document.getElementById('nameInput').value.trim();
+      const message = document.getElementById('messageInput').value.trim();
+      const btn = document.getElementById('sendBtn');
+      const btnText = document.getElementById('btnText');
+
+      if (!name) return alert('กรุณากรอกชื่อ / ชื่อเล่น');
+
+      btn.disabled = true;
+      btnText.innerHTML = 'กำลังส่ง... <i class="fas fa-spinner fa-spin"></i>';
+
+      try {
+        let imageURL = '';
+        if (uploadedFile) {
+          const fileName = Date.now() + '_' + uploadedFile.name;
+          const imageRef = storageRef(storage, 'tips/' + fileName);
+          await uploadBytes(imageRef, uploadedFile);
+          imageURL = await getDownloadURL(imageRef);
+        }
+
+        const newTipRef = push(ref(db, 'tips'));
+        await set(newTipRef, {
+          name: name,
+          message: message || '',
+          amount: selectedAmount,
+          imageURL: imageURL,
+          timestamp: Date.now(),
+          status: 'pending'
+        });
+
+        alert('🎉 ส่ง Tips สำเร็จ! ขอบคุณมากครับ');
+        location.reload(); // รีเซ็ตฟอร์ม
+      } catch (error) {
+        console.error(error);
+        alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = 'ส่ง Tips';
+      }
+    };
+
+    renderTipButtons();
+  </script>
+</body>
+</html>
