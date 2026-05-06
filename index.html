@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BANGRU GRU - Tipping System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ตั้งค่าพื้นฐาน */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Kanit', sans-serif; }
+        body { background-color: #000000; color: #ffffff; display: flex; justify-content: center; }
+        
+        /* กรอบจำลองหน้าจอมือถือ */
+        .app-container { 
+            width: 100%; 
+            max-width: 480px; 
+            background-color: #0a0a0a; 
+            min-height: 100vh; 
+            padding-bottom: 90px; 
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.1);
+        }
+
+        /* เมนูด้านบน */
+        .navbar { display: flex; justify-content: space-between; padding: 15px 20px; background-color: #111; border-bottom: 2px solid #ff0033; }
+        .nav-item { color: #888; text-decoration: none; font-size: 14px; font-weight: 500; }
+        .nav-item.active { color: #ff0033; font-weight: 700; }
+
+        /* ส่วนหัว (Header) */
+        .header { text-align: center; padding: 30px 20px 20px; }
+        .header .sub-title { color: #aaa; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
+        .header h1 { font-size: 40px; font-weight: 800; line-height: 1.1; margin: 5px 0; }
+        .header h1 span { color: #ff0033; }
+        .header .action-title { background-color: #ff0033; color: #fff; display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 16px; font-weight: 600; margin-top: 10px; }
+
+        /* ส่วนของแต่ละ Step */
+        .step-container { padding: 20px; border-top: 1px solid #222; }
+        .step-header { font-size: 18px; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; }
+        .step-badge { background-color: #ff0033; color: white; padding: 2px 8px; border-radius: 4px; font-size: 14px; margin-right: 10px; font-weight: 700; }
+        
+        /* กล่องอัปโหลดรูป */
+        .upload-box { border: 2px dashed #ff0033; border-radius: 12px; padding: 30px 20px; text-align: center; background-color: rgba(255, 0, 51, 0.05); cursor: pointer; transition: 0.3s; margin-bottom: 15px; }
+        .upload-box:hover { background-color: rgba(255, 0, 51, 0.1); }
+        .upload-icon { font-size: 40px; margin-bottom: 10px; }
+        .upload-title { font-size: 18px; font-weight: 600; color: #fff; }
+        .upload-desc { font-size: 13px; color: #ff0033; margin-top: 5px; }
+
+        /* กล่องวันเกิด */
+        .birthday-box { display: flex; justify-content: space-between; align-items: center; background-color: #1a1a1a; padding: 15px; border-radius: 10px; border: 1px solid #333; }
+        .birthday-text strong { font-size: 16px; display: block; color: #fff; }
+        .birthday-text span { font-size: 12px; color: #aaa; }
+        
+        /* Toggle Switch จำลอง */
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #ff0033; }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        /* ตารางเลือกจำนวนเงิน */
+        .amount-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .amount-btn { background-color: #111; border: 1px solid #333; border-radius: 10px; padding: 15px 0; text-align: center; color: #fff; cursor: pointer; transition: 0.2s; }
+        .amount-btn .num { font-size: 22px; font-weight: 700; display: block; }
+        .amount-btn .unit { font-size: 12px; color: #888; font-weight: 300; }
+        .amount-btn:hover { border-color: #ff0033; }
+        .amount-btn.active { background-color: #ff0033; border-color: #ff0033; color: #fff; box-shadow: 0 4px 15px rgba(255, 0, 51, 0.4); }
+        .amount-btn.active .unit { color: #ffd6d6; }
+        .amount-custom { grid-column: span 3; background-color: #000; border: 1px dashed #ff0033; color: #ff0033; font-size: 16px; font-weight: 600; display: flex; justify-content: center; align-items: center; }
+
+        /* ปุ่ม Submit ด้านล่าง */
+        .bottom-fixed { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: linear-gradient(0deg, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%); padding: 20px; z-index: 10; }
+        .btn-submit { width: 100%; background-color: #ff0033; color: white; border: none; padding: 16px; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(255, 0, 51, 0.5); transition: 0.3s; }
+        .btn-submit:hover { background-color: #e6002e; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <nav class="navbar">
+            <a href="#" class="nav-item active">TIPS</a>
+            <a href="#" class="nav-item">จองโต๊ะ</a>
+            <a href="#" class="nav-item">พนักงาน</a>
+            <a href="#" class="nav-item">TOP DONORS</a>
+        </nav>
+
+        <header class="header">
+            <div class="sub-title">Club & Bar Kalasin</div>
+            <h1>BANGRU <span>GRU</span></h1>
+            <div class="action-title">SEND TIPS TO THE DJ & STAFF</div>
+        </header>
+
+        <section class="step-container">
+            <div class="step-header">
+                <span class="step-badge">STEP 01</span>
+                รูปของคุณ
+            </div>
+
+            <div class="upload-box">
+                <div class="upload-icon">📸</div>
+                <div class="upload-title">แตะเพื่อเลือกรูป</div>
+                <div class="upload-desc">อัพโหลดรูปภาพ (ขึ้นจอ LED)<br>รูปจะขึ้นหน้าจอร้านทันที!</div>
+            </div>
+
+            <div class="birthday-box">
+                <div class="birthday-text">
+                    <strong>🎂 วันเกิด</strong>
+                    <span>ถ้าตรงวันนี้จะแสดงพิเศษบนจอ!</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </section>
+
+        <section class="step-container">
+            <div class="step-header">
+                <span class="step-badge">STEP 02</span>
+                เลือกจำนวนเงิน
+            </div>
+
+            <div class="amount-grid">
+                <div class="amount-btn">
+                    <span class="num">50</span>
+                    <span class="unit">บาท</span>
+                </div>
+                <div class="amount-btn">
+                    <span class="num">100</span>
+                    <span class="unit">บาท</span>
+                </div>
+                <div class="amount-btn">
+                    <span class="num">200</span>
+                    <span class="unit">บาท</span>
+                </div>
+                <div class="amount-btn">
+                    <span class="num">300</span>
+                    <span class="unit">บาท</span>
+                </div>
+                <div class="amount-btn active">
+                    <span class="num">500</span>
+                    <span class="unit">บาท</span>
+                </div>
+                <div class="amount-btn">
+                    <span class="num">1K</span>
+                    <span class="unit">บาท</span>
+                </div>
+                <div class="amount-btn amount-custom">
+                    กำหนดเอง ฿
+                </div>
+            </div>
+        </section>
+
+        <div class="bottom-fixed">
+            <button class="btn-submit">♫ ส่ง TIPS ตอนนี้เลย</button>
+        </div>
+
+    </div>
+
+</body>
+</html>
