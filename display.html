@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BANGRU DISPLAY</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+const app = initializeApp({
+  apiKey:"AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
+  authDomain:"bangru-kalasin.firebaseapp.com",
+  databaseURL:"https://bangru-kalasin-default-rtdb.firebaseio.com",
+  projectId:"bangru-kalasin",
+  storageBucket:"bangru-kalasin.firebasestorage.app",
+  messagingSenderId:"150447340465",
+  appId:"1:150447340465:web:b3c5ada0ad8eb240ea1b90"
+});
+const db = getDatabase(app);
+let queue = [];
+let showing = false;
+let lastKey = null;
+
+onValue(ref(db,‘tips’), snap => {
+const val = snap.val();
+if(!val) return;
+const entries = Object.entries(val);
+const latest = entries[entries.length-1];
+if(!latest) return;
+const [key, data] = latest;
+if(key === lastKey) return; // already shown
+lastKey = key;
+queue.push(data);
+if(!showing) showNext();
+});
+
+window.showNext = function() {
+if(queue.length === 0){ showing = false; hideCard(); return; }
+showing = true;
+const d = queue.shift();
+showCard(d);
+setTimeout(() => {
+hideCard();
+setTimeout(() => showNext(), 1000); // 1s gap between
+}, 25000); // show 25 seconds
+}
+
+window.showCard = function(d) {
+const card = document.getElementById(‘tipCard’);
+const photo = document.getElementById(‘tipPhoto’);
+const name = document.getElementById(‘tipName’);
+const amount = document.getElementById(‘tipAmount’);
+const msg = document.getElementById(‘tipMsg’);
+const bday = document.getElementById(‘bdayBadge’);
+
+if(d.photo && d.photo.length > 100) {
+photo.src = d.photo;
+photo.style.display = ‘block’;
+} else {
+photo.style.display = ‘none’;
+}
+name.textContent = d.name || ‘’;
+amount.textContent = ‘฿’ + (d.amount||0).toLocaleString();
+msg.textContent = d.msg || ‘’;
+bday.style.display = d.isToday ? ‘flex’ : ‘none’;
+
+card.classList.remove(‘hide’);
+card.classList.add(‘show’);
+}
+
+window.hideCard = function() {
+const card = document.getElementById(‘tipCard’);
+card.classList.remove(‘show’);
+card.classList.add(‘hide’);
+}
+</script>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+/* TRANSPARENT BACKGROUND - key for Resolum */
+html, body {
+  background: transparent !important;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  font-family: 'Kanit', sans-serif;
+}
+
+/* TIP CARD - appears when someone tips */
+#tipCard {
+  position: fixed;
+  bottom: 60px;
+  left: 60px;
+  width: 520px;
+  background: linear-gradient(135deg, rgba(10,10,10,0.92), rgba(20,0,0,0.88));
+  border: 2px solid #FF1E1E;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow:
+    0 0 40px rgba(255,30,30,0.5),
+    0 0 80px rgba(255,30,30,0.2),
+    inset 0 0 40px rgba(255,30,30,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(40px) scale(0.95);
+  transition: all 0s;
+  pointer-events: none;
+}
+
+#tipCard.show {
+  animation: cardIn 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+#tipCard.hide {
+  animation: cardOut 0.8s ease-in forwards;
+}
+
+@keyframes cardIn {
+  from { opacity:0; transform: translateY(60px) scale(0.9); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+@keyframes cardOut {
+  from { opacity:1; transform: translateY(0) scale(1); }
+  to   { opacity:0; transform: translateY(-30px) scale(0.95); }
+}
+
+/* PHOTO */
+#tipPhoto {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #FF1E1E;
+  box-shadow: 0 0 30px rgba(255,30,30,0.6), 0 0 60px rgba(255,30,30,0.3);
+  margin-bottom: 20px;
+  display: none;
+}
+
+/* BDAY BADGE */
+#bdayBadge {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,100,100,0.15);
+  border: 1px solid rgba(255,80,80,0.4);
+  border-radius: 20px;
+  padding: 6px 16px;
+  margin-bottom: 14px;
+  font-family: 'Kanit', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #FF8080;
+  animation: bdayPulse 1s infinite;
+}
+@keyframes bdayPulse {
+  0%,100%{box-shadow:0 0 10px rgba(255,80,80,0.3);}
+  50%{box-shadow:0 0 24px rgba(255,80,80,0.7);}
+}
+
+/* SEND TIPS LABEL */
+.send-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 4px;
+  color: rgba(255,80,80,0.7);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* NAME */
+#tipName {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 900;
+  font-size: 52px;
+  letter-spacing: 3px;
+  color: #FFFFFF;
+  text-shadow: 0 0 30px rgba(255,255,255,0.4);
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+/* AMOUNT */
+#tipAmount {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 900;
+  font-size: 64px;
+  letter-spacing: 4px;
+  background: linear-gradient(180deg, #FFD700, #FF8C00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(255,180,0,0.6));
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+/* MSG */
+#tipMsg {
+  font-family: 'Kanit', sans-serif;
+  font-size: 22px;
+  color: rgba(255,255,255,0.6);
+  font-style: italic;
+  min-height: 28px;
+}
+
+/* FIRE LINE */
+.fire-bar {
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #FF8C00, #FF1E1E, #FF8C00, transparent);
+  border-radius: 2px;
+  margin: 16px 0;
+  animation: fireAnim 2s linear infinite;
+  background-size: 200% 100%;
+}
+@keyframes fireAnim {
+  0%{background-position:0% 0%;}
+  100%{background-position:200% 0%;}
+}
+
+/* BANGRU WATERMARK */
+.watermark {
+  position: fixed;
+  bottom: 30px;
+  right: 50px;
+  font-family: 'Kanit', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 6px;
+  color: rgba(255,30,30,0.25);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* CORNER DECORATIONS */
+.corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: #FF1E1E;
+  border-style: solid;
+  opacity: 0.6;
+}
+.corner.tl { top:12px; left:12px; border-width:2px 0 0 2px; border-radius:4px 0 0 0; }
+.corner.tr { top:12px; right:12px; border-width:2px 2px 0 0; border-radius:0 4px 0 0; }
+.corner.bl { bottom:12px; left:12px; border-width:0 0 2px 2px; border-radius:0 0 0 4px; }
+.corner.br { bottom:12px; right:12px; border-width:0 2px 2px 0; border-radius:0 0 4px 0; }
+</style>
+
+</head>
+<body>
+
+<div id="tipCard">
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <img id="tipPhoto" src="" alt="">
+  <div id="bdayBadge">🎂 สุขสันต์วันเกิด!</div>
+  <div class="send-label">✦ ส่ง Tips มาแล้ว ✦</div>
+  <div id="tipName">ชื่อ</div>
+  <div class="fire-bar"></div>
+  <div id="tipAmount">฿0</div>
+  <div id="tipMsg"></div>
+</div>
+
+<div class="watermark">BANGRU KALASIN</div>
+
+</body>
+</html>
