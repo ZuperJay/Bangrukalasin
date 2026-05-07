@@ -1,0 +1,141 @@
+DOCTYPE html>
+
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BANGRU ADMIN</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+const app = initializeApp({
+  apiKey:"AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
+  authDomain:"bangru-kalasin.firebaseapp.com",
+  databaseURL:"https://bangru-kalasin-default-rtdb.firebaseio.com",
+  projectId:"bangru-kalasin",
+  storageBucket:"bangru-kalasin.firebasestorage.app",
+  messagingSenderId:"150447340465",
+  appId:"1:150447340465:web:b3c5ada0ad8eb240ea1b90"
+});
+const db = getDatabase(app);
+window.fbRemove = (path) => remove(ref(db, path));
+window.fbListen = (path,cb) => onValue(ref(db,path), snap => cb(snap.val(), snap));
+
+let totalTips=0, totalBookings=0;
+
+window.fbListen(‘tips’,(val)=>{
+const entries = val ? Object.entries(val) : [];
+totalTips = entries.reduce((s,[,d])=>s+(d.amount||0),0);
+document.getElementById(‘totalTips’).textContent=‘฿’+totalTips.toLocaleString();
+document.getElementById(‘tipCount’).textContent=entries.length+’ รายการ’;
+const sorted = entries.sort((a,b)=>b[1].ts-a[1].ts);
+document.getElementById(‘tipList’).innerHTML = sorted.length ? sorted.map(([k,d])=>` <div class="row"> ${d.photo?`<img class="rph" src="${d.photo}" alt="">`:`<div class="rph-ph">🎵</div>`} <div class="rinfo"> <div class="rname">${d.name} ${d.isToday?'🎂':''}</div> <div class="rmeta">${new Date(d.ts).toLocaleTimeString('th-TH')} · ${d.msg||'-'}</div> </div> <div class="ramt">฿${(d.amount||0).toLocaleString()}</div> <button class="delbtn" onclick="delTip('${k}')">✕</button> </div>`).join(’’)
+: ‘<div class="empty">ยังไม่มี Tips</div>’;
+});
+
+window.fbListen(‘bookings’,(val)=>{
+const entries = val ? Object.entries(val) : [];
+totalBookings = entries.length;
+document.getElementById(‘bookCount’).textContent=totalBookings+’ การจอง’;
+const sorted = entries.sort((a,b)=>b[1].ts-a[1].ts);
+document.getElementById(‘bookList’).innerHTML = sorted.length ? sorted.map(([k,d])=>` <div class="row"> <div class="rph-ph">🎟️</div> <div class="rinfo"> <div class="rname">${d.name} — โต๊ะ ${d.table} ${d.isToday?'🎂':''}</div> <div class="rmeta">${d.phone} · ${d.pax||'?'} คน · ${d.event||'-'}</div> <div class="rmeta" style="color:#FF8C00">${d.note||''}</div> </div> <button class="delbtn" onclick="delBook('${k}')">✕</button> </div>`).join(’’)
+: ‘<div class="empty">ยังไม่มีการจอง</div>’;
+});
+
+window.fbListen(‘staffTips’,(val)=>{
+const entries = val ? Object.entries(val) : [];
+document.getElementById(‘staffList’).innerHTML = entries.length ? entries.sort((a,b)=>b[1].ts-a[1].ts).map(([k,d])=>` <div class="row"> <div class="rph-ph">⭐</div> <div class="rinfo"> <div class="rname">${d.staff}</div> <div class="rmeta">${'⭐'.repeat(d.rating||0)} · ${new Date(d.ts).toLocaleTimeString('th-TH')}</div> </div> <div class="ramt">฿${(d.amount||0).toLocaleString()}</div> </div>`).join(’’)
+: ‘<div class="empty">ยังไม่มี Tips พนักงาน</div>’;
+});
+
+window.delTip = (k) => { if(confirm(‘ลบรายการนี้?’)) window.fbRemove(‘tips/’+k); }
+window.delBook = (k) => { if(confirm(‘ลบการจองนี้?’)) window.fbRemove(‘bookings/’+k); }
+</script>
+
+<style>
+:root{--red:#FF1E1E;--bg:#080808;--card:#111;--dim:#555;--white:#fff;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--white);font-family:'Kanit',sans-serif;min-height:100vh;}
+.header{background:rgba(255,30,30,0.08);border-bottom:2px solid var(--red);
+  padding:20px 24px;display:flex;align-items:center;gap:16px;}
+.header h1{font-size:22px;font-weight:900;letter-spacing:3px;color:var(--red);}
+.live{display:inline-flex;align-items:center;gap:6px;background:rgba(0,200,100,.08);
+  border:1px solid rgba(0,200,100,.2);border-radius:20px;padding:4px 12px;
+  font-family:'Space Mono',monospace;font-size:8px;color:#00C864;letter-spacing:2px;}
+.dot{width:6px;height:6px;border-radius:50%;background:#00C864;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px 24px;}
+.stat{background:var(--card);border:1px solid rgba(255,30,30,.2);border-radius:12px;padding:16px;text-align:center;}
+.stat-val{font-family:'Kanit',sans-serif;font-weight:900;font-size:28px;color:var(--red);}
+.stat-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--dim);margin-top:4px;}
+.section{padding:0 24px 24px;}
+.section-title{font-family:'Kanit',sans-serif;font-weight:900;font-size:14px;
+  letter-spacing:3px;color:var(--red);text-transform:uppercase;
+  margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(255,30,30,.2);}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);
+  border:1px solid rgba(255,30,30,.1);border-radius:10px;padding:12px;margin-bottom:8px;}
+.rph{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,30,30,.3);}
+.rph-ph{width:44px;height:44px;border-radius:50%;background:rgba(255,30,30,.08);
+  border:2px solid rgba(255,30,30,.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.rinfo{flex:1;min-width:0;}
+.rname{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rmeta{font-family:'Space Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:1px;margin-top:2px;}
+.ramt{font-family:'Space Mono',monospace;font-weight:700;font-size:14px;color:var(--red);white-space:nowrap;}
+.delbtn{background:rgba(255,30,30,.1);border:1px solid rgba(255,30,30,.3);border-radius:6px;
+  color:var(--red);font-size:12px;padding:4px 8px;cursor:pointer;transition:.2s;flex-shrink:0;}
+.delbtn:hover{background:rgba(255,30,30,.3);}
+.empty{text-align:center;padding:24px;color:var(--dim);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;}
+.tabs{display:flex;border-bottom:1px solid rgba(255,30,30,.2);margin:0 24px 16px;}
+.tab{padding:10px 16px;background:none;border:none;font-family:'Kanit',sans-serif;
+  font-weight:700;font-size:12px;letter-spacing:2px;color:var(--dim);cursor:pointer;
+  border-bottom:3px solid transparent;transition:.25s;text-transform:uppercase;}
+.tab.on{color:var(--red);border-bottom-color:var(--red);}
+.tabcontent{display:none;}.tabcontent.on{display:block;}
+</style>
+
+</head>
+<body>
+<div class="header">
+  <h1>BANGRU ADMIN</h1>
+  <div class="live"><span class="dot"></span>FIREBASE LIVE</div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val" id="totalTips">฿0</div><div class="stat-label">ยอด Tips รวม</div></div>
+  <div class="stat"><div class="stat-val" id="tipCount">0</div><div class="stat-label">รายการ Tips</div></div>
+  <div class="stat"><div class="stat-val" id="bookCount">0</div><div class="stat-label">การจอง</div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab on" onclick="showTab('tips')">🎵 Tips</button>
+  <button class="tab" onclick="showTab('book')">📅 การจอง</button>
+  <button class="tab" onclick="showTab('staff')">⭐ พนักงาน</button>
+</div>
+
+<div class="section">
+  <div class="tabcontent on" id="tab-tips">
+    <div class="section-title">รายการ Tips ล่าสุด</div>
+    <div id="tipList"><div class="empty">กำลังโหลด...</div></div>
+  </div>
+  <div class="tabcontent" id="tab-book">
+    <div class="section-title">การจองโต๊ะ</div>
+    <div id="bookList"><div class="empty">กำลังโหลด...</div></div>
+  </div>
+  <div class="tabcontent" id="tab-staff">
+    <div class="section-title">Tips & คะแนนพนักงาน</div>
+    <div id="staffList"><div class="empty">กำลังโหลด...</div></div>
+  </div>
+</div>
+
+<script>
+function showTab(t){
+  document.querySelectorAll('.tabcontent').forEach(e=>e.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('on'));
+  document.getElementById('tab-'+t).classList.add('on');
+  event.target.classList.add('on');
+}
+</script>
+
+</body>
+</html>
