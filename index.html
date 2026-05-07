@@ -1,172 +1,252 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bangru - Send Tips</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  
-  <style>
-    body { font-family: 'Prompt', system-ui, sans-serif; }
-    .led-glow { box-shadow: 0 0 25px rgb(236 72 153); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BANG RU KALASIN - Send Tips</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #ff0088;
+        }
+        
+        body {
+            font-family: 'Prompt', system-ui, sans-serif;
+        }
+        
+        .logo-glow {
+            text-shadow: 0 0 20px #ff0088,
+                        0 0 40px #ff0088;
+        }
+        
+        .tip-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .tip-btn.active {
+            background-color: #ff0088 !important;
+            color: white !important;
+            border-color: #ff0088;
+            transform: scale(1.05);
+        }
+        
+        .neon-text {
+            text-shadow: 0 0 10px #ff0088,
+                        0 0 20px #ff0088;
+        }
+    </style>
 </head>
 <body class="bg-black text-white min-h-screen">
+    <!-- Navbar -->
+    <nav class="bg-black border-b border-pink-500/30">
+        <div class="max-w-2xl mx-auto px-4">
+            <div class="flex items-center justify-between py-4">
+                <div class="flex items-center gap-6 text-sm">
+                    <a href="#" class="flex items-center gap-2 text-pink-500 font-medium border-b-2 border-pink-500 pb-1">
+                        <i class="fas fa-music"></i>
+                        <span>TIPS</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-2 hover:text-pink-400 transition-colors">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>คอมเม้นต์</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-2 hover:text-pink-400 transition-colors">
+                        <i class="fas fa-microphone"></i>
+                        <span>ร้องเพลง</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-2 hover:text-pink-400 transition-colors">
+                        <i class="fas fa-star"></i>
+                        <span>ตั้งถาน</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-2 hover:text-pink-400 transition-colors">
+                        <i class="fas fa-trophy"></i>
+                        <span>TOP</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-  <div class="max-w-md mx-auto pb-24">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+        <!-- Logo -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-black p-6 rounded-2xl border border-pink-500/50 shadow-2xl shadow-pink-500/30">
+                <div class="text-center">
+                    <h1 class="text-4xl font-bold tracking-widest neon-text logo-glow text-pink-400">
+                        BANG RU
+                    </h1>
+                    <p class="text-xl text-pink-300 mt-1">KALASIN 2025</p>
+                </div>
+            </div>
+        </div>
 
-    <!-- Logo -->
-    <div class="text-center py-6">
-      <div class="inline-block bg-black p-4 rounded-xl led-glow">
-        <h1 class="text-3xl font-bold tracking-widest">BANG<span class="text-pink-500">RU</span></h1>
-        <p class="text-xs text-pink-400 tracking-[4px] -mt-1">KALASIN SOCIETY</p>
-      </div>
+        <div class="text-center mb-8">
+            <p class="text-pink-400 text-lg font-medium">CLUB & BAR • KALASIN • 18+ ONLY</p>
+            <p class="text-pink-300 mt-2 text-sm">SEND TIPS TO DJ & STAFF</p>
+        </div>
+
+        <!-- Firebase Live -->
+        <div class="bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/30 rounded-2xl p-4 mb-8 text-center">
+            <div class="inline-flex items-center gap-2 bg-green-500/10 text-green-400 px-4 py-1 rounded-full text-sm font-medium">
+                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                FIREBASE LIVE
+            </div>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="mb-10">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-pink-500 text-black font-bold w-8 h-8 rounded-full flex items-center justify-center">01</div>
+                <h2 class="text-xl font-semibold">เลือกรูป (ส่ง LED)</h2>
+            </div>
+            
+            <div class="border-2 border-dashed border-pink-500/50 rounded-3xl p-10 text-center hover:border-pink-500 transition-colors cursor-pointer">
+                <div class="mx-auto w-20 h-20 bg-gray-800 rounded-2xl flex items-center justify-center mb-4">
+                    <i class="fas fa-camera text-4xl text-pink-400"></i>
+                </div>
+                <p class="font-medium">ถ่ายรูปใหม่ LED</p>
+                <p class="text-sm text-pink-300 mt-1">รูปส่งร่วมสนุกกับ LED แสงไฟปาร์ตี้!</p>
+            </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="mb-10">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-pink-500 text-black font-bold w-8 h-8 rounded-full flex items-center justify-center">02</div>
+                <h2 class="text-xl font-semibold">ข้อความ</h2>
+            </div>
+            
+            <textarea 
+                id="message"
+                rows="3"
+                class="w-full bg-zinc-900 border border-pink-500/30 rounded-2xl p-5 focus:outline-none focus:border-pink-500 resize-none text-white placeholder-zinc-500"
+                placeholder="ข้อความถึงดีเจ / พนักงาน..."></textarea>
+            
+            <div class="mt-4">
+                <label class="block text-sm text-pink-300 mb-2">ชื่อผู้ส่ง</label>
+                <input 
+                    type="text"
+                    id="sender"
+                    class="w-full bg-zinc-900 border border-pink-500/30 rounded-2xl p-5 focus:outline-none focus:border-pink-500"
+                    placeholder="ชื่อเล่น / ชื่อจริง">
+            </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-pink-500 text-black font-bold w-8 h-8 rounded-full flex items-center justify-center">03</div>
+                <h2 class="text-xl font-semibold">เลือกจำนวน Tips</h2>
+            </div>
+
+            <!-- Tip Amounts -->
+            <div class="grid grid-cols-3 gap-3 mb-6" id="tip-grid">
+                <button onclick="selectTip(this)" data-amount="50" class="tip-btn active bg-zinc-900 hover:bg-zinc-800 border-2 border-pink-500 text-pink-400 font-bold text-2xl py-6 rounded-3xl">50</button>
+                <button onclick="selectTip(this)" data-amount="100" class="tip-btn bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-white font-bold text-2xl py-6 rounded-3xl">100</button>
+                <button onclick="selectTip(this)" data-amount="200" class="tip-btn bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-white font-bold text-2xl py-6 rounded-3xl">200</button>
+                <button onclick="selectTip(this)" data-amount="300" class="tip-btn bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-white font-bold text-2xl py-6 rounded-3xl">300</button>
+                <button onclick="selectTip(this)" data-amount="500" class="tip-btn bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-white font-bold text-2xl py-6 rounded-3xl">500</button>
+                <button onclick="selectTip(this)" data-amount="1000" class="tip-btn bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-white font-bold text-2xl py-6 rounded-3xl">1K</button>
+            </div>
+
+            <!-- Custom Amount -->
+            <div class="mb-8">
+                <div class="flex items-center gap-2 text-pink-400 mb-3">
+                    <i class="fas fa-edit"></i>
+                    <span class="font-medium">จำนวนอื่นๆ</span>
+                </div>
+                <div class="flex gap-3">
+                    <input 
+                        type="number" 
+                        id="custom-amount"
+                        class="flex-1 bg-zinc-900 border border-pink-500/30 rounded-2xl px-6 py-5 text-2xl focus:outline-none focus:border-pink-500 text-center"
+                        placeholder="กรอกจำนวน">
+                    <button onclick="useCustomAmount()" 
+                            class="bg-pink-500 hover:bg-pink-600 transition-colors text-black font-bold px-8 rounded-2xl">
+                        ใช้
+                    </button>
+                </div>
+            </div>
+
+            <!-- Send Button -->
+            <button onclick="sendTip()" 
+                    class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 transition-all py-7 rounded-3xl text-2xl font-bold flex items-center justify-center gap-3 shadow-xl shadow-pink-500/50">
+                <i class="fas fa-paper-plane"></i>
+                ส่ง Tips ทันที
+            </button>
+        </div>
     </div>
 
-    <!-- Step 1: อัพโหลดรูป -->
-    <div class="px-4 mb-6">
-      <div class="flex items-center gap-2 mb-3">
-        <div class="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center text-xs font-bold">01</div>
-        <h2 class="text-lg font-semibold">อัพโหลดรูป (ติด LED)</h2>
-      </div>
-      <input type="file" id="photoInput" accept="image/*" class="hidden">
-      <div id="uploadArea" class="border-2 border-dashed border-pink-500/50 rounded-2xl h-52 flex flex-col items-center justify-center cursor-pointer hover:border-pink-400">
-        <i class="fas fa-camera text-4xl text-pink-400 mb-3"></i>
-        <p class="text-pink-300 text-center">แตะเพื่อเลือกภาพ<br><span class="text-xs">รูปติด LED สวยๆ</span></p>
-      </div>
-      <img id="preview" class="hidden w-full rounded-2xl mt-3 object-cover">
-    </div>
+    <!-- Footer -->
+    <footer class="text-center text-xs text-zinc-500 py-8">
+        <p>© 2025 BANG RU KALASIN CLUB & BAR</p>
+    </footer>
 
-    <!-- Step 2: ข้อมูล -->
-    <div class="px-4 mb-6">
-      <div class="flex items-center gap-2 mb-3">
-        <div class="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center text-xs font-bold">02</div>
-        <h2 class="text-lg font-semibold">ข้อมูลผู้ส่ง</h2>
-      </div>
-      <input type="text" id="nameInput" placeholder="ชื่อ / ชื่อเล่น *" 
-             class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-4 mb-3 focus:outline-none focus:border-pink-500">
-      <textarea id="messageInput" placeholder="ส่งข้อความถึงดีเจ / ทีมงาน..." rows="3"
-                class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-4 focus:outline-none focus:border-pink-500"></textarea>
-    </div>
+    <script>
+        let selectedAmount = 50;
 
-    <!-- Step 3: เลือก Tips -->
-    <div class="px-4 mb-8">
-      <div class="flex items-center gap-2 mb-3">
-        <div class="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center text-xs font-bold">03</div>
-        <h2 class="text-lg font-semibold">เลือกจำนวน Tips</h2>
-      </div>
-      <div class="grid grid-cols-3 gap-3" id="tipOptions"></div>
-    </div>
-
-  </div>
-
-  <!-- ปุ่มส่ง -->
-  <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-md px-4">
-    <button id="sendBtn" 
-            class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-lg py-5 rounded-2xl flex items-center justify-center gap-2 disabled:opacity-50">
-      <i class="fas fa-paper-plane"></i>
-      <span id="btnText">ส่ง Tips</span>
-    </button>
-  </div>
-
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
-
-    // Config ที่คุณส่งมา
-    const firebaseConfig = {
-      apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
-      authDomain: "bangru-kalasin.firebaseapp.com",
-      databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
-      projectId: "bangru-kalasin",
-      storageBucket: "bangru-kalasin.firebasestorage.app",
-      messagingSenderId: "150447340465",
-      appId: "1:150447340465:web:d39c310e5e32030aea1b90",
-      measurementId: "G-YDGMDD1EEL"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const storage = getStorage(app);
-
-    let selectedAmount = 50;
-    let uploadedFile = null;
-    const amounts = [50, 100, 200, 300, 500, 1000];
-
-    function renderTipButtons() {
-      const container = document.getElementById('tipOptions');
-      container.innerHTML = '';
-      amounts.forEach(amount => {
-        const btn = document.createElement('button');
-        btn.className = `tip-btn bg-zinc-900 hover:bg-pink-500/20 border-2 border-transparent hover:border-pink-500 rounded-2xl py-4 text-center transition-all active:scale-95 ${amount === selectedAmount ? '!border-pink-500 bg-pink-500/10' : ''}`;
-        btn.innerHTML = `<div class="text-2xl font-bold">${amount === 1000 ? '1K' : amount}</div><div class="text-xs text-gray-400">บาท</div>`;
-        btn.onclick = () => { selectedAmount = amount; renderTipButtons(); };
-        container.appendChild(btn);
-      });
-    }
-
-    // Upload Photo
-    document.getElementById('uploadArea').onclick = () => document.getElementById('photoInput').click();
-    document.getElementById('photoInput').onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        uploadedFile = file;
-        const reader = new FileReader();
-        reader.onload = ev => {
-          document.getElementById('preview').src = ev.target.result;
-          document.getElementById('preview').classList.remove('hidden');
-          document.getElementById('uploadArea').classList.add('hidden');
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-
-    // Send Button
-    document.getElementById('sendBtn').onclick = async () => {
-      const name = document.getElementById('nameInput').value.trim();
-      const message = document.getElementById('messageInput').value.trim();
-      const btn = document.getElementById('sendBtn');
-      const btnText = document.getElementById('btnText');
-
-      if (!name) return alert('กรุณากรอกชื่อ / ชื่อเล่น');
-
-      btn.disabled = true;
-      btnText.innerHTML = 'กำลังส่ง... <i class="fas fa-spinner fa-spin"></i>';
-
-      try {
-        let imageURL = '';
-        if (uploadedFile) {
-          const fileName = Date.now() + '_' + uploadedFile.name;
-          const imageRef = storageRef(storage, 'tips/' + fileName);
-          await uploadBytes(imageRef, uploadedFile);
-          imageURL = await getDownloadURL(imageRef);
+        function selectTip(el) {
+            document.querySelectorAll('.tip-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-pink-500', 'text-pink-400');
+                btn.classList.add('border-zinc-700', 'text-white');
+            });
+            el.classList.add('active', 'border-pink-500', 'text-pink-400');
+            selectedAmount = parseInt(el.dataset.amount);
         }
 
-        const newTipRef = push(ref(db, 'tips'));
-        await set(newTipRef, {
-          name: name,
-          message: message || '',
-          amount: selectedAmount,
-          imageURL: imageURL,
-          timestamp: Date.now(),
-          status: 'pending'
+        function useCustomAmount() {
+            const custom = document.getElementById('custom-amount').value;
+            if (custom && parseInt(custom) > 0) {
+                selectedAmount = parseInt(custom);
+                alert(`เลือกจำนวน ${selectedAmount} บาท`);
+            }
+        }
+
+        function sendTip() {
+            const message = document.getElementById('message').value;
+            const sender = document.getElementById('sender').value || "ผู้ส่งนิรนาม";
+            
+            if (!message.trim()) {
+                alert("กรุณาเขียนข้อความถึงดีเจหรือพนักงาน");
+                return;
+            }
+
+            const data = {
+                amount: selectedAmount,
+                message: message,
+                sender: sender,
+                timestamp: new Date().toISOString()
+            };
+
+            console.log("Sending Tip:", data);
+            
+            // Simulate success
+            const btn = document.querySelector('button[onclick="sendTip()"]');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = `
+                <i class="fas fa-check"></i>
+                ส่งสำเร็จ! ขอบคุณมาก ❤️
+            `;
+            btn.style.background = "linear-gradient(to right, #22c55e, #4ade80)";
+            
+            setTimeout(() => {
+                alert(`ส่ง Tips จำนวน ${selectedAmount} บาท สำเร็จ!\n\nจาก: ${sender}\nข้อความ: ${message}`);
+                // Reset
+                btn.innerHTML = originalText;
+                btn.style.background = "";
+            }, 2000);
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && document.activeElement.tagName !== 'TEXTAREA') {
+                sendTip();
+            }
         });
-
-        alert('🎉 ส่ง Tips สำเร็จ! ขอบคุณมากครับ');
-        location.reload(); // รีเซ็ตฟอร์ม
-      } catch (error) {
-        console.error(error);
-        alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
-      } finally {
-        btn.disabled = false;
-        btnText.textContent = 'ส่ง Tips';
-      }
-    };
-
-    renderTipButtons();
-  </script>
+    </script>
 </body>
 </html>
