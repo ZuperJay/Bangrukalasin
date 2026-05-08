@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>BANGRU MONITOR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@700&display=swap');
+        body { background-color: transparent; font-family: 'Kanit', sans-serif; overflow: hidden; }
+        .tip-card { animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div id="display-area" class="h-screen w-screen flex items-center justify-center">
+        </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
+            authDomain: "bangru-kalasin.firebaseapp.com",
+            databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
+            projectId: "bangru-kalasin",
+            storageBucket: "bangru-kalasin.firebasestorage.app",
+            messagingSenderId: "150447340465",
+            appId: "1:150447340465:web:b3c5ada0ad8eb240ea1b90",
+            measurementId: "G-TFTVCHJD23"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // ฟังคำสั่งเมื่อมี Tip ใหม่เข้ามา
+        db.ref('live_tips').limitToLast(1).on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            // ป้องกันไม่ให้ข้อมูลเก่าแสดงซ้ำตอนโหลดหน้าใหม่
+            if (Date.now() - data.timestamp > 10000) return; 
+
+            showTip(data);
+        });
+
+        function showTip(data) {
+            const area = document.getElementById('display-area');
+            area.innerHTML = `
+                <div class="tip-card bg-black/80 border-4 border-pink-500 p-12 rounded-[50px] text-center shadow-[0_0_50px_rgba(255,0,136,0.8)]">
+                    <h2 class="text-gray-400 text-3xl mb-4">NEW TIP FROM</h2>
+                    <h1 class="text-white text-8xl font-bold mb-6">${data.sender}</h1>
+                    <p class="text-pink-400 text-5xl mb-4">฿${data.amount}</p>
+                    <p class="text-white text-4xl italic">"${data.message}"</p>
+                </div>
+            `;
+
+            // หายไปหลังจาก 15 วินาที
+            setTimeout(() => { area.innerHTML = ''; }, 15000);
+        }
+    </script>
+</body>
+</html>
