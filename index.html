@@ -3,168 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BANGRU KALASIN - Send Tips</title>
+    <title>BANGRU KALASIN - Tips System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <!-- ใช้ Library ตัวนี้สำหรับสร้าง QR PromptPay ที่ถูกต้อง -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap');
-
-        :root { --primary: #ff0088; }
-        body { font-family: 'Prompt', system-ui, sans-serif; background-color: black; color: white; }
-        .logo-3d {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            text-shadow: 0 0 20px #ff0088, 3px 3px 0px rgba(255, 0, 136, 0.5);
-            animation: glow-pulse 2s ease-in-out infinite;
-        }
-        @keyframes glow-pulse {
-            0%, 100% { text-shadow: 0 0 20px #ff0088; }
-            50% { text-shadow: 0 0 40px #ff0088, 0 0 60px #ff0088; }
-        }
-        .step-container {
-            background: linear-gradient(135deg, rgba(255,0,136,0.05) 0%, rgba(168,85,247,0.05) 100%);
-            border: 1px solid rgba(255,0,136,0.2);
-            border-radius: 1.5rem;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .tip-btn.active { background-color: #ff0088 !important; border-color: #ff0088; transform: scale(1.05); }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Kanit:wght@300;500&display=swap');
+        body { font-family: 'Kanit', sans-serif; background-color: #000; color: white; }
+        .logo-3d { font-family: 'Orbitron', sans-serif; text-shadow: 3px 3px 0px #ff0088, 6px 6px 0px #000; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
+        .led-text { white-space: nowrap; animation: march 10s linear infinite; color: #ff0088; text-shadow: 0 0 10px #ff0088; }
+        @keyframes march { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+        .btn-gradient { background: linear-gradient(45deg, #ff0088, #ff6bb6); transition: 0.3s; }
+        .btn-gradient:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255, 0, 136, 0.4); }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen flex flex-col items-center p-4">
 
-    <div class="max-w-2xl mx-auto px-4 py-8">
-        <!-- Logo -->
-        <div class="text-center mb-10">
-            <h1 class="text-6xl logo-3d text-pink-400 mb-2">BANGRU</h1>
-            <div class="text-xl font-bold tracking-widest text-white mt-2">⚡ KALASIN ⚡</div>
-            <p class="text-pink-400 text-sm mt-2">CLUB & BAR • 18+ ONLY</p>
+    <nav class="w-full flex justify-between items-center mb-8 px-2">
+        <h1 class="logo-3d text-2xl font-bold italic">BANGRU</h1>
+        <button onclick="toggleLineup()" class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full hover:bg-white/20 transition-colors">
+            <i class="fas fa-calendar-alt text-pink-500"></i>
+            <span>LINE UP</span>
+        </button>
+    </nav>
+
+    <div class="w-full overflow-hidden bg-white/5 py-2 mb-8 rounded-lg border border-white/10">
+        <div class="led-text font-bold tracking-widest text-xl">WELCOME TO BANGRU KALASIN • ENJOY YOUR NIGHT • SEND TIPS TO DJ</div>
+    </div>
+
+    <div class="w-full max-w-md bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/20">
+        <div class="mb-6">
+            <label class="block mb-2 text-sm text-gray-400">ชื่อผู้ส่ง</label>
+            <input type="text" id="sender-name" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-pink-500" placeholder="ใส่ชื่อของคุณ">
         </div>
 
-        <!-- Step 1: Upload Photo -->
-        <div class="step-container">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="bg-pink-500 text-black font-bold w-8 h-8 rounded-full flex items-center justify-center">01</div>
-                <h2 class="text-xl font-semibold">ถ่ายรูปส่งขึ้นจอ</h2>
-            </div>
-            <div class="border-2 border-dashed border-pink-500/50 rounded-2xl p-8 text-center cursor-pointer" onclick="document.getElementById('photo-input').click()">
-                <input type="file" id="photo-input" hidden accept="image/*" onchange="handlePhotoUpload(event)">
-                <div id="photo-display">
-                    <i class="fas fa-camera text-4xl text-pink-400 mb-2"></i>
-                    <p>คลิกเพื่อเลือกรูปภาพ</p>
-                </div>
-                <img id="preview-img" class="hidden mx-auto max-h-64 rounded-lg shadow-lg">
-            </div>
+        <div class="mb-6">
+            <label class="block mb-2 text-sm text-gray-400">ข้อความถึง DJ / Staff</label>
+            <textarea id="tip-message" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-pink-500" rows="3" placeholder="พิมพ์ข้อความที่นี่..."></textarea>
         </div>
 
-        <!-- Step 2: Select Amount -->
-        <div class="step-container">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="bg-pink-500 text-black font-bold w-8 h-8 rounded-full flex items-center justify-center">02</div>
-                <h2 class="text-xl font-semibold">เลือกจำนวน Tips</h2>
-            </div>
-            <div class="grid grid-cols-3 gap-3 mb-4">
-                <button onclick="selectTip(50, this)" class="tip-btn active bg-zinc-900 border border-zinc-700 py-4 rounded-xl font-bold text-xl">50</button>
-                <button onclick="selectTip(100, this)" class="tip-btn bg-zinc-900 border border-zinc-700 py-4 rounded-xl font-bold text-xl">100</button>
-                <button onclick="selectTip(500, this)" class="tip-btn bg-zinc-900 border border-zinc-700 py-4 rounded-xl font-bold text-xl">500</button>
-            </div>
-            <input type="number" id="custom-amount" oninput="updateCustomAmount(this.value)" placeholder="จำนวนเงินอื่นๆ" class="w-full bg-zinc-900 border border-pink-500/30 rounded-xl p-4 text-center text-xl">
+        <div class="grid grid-cols-3 gap-3 mb-8">
+            <button onclick="selectAmount(50)" class="amount-btn border border-white/20 rounded-xl py-3 hover:bg-pink-500 transition-all">50.-</button>
+            <button onclick="selectAmount(100)" class="amount-btn border border-white/20 rounded-xl py-3 hover:bg-pink-500 transition-all">100.-</button>
+            <button onclick="selectAmount(500)" class="amount-btn border border-white/20 rounded-xl py-3 hover:bg-pink-500 transition-all">500.-</button>
         </div>
 
-        <!-- Step 3: Message -->
-        <div class="step-container">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="bg-pink-500 text-black font-bold w-8 h-8 rounded-full flex items-center justify-center">03</div>
-                <h2 class="text-xl font-semibold">ข้อความ</h2>
-            </div>
-            <input type="text" id="sender" placeholder="ชื่อผู้ส่ง" class="w-full bg-zinc-900 border border-pink-500/30 rounded-xl p-4 mb-3">
-            <textarea id="message" placeholder="ข้อความถึง DJ" class="w-full bg-zinc-900 border border-pink-500/30 rounded-xl p-4 h-24"></textarea>
-        </div>
-
-        <!-- Step 4: Payment -->
-        <div class="step-container border-pink-500">
-            <h2 class="text-center text-xl font-bold mb-4 text-pink-400">สแกนชำระเงิน</h2>
-            <div class="bg-white p-4 rounded-2xl mx-auto w-64 h-64">
-                <canvas id="qrcode" class="w-full h-full"></canvas>
-            </div>
-            <div class="text-center mt-4">
-                <p class="text-sm text-zinc-400">ยอดที่ต้องโอน</p>
-                <p class="text-3xl font-bold text-pink-500"><span id="display-amount">50</span> บาท</p>
-            </div>
-        </div>
-
-        <button onclick="submitTip()" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 py-5 rounded-2xl text-2xl font-bold shadow-lg shadow-pink-500/50">
-            <i class="fas fa-paper-plane mr-2"></i> ส่ง Tips & แจ้งโอน
+        <button onclick="handleSubmit()" class="w-full btn-gradient py-4 rounded-2xl font-bold text-lg shadow-lg">
+            ส่ง Tips & เปิดแอปธนาคาร
         </button>
     </div>
 
+    <div id="lineup-modal" class="fixed inset-0 z-50 hidden bg-black/95 flex items-center justify-center p-4">
+        <div class="relative w-full max-w-2xl">
+            <button onclick="toggleLineup()" class="absolute -top-12 right-0 text-white text-4xl">&times;</button>
+            <img src="lineup.png" alt="Monthly Lineup" class="w-full rounded-2xl shadow-2xl border border-white/20">
+        </div>
+    </div>
+
     <script>
-        let selectedAmount = 50;
-        const promptPayID = "0938296499"; // เลขพร้อมเพย์ของคุณ
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
+            authDomain: "bangru-kalasin.firebaseapp.com",
+            databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
+            projectId: "bangru-kalasin",
+            storageBucket: "bangru-kalasin.firebasestorage.app",
+            messagingSenderId: "150447340465",
+            appId: "1:150447340465:web:b3c5ada0ad8eb240ea1b90",
+            measurementId: "G-TFTVCHJD23"
+        };
 
-        // ฟังก์ชันสร้าง CRC16 สำหรับ PromptPay (เพื่อให้สแกนแล้วขึ้นยอดเงิน)
-        function generatePayload(id, amount) {
-            // นี่คือ Logic พื้นฐานสำหรับการโอนเงินเข้าเบอร์มือถือ
-            // ในการใช้งานจริง แนะนำให้ใช้ API หรือ Library เฉพาะ
-            // สำหรับตอนนี้จะใช้ Link พื้นฐานที่รองรับการ Scan
-            return `https://promptpay.io/${id}/${amount}.png`;
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let selectedAmount = 0;
+
+        function selectAmount(amt) {
+            selectedAmount = amt;
+            document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('bg-pink-500', 'border-transparent'));
+            event.target.classList.add('bg-pink-500', 'border-transparent');
         }
 
-        function updateQR() {
-            const canvas = document.getElementById('qrcode');
-            const url = `https://promptpay.io/${promptPayID}/${selectedAmount}.png`;
-            
-            // ใช้ Image Drawing แทนเพราะ Library บางตัวอาจจะไม่โหลดบน GitHub Pages ถ้าไม่ได้ตั้งค่าดีๆ
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-            img.onload = function() {
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            };
-            img.src = url;
-            document.getElementById('display-amount').textContent = selectedAmount;
+        function toggleLineup() {
+            document.getElementById('lineup-modal').classList.toggle('hidden');
         }
 
-        function selectTip(amount, btn) {
-            selectedAmount = amount;
-            document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            updateQR();
-        }
+        async function handleSubmit() {
+            const name = document.getElementById('sender-name').value;
+            const message = document.getElementById('tip-message').value;
 
-        function updateCustomAmount(val) {
-            if(val > 0) {
-                selectedAmount = val;
-                updateQR();
+            if(!name || selectedAmount === 0) {
+                alert('กรุณาใส่ชื่อและเลือกจำนวนเงิน');
+                return;
             }
-        }
 
-        function handlePhotoUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.getElementById('preview-img');
-                    img.src = e.target.result;
-                    img.classList.remove('hidden');
-                    document.getElementById('photo-display').classList.add('hidden');
-                }
-                reader.readAsDataURL(file);
-            }
-        }
+            [span_0](start_span)// ส่งข้อมูลไป Firebase[span_0](end_span)
+            await db.ref('live_tips').push({
+                sender: name,
+                message: message,
+                amount: selectedAmount,
+                timestamp: Date.now()
+            });
 
-        function submitTip() {
-            const sender = document.getElementById('sender').value;
-            if(!sender) return alert('กรุณาใส่ชื่อผู้ส่ง');
-            
-            alert('บันทึกข้อมูลเรียบร้อย! กรุณาแคปหน้าจอการโอนเงินแจ้งพนักงาน');
-            // ตรงนี้ถ้าจะให้โยงเข้าแอปธนาคาร:
-            window.location.href = "kplus://"; // ตัวอย่างเปิด K-Plus
+            [span_1](start_span)[span_2](start_span)// เปิดแอปธนาคาร (กสิกรไทย วาที 093-8-29649-9)[span_1](end_span)[span_2](end_span)
+            window.location.href = `promptpay://pay/0938296499/${selectedAmount}`;
         }
-
-        // เริ่มต้นสร้าง QR ครั้งแรก
-        window.onload = updateQR;
     </script>
 </body>
 </html>
