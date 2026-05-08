@@ -8,13 +8,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@700&display=swap');
-        body { background-color: transparent; font-family: 'Kanit', sans-serif; overflow: hidden; }
+        body { background-color: #000; font-family: 'Kanit', sans-serif; overflow: hidden; margin: 0; }
         .tip-card { animation: zoomIn 0.5s ease-out; }
         @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        /* เอฟเฟกต์ตัวหนังสือสีแดง ขอบขาวให้มองเห็นชัดบนจอ LED */
         .text-glow {
             color: #ff003c;
-            text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 0 0 20px #ff0088;
+            text-shadow: 4px 4px 0 #fff, -4px -4px 0 #fff, 4px -4px 0 #fff, -4px 4px 0 #fff, 0 0 30px #ff0088;
         }
     </style>
 </head>
@@ -37,34 +36,27 @@
 
         db.ref('live_tips').limitToLast(1).on('child_added', (snapshot) => {
             const data = snapshot.val();
-            if (Date.now() - data.timestamp > 15000) return; // ไม่แสดงข้อมูลเก่าที่เกิน 15 วินาที
-
+            if (Date.now() - data.timestamp > 15000) return; 
             showTip(data);
         });
 
         function showTip(data) {
             const area = document.getElementById('display-area');
-            
-            // เช็คว่ามีรูปไหม ถ้าไม่มีให้เว้นว่างไว้
             const imageHtml = data.photo 
-                ? `<img src="${data.photo}" class="max-h-[60vh] w-auto mx-auto rounded-3xl border-8 border-pink-500 shadow-[0_0_50px_rgba(255,0,136,1)] object-cover mt-6">` 
+                ? `<img src="${data.photo}" class="max-h-[70vh] w-auto mx-auto rounded-3xl border-8 border-pink-500 shadow-[0_0_60px_rgba(255,0,136,1)] object-cover mt-6">` 
                 : '';
 
             area.innerHTML = `
                 <div class="tip-card text-center w-full max-w-5xl">
-                    <h1 class="text-glow text-6xl md:text-8xl font-black mb-4 uppercase tracking-wider line-clamp-2 leading-tight">
+                    <h1 class="text-glow text-7xl md:text-9xl font-black mb-4 uppercase tracking-wider leading-tight">
                         "${data.message}"
                     </h1>
-                    
-                    <h2 class="text-white text-4xl md:text-5xl font-bold bg-black/60 inline-block px-8 py-4 rounded-full backdrop-blur-sm border border-white/30">
+                    <h2 class="text-white text-5xl font-bold bg-black/80 inline-block px-10 py-5 rounded-full border-2 border-white/30">
                         FROM: <span class="text-pink-400">${data.sender}</span> | TIPS: <span class="text-green-400">฿${data.amount}</span>
                     </h2>
-
                     ${imageHtml}
                 </div>
             `;
-
-            // ค้างไว้บนจอ 20 วินาทีแล้วหายไป
             setTimeout(() => { area.innerHTML = ''; }, 20000);
         }
     </script>
