@@ -9,12 +9,17 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@700&display=swap');
         body { background-color: transparent; font-family: 'Kanit', sans-serif; overflow: hidden; }
-        .tip-card { animation: slideIn 0.5s ease-out; }
-        @keyframes slideIn { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .tip-card { animation: zoomIn 0.5s ease-out; }
+        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* เอฟเฟกต์ตัวหนังสือสีแดง ขอบขาวให้มองเห็นชัดบนจอ LED */
+        .text-glow {
+            color: #ff003c;
+            text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 0 0 20px #ff0088;
+        }
     </style>
 </head>
 <body>
-    <div id="display-area" class="h-screen w-screen flex items-center justify-center">
+    <div id="display-area" class="h-screen w-screen flex flex-col items-center justify-center p-10">
         </div>
 
     <script>
@@ -25,35 +30,42 @@
             projectId: "bangru-kalasin",
             storageBucket: "bangru-kalasin.firebasestorage.app",
             messagingSenderId: "150447340465",
-            appId: "1:150447340465:web:b3c5ada0ad8eb240ea1b90",
-            measurementId: "G-TFTVCHJD23"
+            appId: "1:150447340465:web:b3c5ada0ad8eb240ea1b90"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // ฟังคำสั่งเมื่อมี Tip ใหม่เข้ามา
         db.ref('live_tips').limitToLast(1).on('child_added', (snapshot) => {
             const data = snapshot.val();
-            // ป้องกันไม่ให้ข้อมูลเก่าแสดงซ้ำตอนโหลดหน้าใหม่
-            if (Date.now() - data.timestamp > 10000) return; 
+            if (Date.now() - data.timestamp > 15000) return; // ไม่แสดงข้อมูลเก่าที่เกิน 15 วินาที
 
             showTip(data);
         });
 
         function showTip(data) {
             const area = document.getElementById('display-area');
+            
+            // เช็คว่ามีรูปไหม ถ้าไม่มีให้เว้นว่างไว้
+            const imageHtml = data.photo 
+                ? `<img src="${data.photo}" class="max-h-[60vh] w-auto mx-auto rounded-3xl border-8 border-pink-500 shadow-[0_0_50px_rgba(255,0,136,1)] object-cover mt-6">` 
+                : '';
+
             area.innerHTML = `
-                <div class="tip-card bg-black/80 border-4 border-pink-500 p-12 rounded-[50px] text-center shadow-[0_0_50px_rgba(255,0,136,0.8)]">
-                    <h2 class="text-gray-400 text-3xl mb-4">NEW TIP FROM</h2>
-                    <h1 class="text-white text-8xl font-bold mb-6">${data.sender}</h1>
-                    <p class="text-pink-400 text-5xl mb-4">฿${data.amount}</p>
-                    <p class="text-white text-4xl italic">"${data.message}"</p>
+                <div class="tip-card text-center w-full max-w-5xl">
+                    <h1 class="text-glow text-6xl md:text-8xl font-black mb-4 uppercase tracking-wider line-clamp-2 leading-tight">
+                        "${data.message}"
+                    </h1>
+                    
+                    <h2 class="text-white text-4xl md:text-5xl font-bold bg-black/60 inline-block px-8 py-4 rounded-full backdrop-blur-sm border border-white/30">
+                        FROM: <span class="text-pink-400">${data.sender}</span> | TIPS: <span class="text-green-400">฿${data.amount}</span>
+                    </h2>
+
+                    ${imageHtml}
                 </div>
             `;
 
-            // หายไปหลังจาก 15 วินาที
-            setTimeout(() => { area.innerHTML = ''; }, 15000);
+            // ค้างไว้บนจอ 20 วินาทีแล้วหายไป
+            setTimeout(() => { area.innerHTML = ''; }, 20000);
         }
     </script>
 </body>
