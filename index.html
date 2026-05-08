@@ -1,153 +1,43 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BANGRU KALASIN - Tips System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Kanit:wght@300;500;700&display=swap');
-        body { font-family: 'Kanit', sans-serif; background-color: #000; color: white; }
-        .logo-3d { font-family: 'Orbitron', sans-serif; text-shadow: 3px 3px 0px #ff0088, 6px 6px 0px #000; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
-        .btn-gradient { background: linear-gradient(45deg, #ff0088, #ff6bb6); transition: 0.3s; }
-        .btn-gradient:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255, 0, 136, 0.4); }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col items-center p-4">
+<div class="step-04 mt-8">
+    <label class="text-white text-xl">04. จ่ายเงิน & แนบสลิป</label>
+    <a href="https://payment.facebook.com/pay/promptpay/" target="_blank" 
+       class="block w-full bg-blue-600 text-white text-center py-4 rounded-xl font-bold text-xl my-4 active:scale-95 transition">
+       คลิกเพื่อเปิดแอปธนาคาร
+    </a>
 
-    <nav class="w-full flex justify-between items-center mb-6 px-2">
-        <h1 class="logo-3d text-2xl font-bold italic">BANGRU</h1>
-        <button onclick="toggleLineup()" class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full hover:bg-white/20 transition-colors">
-            <i class="fas fa-calendar-alt text-pink-500"></i>
-            <span>LINE UP</span>
-        </button>
-    </nav>
-
-    <div class="w-full max-w-md bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/20">
-        <div class="text-center mb-6">
-            <p class="text-gray-400 text-sm">โอนเข้าบัญชี</p>
-            <p class="text-white font-bold text-2xl tracking-wide">Bangru</p>
-            <p class="text-pink-500 font-bold">093-8-29649-9</p>
-        </div>
-
-        <div class="mb-6">
-            <label class="block mb-2 text-sm text-gray-400">ถ่ายรูปส่งขึ้นจอ (บังคับ)</label>
-            <div class="border-2 border-dashed border-pink-500/50 rounded-xl p-4 text-center cursor-pointer hover:border-pink-500 transition-colors" onclick="document.getElementById('photo-input').click()">
-                <input type="file" id="photo-input" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
-                <div id="upload-placeholder">
-                    <i class="fas fa-camera text-3xl text-pink-400 mb-2"></i>
-                    <p class="text-sm">คลิกเพื่อเลือกรูปภาพ</p>
-                </div>
-                <img id="preview-img" class="hidden mx-auto max-h-40 rounded-lg shadow-lg mt-2 object-cover">
-            </div>
-        </div>
-
-        <div class="mb-6">
-            <label class="block mb-2 text-sm text-gray-400">ชื่อผู้ส่ง</label>
-            <input type="text" id="sender-name" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-pink-500" placeholder="ใส่ชื่อของคุณ">
-        </div>
-
-        <div class="mb-6">
-            <label class="block mb-2 text-sm text-gray-400">ข้อความถึง DJ (จะโชว์บนรูป)</label>
-            <textarea id="tip-message" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-pink-500" rows="2" placeholder="พิมพ์ข้อความที่นี่..."></textarea>
-        </div>
-
-        <div class="grid grid-cols-3 gap-3 mb-8">
-            <button onclick="selectAmount(50)" class="amount-btn border border-white/20 rounded-xl py-3 hover:bg-pink-500 transition-all">50.-</button>
-            <button onclick="selectAmount(100)" class="amount-btn border border-white/20 rounded-xl py-3 hover:bg-pink-500 transition-all">100.-</button>
-            <button onclick="selectAmount(500)" class="amount-btn border border-white/20 rounded-xl py-3 hover:bg-pink-500 transition-all">500.-</button>
-        </div>
-
-        <button onclick="handleSubmit()" class="w-full btn-gradient py-4 rounded-2xl font-bold text-lg shadow-lg">
-            ส่ง Tips & เปิดแอปธนาคาร
-        </button>
-    </div>
-
-    <div id="lineup-modal" class="fixed inset-0 z-50 hidden bg-black/95 flex items-center justify-center p-4">
-        <div class="relative w-full max-w-2xl text-center">
-            <button onclick="toggleLineup()" class="absolute -top-12 right-0 text-white text-4xl">&times;</button>
-            <img src="lineup.png" alt="Lineup" class="w-full rounded-2xl shadow-2xl border border-white/20">
+    <div class="bg-gray-800 p-4 rounded-xl border-2 border-dashed border-gray-500 text-center">
+        <input type="file" id="slip-input" accept="image/*" class="hidden" onchange="handleSlipUpload(this)">
+        <label for="slip-input" id="slip-label" class="cursor-pointer text-pink-400 font-bold">
+            คิลกที่นี่เพื่อ "แนบรูปสลิปโอนเงิน"
+        </label>
+        <div id="slip-preview" class="mt-2 hidden">
+            <img id="preview-img" src="" class="max-h-40 mx-auto rounded-lg">
         </div>
     </div>
+</div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
-            authDomain: "bangru-kalasin.firebaseapp.com",
-            databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
-            projectId: "bangru-kalasin",
-            storageBucket: "bangru-kalasin.firebasestorage.app",
-            messagingSenderId: "150447340465",
-            appId: "1:150447340465:web:b3c5ada0ad8eb240ea1b90"
+<button id="submit-btn" disabled 
+        class="w-full py-5 rounded-2xl font-black text-2xl mt-10 transition duration-300 bg-gray-600 text-gray-400 cursor-not-allowed">
+    ยืนยันและส่ง Tips
+</button>
+
+<script>
+// ฟังก์ชันเช็กการอัปโหลดสลิป
+function handleSlipUpload(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview-img').src = e.target.result;
+            document.getElementById('slip-preview').classList.remove('hidden');
+            document.getElementById('slip-label').innerText = "✅ แนบสลิปเรียบร้อยแล้ว";
+            
+            // เปิดใช้งานปุ่มส่ง
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = false;
+            btn.classList.remove('bg-gray-600', 'text-gray-400', 'cursor-not-allowed');
+            btn.classList.add('bg-gradient-to-r', 'from-pink-500', 'to-purple-600', 'text-white', 'hover:scale-105');
         };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        
-        let selectedAmount = 0;
-        let uploadedImageBase64 = "";
-
-        // ย่อขนาดรูปภาพก่อนส่ง
-        function handlePhotoUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800; // ย่อขนาดความกว้าง
-                    const scaleSize = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scaleSize;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    
-                    uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.6); // บีบอัด 60%
-                    
-                    document.getElementById('preview-img').src = uploadedImageBase64;
-                    document.getElementById('preview-img').classList.remove('hidden');
-                    document.getElementById('upload-placeholder').classList.add('hidden');
-                }
-                img.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
-        }
-
-        function selectAmount(amt) {
-            selectedAmount = amt;
-            document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('bg-pink-500', 'border-transparent'));
-            event.target.classList.add('bg-pink-500', 'border-transparent');
-        }
-
-        function toggleLineup() {
-            document.getElementById('lineup-modal').classList.toggle('hidden');
-        }
-
-        async function handleSubmit() {
-            const name = document.getElementById('sender-name').value;
-            const message = document.getElementById('tip-message').value;
-
-            if(!name || selectedAmount === 0 || !uploadedImageBase64) {
-                alert('กรุณาอัพโหลดรูปภาพ ใส่ชื่อ และเลือกจำนวนเงินให้ครบถ้วนครับ');
-                return;
-            }
-
-            // ส่งข้อมูลไป Firebase
-            await db.ref('live_tips').push({
-                sender: name,
-                message: message,
-                amount: selectedAmount,
-                photo: uploadedImageBase64,
-                timestamp: Date.now()
-            });
-
-            window.location.href = `promptpay://pay/0938296499/${selectedAmount}`;
-        }
-    </script>
-</body>
-</html>
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
