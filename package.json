@@ -1,0 +1,35 @@
+{
+  "name": "bangru-kalasin-tips-system",
+  "version": "1.0.0",
+  "description": "Tips System for BANGRU KALASIN Club & Bar - QR Payment, 3D Logo, LED Animation",
+  "main": "index.html",
+  "scripts": {
+    "start": "open index.html",
+    "dev": "python -m http.server 8000",
+    "build": "echo 'No build required - Static HTML/CSS/JS only'",
+    "test": "echo 'Open index.html and test all functions'"
+  },
+  "keywords": [
+    "tips",
+    "qr-payment",
+    "promptpay",
+    "kalasin",
+    "club",
+    "bar",
+    "3d-logo",
+    "led-animation"
+  ],
+  "author": "BANGRU KALASIN",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR-USERNAME/bangru-kalasin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR-USERNAME/bangru-kalasin/issues"
+  },
+  "homepage": "https://github.com/YOUR-USERNAME/bangru-kalasin#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
