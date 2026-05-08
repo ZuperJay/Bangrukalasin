@@ -30,10 +30,16 @@
     </nav>
 
     <div class="w-full overflow-hidden bg-white/5 py-2 mb-8 rounded-lg border border-white/10">
-        <div class="led-text font-bold tracking-widest text-xl">WELCOME TO BANGRU KALASIN • ENJOY YOUR NIGHT • SEND TIPS TO DJ</div>
+        <div class="led-text font-bold tracking-widest text-xl text-uppercase">WELCOME TO BANGRU KALASIN • ยินดีต้อนรับสู่บางรู กาฬสินธุ์ • SEND TIPS TO DJ</div>
     </div>
 
     <div class="w-full max-w-md bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/20">
+        <div class="text-center mb-6">
+            <p class="text-gray-400 text-sm">โอนเข้าบัญชี กสิกรไทย</p>
+            <p class="text-white font-bold text-lg">วาที ศรีอุดร</p>
+            <p class="text-pink-500 font-bold">093-8-29649-9</p>
+        </div>
+
         <div class="mb-6">
             <label class="block mb-2 text-sm text-gray-400">ชื่อผู้ส่ง</label>
             <input type="text" id="sender-name" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-pink-500" placeholder="ใส่ชื่อของคุณ">
@@ -41,7 +47,7 @@
 
         <div class="mb-6">
             <label class="block mb-2 text-sm text-gray-400">ข้อความถึง DJ / Staff</label>
-            <textarea id="tip-message" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-pink-500" rows="3" placeholder="พิมพ์ข้อความที่นี่..."></textarea>
+            <textarea id="tip-message" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-pink-500" rows="2" placeholder="พิมพ์ข้อความที่นี่..."></textarea>
         </div>
 
         <div class="grid grid-cols-3 gap-3 mb-8">
@@ -56,14 +62,13 @@
     </div>
 
     <div id="lineup-modal" class="fixed inset-0 z-50 hidden bg-black/95 flex items-center justify-center p-4">
-        <div class="relative w-full max-w-2xl">
+        <div class="relative w-full max-w-2xl text-center">
             <button onclick="toggleLineup()" class="absolute -top-12 right-0 text-white text-4xl">&times;</button>
-            <img src="lineup.png" alt="Monthly Lineup" class="w-full rounded-2xl shadow-2xl border border-white/20">
+            <img src="lineup.png" alt="Lineup" class="w-full rounded-2xl shadow-2xl border border-white/20">
         </div>
     </div>
 
     <script>
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
             authDomain: "bangru-kalasin.firebaseapp.com",
@@ -71,13 +76,11 @@
             projectId: "bangru-kalasin",
             storageBucket: "bangru-kalasin.firebasestorage.app",
             messagingSenderId: "150447340465",
-            appId: "1:150447340465:web:b3c5ada0ad8eb240ea1b90",
-            measurementId: "G-TFTVCHJD23"
+            appId: "1:150447340465:web:b3c5ada0ad8eb240ea1b90"
         };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
         let selectedAmount = 0;
 
         function selectAmount(amt) {
@@ -99,7 +102,6 @@
                 return;
             }
 
-            [span_0](start_span)// ส่งข้อมูลไป Firebase[span_0](end_span)
             await db.ref('live_tips').push({
                 sender: name,
                 message: message,
@@ -107,7 +109,7 @@
                 timestamp: Date.now()
             });
 
-            [span_1](start_span)[span_2](start_span)// เปิดแอปธนาคาร (กสิกรไทย วาที 093-8-29649-9)[span_1](end_span)[span_2](end_span)
+            [span_0](start_span)[span_1](start_span)// ลิงก์โอนเงินเข้าบัญชี วาที ศรีอุดร 093-8-29649-9[span_0](end_span)[span_1](end_span)
             window.location.href = `promptpay://pay/0938296499/${selectedAmount}`;
         }
     </script>
