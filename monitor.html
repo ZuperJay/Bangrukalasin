@@ -2,26 +2,117 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BANGRU MONITOR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@700&display=swap');
-        body { background-color: #000; font-family: 'Kanit', sans-serif; overflow: hidden; margin: 0; }
-        .tip-card { animation: zoomIn 0.5s ease-out; }
-        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .text-glow {
-            color: #ff003c;
-            text-shadow: 4px 4px 0 #fff, -4px -4px 0 #fff, 4px -4px 0 #fff, -4px 4px 0 #fff, 0 0 30px #ff0088;
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Kanit', sans-serif;
+            overflow: hidden; /* ป้องกันแถบเลื่อน (Scrollbar) บนจอ LED */
+            margin: 0;
+            padding: 0;
+        }
+        .tip-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .tip-container.active {
+            opacity: 1;
+        }
+        
+        /* ปรับข้อความหลักให้พอดี สีขาว และไม่ต้องเคาะบรรทัด */
+        .message-text {
+            font-size: 4.5rem; 
+            font-weight: 900;
+            color: #ffffff; /* ตัวหนังสือสีขาวตามสั่ง */
+            text-align: center;
+            text-shadow: 0 0 15px rgba(0,0,0,0.9), 0 0 10px #ff0088;
+            margin-bottom: 1.5rem;
+            max-width: 90%;
+            word-wrap: break-word;
+            line-height: 1.2;
+            z-index: 5;
+        }
+
+        .info-badge {
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #ff0088;
+            border-radius: 50px;
+            padding: 10px 40px;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 20px #ff0088;
+            z-index: 5;
+        }
+
+        /* ล็อกขนาดรูปไม่ให้ล้นจอเด็ดขาด */
+        .user-photo {
+            max-height: 50vh; /* ความสูงไม่เกินครึ่งจอ */
+            max-width: 90vw;
+            border: 8px solid #ff0088;
+            border-radius: 20px;
+            box-shadow: 0 0 30px #ff0088;
+            object-fit: contain;
+            z-index: 5;
+        }
+
+        /* ลูกเล่นข้อความกวนๆ ด้านซ้ายจอ */
+        .cheeky-text {
+            position: absolute;
+            left: 5%; /* ชิดซ้าย */
+            top: 50%;
+            transform: translateY(-50%) rotate(-15deg);
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #00ffcc;
+            text-shadow: 0 0 20px #00ffcc, 3px 3px 0px #000;
+            z-index: 10;
+            opacity: 0;
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.3s, floaty 2s infinite alternate;
+        }
+
+        @keyframes popIn {
+            0% { transform: translateY(-50%) rotate(-30deg) scale(0); opacity: 0; }
+            100% { transform: translateY(-50%) rotate(-15deg) scale(1); opacity: 1; }
+        }
+
+        @keyframes floaty {
+            0% { transform: translateY(-50%) rotate(-15deg); }
+            100% { transform: translateY(-55%) rotate(-10deg); }
         }
     </style>
 </head>
 <body>
-    <div id="display-area" class="h-screen w-screen flex flex-col items-center justify-center p-10">
+
+    <div id="display-area" class="tip-container">
+        <div id="cheeky-msg" class="cheeky-text hidden"></div>
+
+        <div id="display-message" class="message-text"></div>
+        
+        <div class="info-badge">
+            FROM: <span id="display-sender" class="text-pink-500 font-bold"></span> 
+            | TIPS: <span class="text-green-400 font-bold">฿<span id="display-amount"></span></span>
         </div>
+        
+        <img id="display-photo" class="user-photo hidden" src="" alt="User Photo">
+    </div>
 
     <script>
+        // --- การตั้งค่า Firebase ---
         const firebaseConfig = {
             apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
             authDomain: "bangru-kalasin.firebaseapp.com",
@@ -34,30 +125,72 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        db.ref('live_tips').limitToLast(1).on('child_added', (snapshot) => {
+        const displayArea = document.getElementById('display-area');
+        const dMessage = document.getElementById('display-message');
+        const dSender = document.getElementById('display-sender');
+        const dAmount = document.getElementById('display-amount');
+        const dPhoto = document.getElementById('display-photo');
+        const cheekyMsg = document.getElementById('cheeky-msg');
+
+        const queue = [];
+        let isShowing = false;
+
+        // สุ่มคำกวนๆ ด้านซ้าย
+        const cheekyPhrases = [
+            "ขอบคุณสายเปย์!! 💸",
+            "ป๋าจัดให้!! 🔥",
+            "รวยจัดปลัดบอก!! 😎",
+            "ตัวตึงของร้าน!! 🚀",
+            "กราบแทบตัก!! 🙏",
+            "MVP คืนนี้!! 👑"
+        ];
+
+        // ดึงเฉพาะข้อมูลที่ถูกส่งมา "หลังจาก" เปิดหน้านี้ (ป้องกันการโชว์ซ้ำตอนรีเฟรชจอ)
+        const startTime = Date.now();
+        
+        db.ref('live_tips').orderByChild('timestamp').startAt(startTime).on('child_added', (snapshot) => {
             const data = snapshot.val();
-            if (Date.now() - data.timestamp > 15000) return; 
-            showTip(data);
+            queue.push(data);
+            processQueue();
         });
 
-        function showTip(data) {
-            const area = document.getElementById('display-area');
-            const imageHtml = data.photo 
-                ? `<img src="${data.photo}" class="max-h-[70vh] w-auto mx-auto rounded-3xl border-8 border-pink-500 shadow-[0_0_60px_rgba(255,0,136,1)] object-cover mt-6">` 
-                : '';
+        function processQueue() {
+            if (isShowing || queue.length === 0) return;
+            
+            isShowing = true;
+            const tip = queue.shift();
 
-            area.innerHTML = `
-                <div class="tip-card text-center w-full max-w-5xl">
-                    <h1 class="text-glow text-7xl md:text-9xl font-black mb-4 uppercase tracking-wider leading-tight">
-                        "${data.message}"
-                    </h1>
-                    <h2 class="text-white text-5xl font-bold bg-black/80 inline-block px-10 py-5 rounded-full border-2 border-white/30">
-                        FROM: <span class="text-pink-400">${data.sender}</span> | TIPS: <span class="text-green-400">฿${data.amount}</span>
-                    </h2>
-                    ${imageHtml}
-                </div>
-            `;
-            setTimeout(() => { area.innerHTML = ''; }, 20000);
+            // ใส่ข้อมูลลงหน้าจอ
+            dMessage.innerText = `"${tip.message}"`;
+            dSender.innerText = tip.sender;
+            dAmount.innerText = tip.amount;
+            
+            // เช็กรูป
+            if (tip.photo && tip.photo !== "") {
+                dPhoto.src = tip.photo;
+                dPhoto.classList.remove('hidden');
+            } else {
+                dPhoto.classList.add('hidden');
+            }
+
+            // สุ่มข้อความกวนๆ
+            cheekyMsg.innerText = cheekyPhrases[Math.floor(Math.random() * cheekyPhrases.length)];
+            cheekyMsg.classList.remove('hidden');
+
+            // แสดงผลโชว์ขึ้นจอ
+            displayArea.classList.add('active');
+
+            // ตั้งเวลาโชว์ 20 วินาที (20000 ms) ตามที่ขอ
+            setTimeout(() => {
+                displayArea.classList.remove('active');
+                
+                // รอให้ภาพค่อยๆ จางหายไปก่อนดึงคิวต่อไปมาโชว์
+                setTimeout(() => {
+                    cheekyMsg.classList.add('hidden');
+                    isShowing = false;
+                    processQueue();
+                }, 500); 
+            }, 20000); 
         }
     </script>
 </body>
