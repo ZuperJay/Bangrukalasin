@@ -1,61 +1,324 @@
-<style>
-    :root {
-        --bangru-pink: #ff0088;
-        --bangru-purple: #7000ff;
-        --glass: rgba(255, 255, 255, 0.03);
-    }
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BANGRU KALASIN - Booking & Tips</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Kanit:wght@300;500;700;900&display=swap');
+        
+        :root {
+            --bangru-pink: #ff0088;
+            --bangru-purple: #7000ff;
+        }
 
-    body {
-        background: radial-gradient(circle at top, #1a1a1a 0%, #000000 100%);
-        color: #fff;
-    }
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            background: radial-gradient(circle at top, #1a1a1a 0%, #000000 100%);
+            color: white; 
+            min-height: 100vh;
+        }
+        
+        /* BANGRU Glowing Text */
+        .logo-bangru {
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 10px #fff, 0 0 20px var(--bangru-pink), 0 0 40px var(--bangru-pink);
+        }
 
-    /* การ์ดแบบกระจกตัดขอบเรืองแสง */
-    .premium-card {
-        background: var(--glass);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 2rem;
-        transition: all 0.3s ease;
-    }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+        }
 
-    /* ปุ่มเลือกราคาแบบ Glossy */
-    .amount-btn {
-        background: linear-gradient(145deg, #111, #222);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #aaa;
-    }
+        /* ปุ่มเลือกโต๊ะ */
+        .table-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+        .table-btn.selected {
+            background: var(--bangru-pink);
+            border-color: #fff;
+            box-shadow: 0 0 15px var(--bangru-pink);
+            color: white;
+        }
+        .table-btn.booked {
+            background: rgba(255,0,0,0.2);
+            border-color: rgba(255,0,0,0.5);
+            color: #555;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
 
-    .amount-btn.active {
-        background: linear-gradient(135deg, var(--bangru-pink), var(--bangru-purple));
-        color: #fff;
-        border: none;
-        box-shadow: 0 0 20px rgba(255, 0, 136, 0.5);
-        transform: scale(1.05);
-    }
+        /* ปุ่มจำนวนเงิน */
+        .amount-btn.active {
+            background: linear-gradient(135deg, var(--bangru-pink), var(--bangru-purple));
+            color: #fff;
+            border: none;
+            box-shadow: 0 0 20px rgba(255, 0, 136, 0.5);
+            transform: scale(1.05);
+        }
 
-    /* ปุ่มยืนยันขนาดใหญ่ */
-    .submit-glow {
-        background: linear-gradient(90deg, var(--bangru-pink), var(--bangru-purple));
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-weight: 900;
-        box-shadow: 0 10px 30px rgba(255, 0, 136, 0.3);
-    }
-</style>
+        /* Tabs */
+        .tab-btn.active { border-bottom: 4px solid var(--bangru-pink); color: var(--bangru-pink); font-weight: bold; }
+    </style>
+</head>
+<body class="p-4 flex flex-col items-center pb-20">
 
-<!-- ส่วน UI ที่ปรับปรุง -->
-<div class="premium-card p-6 mb-6">
-    <h3 class="text-center text-pink-500 font-bold mb-4 tracking-widest">SELECT AMOUNT</h3>
-    <div class="grid grid-cols-3 gap-3">
-        <button onclick="setAmount(100, this)" class="amount-btn py-4 rounded-2xl font-bold">100</button>
-        <button onclick="setAmount(300, this)" class="amount-btn py-4 rounded-2xl font-bold">300</button>
-        <button onclick="setAmount(500, this)" class="amount-btn py-4 rounded-2xl font-bold">500</button>
+    <!-- Header & Social Links -->
+    <header class="text-center mb-6 w-full max-w-md mt-4 relative">
+        <h1 class="logo-bangru text-5xl font-black tracking-tighter mb-1">BANGRU</h1>
+        <p class="text-pink-500 text-[10px] tracking-[0.4em] font-bold mb-4">KALASIN CLUB & BAR</p>
+        
+        <!-- ลิงก์ไปเพจร้าน -->
+        <a href="https://www.facebook.com/share/1CoZRd9gwT/?mibextid=wwXIfr" target="_blank" 
+           class="inline-flex items-center gap-2 bg-blue-600/20 text-blue-400 border border-blue-600/50 px-4 py-2 rounded-full text-xs font-bold hover:bg-blue-600 hover:text-white transition-all">
+            <i class="fab fa-facebook text-lg"></i> ติดตามเพจ BANGRU
+        </a>
+    </header>
+
+    <!-- Tabs Menu -->
+    <div class="w-full max-w-md flex border-b border-white/10 mb-6">
+        <button onclick="switchTab('booking')" id="tab-booking" class="tab-btn active flex-1 py-3 text-gray-400 transition">จองโต๊ะ (BOOKING)</button>
+        <button onclick="switchTab('tips')" id="tab-tips" class="tab-btn flex-1 py-3 text-gray-400 transition">ส่ง TIPS ขึ้นจอ</button>
     </div>
-</div>
 
-<div class="premium-card p-2">
-    <input type="text" id="sender-name" 
-           class="w-full bg-transparent p-4 outline-none text-center text-xl font-medium" 
-           placeholder="ระบุชื่อของคุณ (SENDER)">
-</div>
+    <!-- ==================== SECTION: จองโต๊ะ ==================== -->
+    <main id="section-booking" class="w-full max-w-md space-y-6">
+        
+        <!-- แบนเนอร์ปาร์ตี้ -->
+        <div class="relative rounded-2xl overflow-hidden border border-white/10">
+            <img src="https://images.unsplash.com/photo-1514525253344-781c399919d0?q=80&w=1000&auto=format&fit=crop" class="w-full h-40 object-cover opacity-80">
+            <div class="absolute bottom-0 w-full bg-gradient-to-t from-black p-3 text-center">
+                <h2 class="text-xl font-bold text-pink-500">RESERVE YOUR TABLE</h2>
+            </div>
+        </div>
+
+        <div class="bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-xl flex items-center gap-3">
+            <i class="fas fa-clock text-yellow-500 animate-pulse"></i>
+            <p class="text-xs text-yellow-500">ทางร้านจะปล่อยโต๊ะจอง หากไม่มาภายในเวลา 21:00 น.</p>
+        </div>
+
+        <!-- แผนผังโต๊ะ -->
+        <div class="glass-card p-5">
+            <h3 class="text-sm text-gray-400 mb-4 text-center">เลือกโต๊ะที่ต้องการ (สีแดงคือจองแล้ว)</h3>
+            
+            <div class="text-center text-xs text-pink-500 mb-2 border-b border-white/10 pb-2">โซน VIP (หน้าเวที)</div>
+            <div class="grid grid-cols-3 gap-2 mb-4" id="table-grid-vip">
+                <button onclick="selectTable('V1', this)" class="table-btn py-3 rounded-xl font-bold">V1</button>
+                <button onclick="selectTable('V2', this)" class="table-btn py-3 rounded-xl font-bold">V2</button>
+                <button onclick="selectTable('V3', this)" class="table-btn py-3 rounded-xl font-bold">V3</button>
+            </div>
+
+            <div class="text-center text-xs text-blue-400 mb-2 border-b border-white/10 pb-2">โซน ปกติ (Standard)</div>
+            <div class="grid grid-cols-4 gap-2" id="table-grid-std">
+                <button onclick="selectTable('A1', this)" class="table-btn py-2 rounded-lg text-sm">A1</button>
+                <button onclick="selectTable('A2', this)" class="table-btn py-2 rounded-lg text-sm">A2</button>
+                <button onclick="selectTable('A3', this)" class="table-btn booked py-2 rounded-lg text-sm" disabled>A3</button>
+                <button onclick="selectTable('A4', this)" class="table-btn py-2 rounded-lg text-sm">A4</button>
+                <button onclick="selectTable('B1', this)" class="table-btn py-2 rounded-lg text-sm">B1</button>
+                <button onclick="selectTable('B2', this)" class="table-btn py-2 rounded-lg text-sm">B2</button>
+                <button onclick="selectTable('B3', this)" class="table-btn py-2 rounded-lg text-sm">B3</button>
+                <button onclick="selectTable('B4', this)" class="table-btn py-2 rounded-lg text-sm">B4</button>
+            </div>
+        </div>
+
+        <!-- ข้อมูลคนจอง -->
+        <div class="glass-card p-5 space-y-3">
+            <input type="date" id="book-date" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-pink-500 text-white" style="color-scheme: dark;">
+            <input type="text" id="book-name" placeholder="ชื่อผู้จอง" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-pink-500">
+            <input type="tel" id="book-phone" placeholder="เบอร์โทรศัพท์" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-pink-500">
+        </div>
+
+        <button onclick="submitBooking()" class="w-full bg-gradient-to-r from-pink-600 to-purple-600 py-4 rounded-2xl font-black text-xl shadow-lg hover:scale-[1.02] transition-transform">
+            ยืนยันการจองโต๊ะ
+        </button>
+    </main>
+
+    <!-- ==================== SECTION: ส่ง TIPS ==================== -->
+    <main id="section-tips" class="w-full max-w-md space-y-6 hidden">
+        
+        <!-- เลือกจำนวนเงิน -->
+        <div class="glass-card p-5">
+            <h3 class="text-center text-pink-500 font-bold mb-4 tracking-widest text-sm">SELECT AMOUNT</h3>
+            <div class="grid grid-cols-3 gap-3 mb-3">
+                <button onclick="setAmount(100, this)" class="amount-btn border border-white/10 py-3 rounded-xl font-bold text-lg text-gray-400">100</button>
+                <button onclick="setAmount(300, this)" class="amount-btn border border-white/10 py-3 rounded-xl font-bold text-lg text-gray-400">300</button>
+                <button onclick="setAmount(500, this)" class="amount-btn border border-white/10 py-3 rounded-xl font-bold text-lg text-gray-400">500</button>
+            </div>
+            <button onclick="setAmount(1000, this)" class="amount-btn w-full border border-white/10 py-3 rounded-xl font-bold text-xl text-gray-400 mb-4">1,000 (VIP)</button>
+
+            <!-- QR Code -->
+            <div id="qr-area" class="bg-white p-4 rounded-2xl mx-auto w-48 h-48 hidden flex items-center justify-center">
+                <img id="qr-img" src="" alt="QR" class="w-full h-full object-contain">
+            </div>
+        </div>
+
+        <!-- ข้อมูลทิป -->
+        <div class="glass-card p-5 space-y-4">
+            <!-- รูปตัวเอง -->
+            <div class="relative border-2 border-dashed border-white/20 rounded-2xl p-4 text-center cursor-pointer hover:bg-white/5 transition">
+                <input type="file" id="tip-photo" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewImg('tip-photo', 'prev-user', 'ui-user')">
+                <div id="ui-user">
+                    <i class="fas fa-camera text-3xl mb-2 text-gray-400"></i>
+                    <p class="text-xs text-gray-400">อัปโหลดรูปคุณ (ขึ้นจอ LED)</p>
+                </div>
+                <img id="prev-user" class="max-h-32 mx-auto rounded-lg hidden">
+            </div>
+
+            <input type="text" id="tip-name" placeholder="ชื่อผู้ส่ง (SENDER)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none text-center font-bold focus:border-pink-500">
+            <textarea id="tip-msg" rows="2" placeholder="ข้อความถึง DJ..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none text-center focus:border-pink-500"></textarea>
+            
+            <!-- สลิป -->
+            <div class="relative border-2 border-dashed border-pink-500/40 bg-pink-500/5 rounded-2xl p-4 text-center">
+                <input type="file" id="tip-slip" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewImg('tip-slip', 'prev-slip', 'ui-slip')">
+                <div id="ui-slip">
+                    <i class="fas fa-receipt text-2xl mb-1 text-pink-500"></i>
+                    <p class="text-xs text-pink-300">อัปโหลดสลิปยืนยัน (บังคับ)</p>
+                </div>
+                <img id="prev-slip" class="max-h-32 mx-auto rounded-lg hidden">
+            </div>
+        </div>
+
+        <button id="btn-submit-tip" disabled onclick="submitTip()" class="w-full bg-gray-700 py-4 rounded-2xl font-black text-xl text-gray-400 transition-all">
+            ส่งข้อมูลขึ้นจอ
+        </button>
+    </main>
+
+    <footer class="mt-10 text-white/20 text-[10px] tracking-widest">&copy; 2026 BANGRU KALASIN</footer>
+
+    <script>
+        // === ตั้งค่า Firebase ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
+            authDomain: "bangru-kalasin.firebaseapp.com",
+            databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
+            projectId: "bangru-kalasin",
+            storageBucket: "bangru-kalasin.firebasestorage.app",
+            messagingSenderId: "150447340465",
+            appId: "1:150447340465:web:b3c5ada0ad8eb240ea1b90"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        // === ระบบสลับแท็บ ===
+        function switchTab(tab) {
+            document.getElementById('section-booking').classList.add('hidden');
+            document.getElementById('section-tips').classList.add('hidden');
+            document.getElementById('tab-booking').classList.remove('active');
+            document.getElementById('tab-tips').classList.remove('active');
+
+            document.getElementById('section-' + tab).classList.remove('hidden');
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        // === ระบบจองโต๊ะ ===
+        let selectedTable = "";
+        function selectTable(tableId, btn) {
+            if(btn.classList.contains('booked')) return;
+            selectedTable = tableId;
+            document.querySelectorAll('.table-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+
+        async function submitBooking() {
+            const date = document.getElementById('book-date').value;
+            const name = document.getElementById('book-name').value;
+            const phone = document.getElementById('book-phone').value;
+
+            if(!selectedTable || !date || !name || !phone) {
+                alert("กรุณากรอกข้อมูลให้ครบและเลือกโต๊ะครับ"); return;
+            }
+
+            try {
+                await db.ref('bookings').push({
+                    table: selectedTable, date: date, name: name, phone: phone, timestamp: Date.now()
+                });
+                
+                // แจ้งเตือนเข้า Discord (เปลี่ยน URL เป็นของ Discord ของร้าน)
+                const discordUrl = "YOUR_DISCORD_WEBHOOK_URL_HERE"; 
+                if(discordUrl.includes("http")) {
+                    fetch(discordUrl, {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ content: `🔔 **จองโต๊ะใหม่!**\nโต๊ะ: ${selectedTable}\nชื่อ: ${name}\nเบอร์: ${phone}\nวันที่: ${date}` })
+                    });
+                }
+
+                alert("จองโต๊ะสำเร็จ! ทางร้านล็อคโต๊ะให้เรียบร้อยครับ (มาก่อน 21:00 น.)");
+                location.reload();
+            } catch(e) { alert("เกิดข้อผิดพลาด กรุณาลองใหม่"); }
+        }
+
+        // === ระบบ TIPS ===
+        let tipAmount = 0, userImg64 = "", slipImg64 = "";
+
+        function setAmount(amt, btn) {
+            tipAmount = amt;
+            document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('qr-img').src = `https://promptpay.io/0642653497/${amt}.png`;
+            document.getElementById('qr-area').classList.remove('hidden');
+            checkTipReady();
+        }
+
+        function previewImg(inputId, previewId, uiId) {
+            const file = document.getElementById(inputId).files[0];
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                // Resize รูปก่อนส่งเข้าระบบ (ป้องกันเว็บค้าง)
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const scale = 500 / img.width;
+                    canvas.width = 500; canvas.height = img.height * scale;
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const b64 = canvas.toDataURL('image/jpeg', 0.6);
+                    
+                    if(inputId === 'tip-photo') userImg64 = b64;
+                    if(inputId === 'tip-slip') slipImg64 = b64;
+
+                    document.getElementById(previewId).src = b64;
+                    document.getElementById(previewId).classList.remove('hidden');
+                    document.getElementById(uiId).classList.add('hidden');
+                    checkTipReady();
+                }
+                img.src = reader.result;
+            }
+            if (file) reader.readAsDataURL(file);
+        }
+
+        function checkTipReady() {
+            const btn = document.getElementById('btn-submit-tip');
+            if (tipAmount > 0 && slipImg64 !== "") {
+                btn.disabled = false;
+                btn.className = "w-full bg-gradient-to-r from-pink-600 to-purple-600 py-4 rounded-2xl font-black text-xl text-white shadow-[0_0_20px_rgba(255,0,136,0.5)]";
+            }
+        }
+
+        async function submitTip() {
+            const btn = document.getElementById('btn-submit-tip');
+            btn.innerText = "กำลังอัปโหลดขึ้นจอ..."; btn.disabled = true;
+
+            try {
+                await db.ref('live_tips').push({
+                    amount: tipAmount,
+                    sender: document.getElementById('tip-name').value || "FC BANGRU",
+                    message: document.getElementById('tip-msg').value || "จัดเต็มระบบ!",
+                    photo: userImg64, slip: slipImg64, timestamp: Date.now()
+                });
+                alert("ส่งทิปสำเร็จ! เตรียมดูหน้าจอในร้านได้เลยครับ");
+                location.reload();
+            } catch(e) {
+                alert("เกิดข้อผิดพลาด! ลองใหม่อีกครั้ง");
+                btn.innerText = "ส่งข้อมูลขึ้นจอ"; btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
