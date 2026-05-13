@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -16,7 +15,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-            background-color: #000; /* ดำสนิทสำหรับจอ LED */
+            background-color: #000; 
             color: #fff; 
             font-family: 'Kanit', sans-serif; 
             overflow: hidden; 
@@ -27,7 +26,6 @@
             justify-content: center;
         }
 
-        /* โลโก้เล็กๆ ที่มุมล่างขวา */
         .corner-logo {
             position: fixed;
             bottom: 20px;
@@ -39,7 +37,6 @@
             letter-spacing: 2px;
         }
 
-        /* จุดกระพริบ Live มุมบนซ้าย */
         .live-indicator {
             position: fixed;
             top: 20px;
@@ -51,10 +48,9 @@
             align-items: center;
             gap: 8px;
         }
-        .dot { width: 8px; height: 8px; background: #ff2d78; border-radius: 50%; animation: blink 1s infinite; }
+        .dot { width: 8px; height: 8px; background: #ff3b3b; border-radius: 50%; animation: blink 1s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-        /* การจัดวางหน้าจอหลัก */
         .display-container {
             text-align: center;
             width: 90%;
@@ -96,7 +92,6 @@
             font-weight: 400;
         }
 
-        /* หน้าจอแจ้งเตือนทิปเข้า (Full Screen) */
         #alert-screen {
             position: fixed;
             inset: 0;
@@ -109,7 +104,7 @@
             border: 15px solid var(--or);
         }
         .new-tip-text { font-family: 'Orbitron'; font-size: 8rem; color: var(--or); font-weight: 900; }
-        .new-tip-name { font-size: 5rem; color: #fff; margin-top: 20px; }
+        .new-tip-name { font-size: 5rem; color: #fff; margin-top: 20px; text-align: center; }
     </style>
 </head>
 <body>
@@ -133,52 +128,64 @@
     <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
 
     <script>
-        const fbConfig = { databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com" };
+        // ── Firebase Config (อัปเดตให้ตรงกับ Project ของคุณ) ──
+        const fbConfig = {
+            apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
+            authDomain: "bangru-kalasin.firebaseapp.com",
+            databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
+            projectId: "bangru-kalasin",
+            storageBucket: "bangru-kalasin.firebasestorage.app",
+            messagingSenderId: "150447340465",
+            appId: "1:150447340465:web:d39c310e5e32030aea1b90",
+            measurementId: "G-YDGMDD1EEL"
+        };
         firebase.initializeApp(fbConfig);
         const db = firebase.database();
 
         const sound = document.getElementById('notif-sound');
-        let isFirstLoad = true;
+        const seenKeys = new Set();
 
-        db.ref('live_tips').limitToLast(1).on('child_added', snap => {
+        // ฟังคำสั่งเฉพาะเมื่อมีการ Approve ทิป (child_changed)
+        db.ref('live_tips').on('child_changed', snap => {
             const data = snap.val();
-            if (!data) return;
-
-            // อัปเดตข้อมูลหน้าจอหลัก
-            document.getElementById('m-name').innerText = data.name;
-            document.getElementById('m-amount').innerText = data.amount + '.-';
-            document.getElementById('m-message').innerText = data.message;
+            const key = snap.key;
             
-            if (data.photo && data.photo.length > 100) {
+            // แสดงผลเฉพาะเมื่อ Status เป็น 'approved' และยังไม่เคยโชว์ในรอบนี้
+            if (data && data.status === 'approved' && !seenKeys.has(key)) {
+                seenKeys.add(key);
+                updateDisplay(data);
+                showTipAlert(data.name, data.amount);
+            }
+        });
+
+        function updateDisplay(data) {
+            document.getElementById('m-name').innerText = data.name || 'FC BANGRU';
+            document.getElementById('m-amount').innerText = (data.amount || 0).toLocaleString() + '.-';
+            document.getElementById('m-message').innerText = data.message || '';
+            
+            if (data.photo && data.photo.startsWith('data:image')) {
                 document.getElementById('m-photo').src = data.photo;
             } else {
                 document.getElementById('m-photo').src = "https://via.placeholder.com/300x300/000000/FF6A00?text=FC";
             }
-
-            // ถ้าไม่ใช่การโหลดครั้งแรก ให้โชว์หน้าจอ Alert
-            if (!isFirstLoad) {
-                showTipAlert(data.name, data.amount);
-            }
-            isFirstLoad = false;
-        });
+        }
 
         function showTipAlert(name, amount) {
-            sound.play().catch(e => {});
+            sound.play().catch(e => { console.log("คลิกที่หน้าจอหนึ่งครั้งเพื่อเปิดระบบเสียง"); });
             const alertEl = document.getElementById('alert-screen');
-            document.getElementById('alert-name').innerText = name + " (" + amount + ".-)";
+            document.getElementById('alert-name').innerText = name + "\n" + (amount || 0).toLocaleString() + ".-";
             alertEl.style.display = 'flex';
             
             setTimeout(() => {
                 alertEl.style.display = 'none';
-            }, 5000); // แสดงค้างไว้ 5 วินาที
+            }, 6000); // แสดงค้างไว้ 6 วินาที
         }
 
-        // คลิกเพื่อเปิดระบบเสียง
+        // ต้องคลิกที่หน้าจอหนึ่งครั้งเพื่อให้ Browser อนุญาตให้เล่นเสียงแจ้งเตือน
         document.body.onclick = () => {
             sound.play().then(() => { sound.pause(); sound.currentTime = 0; });
+            console.log("Audio Unlocked!");
         };
     </script>
 </body>
 </html>
-
-```
