@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BANGRU KALASIN — LIVE MONITOR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Kanit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <style>
+        /* ── CSS Style เดิมของคุณ ── */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Kanit', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #idle {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 10;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            padding: 18px 22px;
+            transition: opacity 0.8s ease;
+        }
+        #idle.hidden { opacity: 0; pointer-events: none; }
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255,255,255,0.25);
+            font-size: 0.72rem;
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 2px;
+            user-select: none;
+        }
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ff3b3b;
+            animation: blink 1.4s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+        #card {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+            padding: 30px;
+            z-index: 20;
+        }
+        #card.show { opacity: 1; pointer-events: auto; }
+
+        .avatar-ring {
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            border: 5px solid #ff6a00;
+            box-shadow: 0 0 30px rgba(255,106,0,0.8), 0 0 60px rgba(255,106,0,0.4);
+            overflow: hidden;
+            margin-bottom: 32px;
+            animation: ringPulse 2s ease-in-out infinite;
+        }
+        @keyframes ringPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(255,106,0,0.8), 0 0 60px rgba(255,106,0,0.4); }
+            50%       { box-shadow: 0 0 50px rgba(255,106,0,1),   0 0 100px rgba(255,106,0,0.6); }
+        }
+        .avatar-ring img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-placeholder {
+            width: 100%; height: 100%;
+            background: radial-gradient(circle, #1a1a1a, #000);
+            display: flex; align-items: center; justify-content: center; font-size: 5rem;
+        }
+
+        .cust-name {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: clamp(2rem, 6vw, 4rem);
+            color: #fff;
+            letter-spacing: 4px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(255,255,255,0.4);
+            margin-bottom: 20px;
+        }
+        .tip-amount {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: clamp(4rem, 14vw, 10rem);
+            color: #ff6a00;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(255,106,0,0.9), 0 0 50px rgba(255,106,0,0.6);
+            animation: amountPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+            margin-bottom: 20px;
+        }
+        @keyframes amountPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        .cust-msg {
+            font-family: 'Kanit', sans-serif;
+            font-size: clamp(1.3rem, 4vw, 2.5rem);
+            font-weight: 600;
+            color: #ff9a3c;
+            text-align: center;
+            max-width: 80vw;
+            line-height: 1.4;
+        }
+        .brand-tag {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+            color: rgba(255,106,0,0.7);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+        .progress-wrap {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 5px;
+            background: rgba(255,255,255,0.08); z-index: 30;
+        }
+        .progress-bar {
+            height: 100%; background: linear-gradient(90deg, #ff6a00, #ff2d78);
+            width: 100%; transform-origin: left; transition: transform linear;
+        }
+        .spark {
+            position: fixed; width: 6px; height: 6px; border-radius: 50%;
+            background: #ff6a00; pointer-events: none; z-index: 25;
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+        @keyframes sparkle {
+            0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+            50%  { opacity: 1; transform: scale(1) rotate(180deg); }
+            100% { opacity: 0; transform: scale(0) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="idle">
+    <div class="live-badge">
+        <div class="live-dot"></div>
+        LIVE
+    </div>
+</div>
+
+<div id="card">
+    <div class="avatar-ring">
+        <img id="c-photo" src="" alt="" style="display:none;">
+        <div class="avatar-placeholder" id="c-placeholder">🎉</div>
+    </div>
+    <div class="cust-name" id="c-name">—</div>
+    <div class="tip-amount" id="c-amount">0.-</div>
+    <div class="cust-msg" id="c-msg">—</div>
+    <div class="brand-tag">BANGRU KALASIN</div>
+</div>
+
+<div class="progress-wrap" id="prog-wrap" style="display:none;">
+    <div class="progress-bar" id="prog-bar"></div>
+</div>
+
+<script>
+    // ── Firebase Config (อัปเดตแล้ว) ───────────────────────
+    const fbConfig = {
+        apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
+        authDomain: "bangru-kalasin.firebaseapp.com",
+        databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
+        projectId: "bangru-kalasin",
+        storageBucket: "bangru-kalasin.firebasestorage.app",
+        messagingSenderId: "150447340465",
+        appId: "1:150447340465:web:d39c310e5e32030aea1b90",
+        measurementId: "G-YDGMDD1EEL"
+    };
+    firebase.initializeApp(fbConfig);
+    const db = firebase.database();
+
+    // ── State & Logic ────────────────────────────────────
+    const SHOW_MS = 40000; 
+    let queue = [];
+    let isShowing = false;
+    let hideTimer = null;
+    const seenKeys = new Set();
+
+    const idle      = document.getElementById('idle');
+    const card      = document.getElementById('card');
+    const progWrap  = document.getElementById('prog-wrap');
+    const progBar   = document.getElementById('prog-bar');
+    const cPhoto    = document.getElementById('c-photo');
+    const cPH       = document.getElementById('c-placeholder');
+    const cName     = document.getElementById('c-name');
+    const cAmount   = document.getElementById('c-amount');
+    const cMsg      = document.getElementById('c-msg');
+
+    // ฟังคำสั่งจาก Database (แสดงเมื่อ status = approved)
+    db.ref('live_tips').on('child_changed', snap => {
+        const key = snap.key;
+        const d   = snap.val();
+        if (!d || d.status !== 'approved') return;
+        if (seenKeys.has(key)) return;
+        seenKeys.add(key);
+        queue.push(d);
+        processQueue();
+    });
+
+    function processQueue() {
+        if (isShowing || queue.length === 0) return;
+        showTip(queue.shift());
+    }
+
+    function showTip(d) {
+        isShowing = true;
+        cName.textContent = d.name || 'FC BANGRU';
+        const amt = Number(d.amount) || 0;
+        cAmount.textContent = amt.toLocaleString() + '.-';
+        cMsg.textContent = d.message || '';
+        cMsg.style.display = d.message ? 'block' : 'none';
+
+        if (d.photo && d.photo.startsWith('data:image')) {
+            cPhoto.src = d.photo;
+            cPhoto.style.display = 'block';
+            cPH.style.display = 'none';
+        } else {
+            cPhoto.style.display = 'none';
+            cPH.style.display = 'flex';
+            cPH.textContent = '🎉';
+        }
+
+        idle.classList.add('hidden');
+        card.classList.add('show');
+        progWrap.style.display = 'block';
+        progBar.style.transition = 'none';
+        progBar.style.transform  = 'scaleX(1)';
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                progBar.style.transition = `transform ${SHOW_MS}ms linear`;
+                progBar.style.transform  = 'scaleX(0)';
+            });
+        });
+
+        spawnSparks();
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(hideTip, SHOW_MS);
+    }
+
+    function hideTip() {
+        card.classList.remove('show');
+        progWrap.style.display = 'none';
+        setTimeout(() => {
+            idle.classList.remove('hidden');
+            isShowing = false;
+            removeSparks();
+            processQueue();
+        }, 700);
+    }
+
+    const sparkEls = [];
+    function spawnSparks() {
+        removeSparks();
+        const colors = ['#ff6a00','#ff9a3c','#ff2d78','#fff'];
+        for (let i = 0; i < 12; i++) {
+            const s = document.createElement('div');
+            s.className = 'spark';
+            s.style.left  = Math.random() * 100 + 'vw';
+            s.style.top   = Math.random() * 100 + 'vh';
+            s.style.background = colors[Math.floor(Math.random() * colors.length)];
+            s.style.animationDelay = (Math.random() * 2) + 's';
+            document.body.appendChild(s);
+            sparkEls.push(s);
+        }
+    }
+    function removeSparks() {
+        sparkEls.forEach(s => s.remove());
+        sparkEls.length = 0;
+    }
+</script>
+</body>
+</html>
