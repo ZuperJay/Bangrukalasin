@@ -1,48 +1,214 @@
-<!-- Monitor Layout 9:16 (LED SCREEN) -->
-<div id="tip-display" class="w-[1080px] h-[1920px] bg-black text-white flex flex-col p-16 relative overflow-hidden">
-    
-    <!-- ส่วนบน: จำนวนเงิน (ใหญ่พิเศษ) -->
-    <div class="h-1/3 flex flex-col justify-center items-center">
-        <div class="logo-bangru text-6xl mb-4 animate-pulse">TOTAL TIPS</div>
-        <div class="text-[25rem] font-black text-white leading-none drop-shadow-[0_0_50px_rgba(255,0,136,1)]">
-            ฿${data.amount}
-        </div>
-    </div>
+```html
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BANGRU — LED MONITOR (BLACK MODE)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <style>
+        :root {
+            --or: #ff6a00; 
+            --gr: #00e878; 
+            --rd: #ff0000; 
+            --bg: #000000; /* ดำสนิท */
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            background: var(--bg); 
+            color: #fff; 
+            overflow: hidden; 
+            height: 100vh;
+        }
 
-    <!-- ส่วนล่าง: แบ่งซ้าย(รูป) ขวา(ข้อความ) -->
-    <div class="h-2/3 flex items-end gap-12 pb-20">
+        /* สัญลักษณ์ตัว J เล็กๆ มุมซ้ายบน */
+        .status-indicator {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            font-family: 'Orbitron';
+            font-size: 12px;
+            color: #222; /* สีเทาเข้มมากเกือบดำ เพื่อไม่ให้กวนสายตา */
+            z-index: 50;
+            user-select: none;
+        }
+
+        /* ── MONITOR VIEW ── */
+        #monitor-view {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; width: 100vw; position: relative;
+            background: #000;
+        }
+
+        /* การ์ดแสดงผลหลัก */
+        .display-card {
+            width: 95%; max-width: 1200px; background: #000;
+            border: 8px solid var(--or); border-radius: 60px; padding: 60px;
+            text-align: center; box-shadow: 0 0 100px rgba(255,106,0,0.5);
+            display: none; 
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+        }
+        @keyframes popIn { 
+            from { transform: scale(0.5); opacity: 0; } 
+            to { transform: scale(1); opacity: 1; } 
+        }
+
+        .display-photo {
+            width: 280px; height: 280px; border-radius: 50%; border: 10px solid var(--or);
+            object-fit: cover; margin-bottom: 30px; box-shadow: 0 0 40px var(--or);
+        }
+
+        .display-name { 
+            font-family: 'Orbitron'; font-size: 4rem; font-weight: 900; 
+            color: #fff; margin-bottom: 10px; text-transform: uppercase;
+        }
+
+        /* ข้อความสีแดงตามสั่ง */
+        .display-msg { 
+            font-size: 5rem; color: var(--rd); line-height: 1.1; 
+            font-weight: 700; margin: 25px 0;
+            text-shadow: 3px 3px 0px #000, 0 0 30px rgba(255,0,0,0.8);
+            word-wrap: break-word;
+        }
+
+        .display-amt { 
+            font-family: 'Orbitron'; font-size: 3.5rem; color: var(--gr); 
+            margin-top: 20px; font-weight: 900;
+            background: rgba(0,232,120,0.15); padding: 15px 60px; border-radius: 100px;
+            display: inline-block; border: 4px solid var(--gr);
+        }
+
+        /* ── ADMIN PANEL (SIDEBAR) ── */
+        #admin-panel {
+            position: absolute; top: 0; left: 0; width: 340px; height: 100%;
+            background: rgba(0,0,0,0.95); border-right: 2px solid #222;
+            z-index: 100; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; gap: 20px;
+            transform: translateX(-320px); transition: 0.3s ease;
+        }
+        #admin-panel:hover { transform: translateX(0); }
         
-        <!-- ซ้าย: รูปคน (ใหญ่ ชัด) -->
-        <div class="w-[45%] h-[85%]">
-            <div class="w-full h-full rounded-[5rem] border-[10px] border-pink-500 overflow-hidden shadow-[0_0_80px_rgba(255,0,136,0.5)]">
-                <img src="${data.photo}" class="w-full h-full object-cover">
-            </div>
-        </div>
+        .queue-item {
+            background: #111; border: 1px solid #333; padding: 15px; border-radius: 15px;
+        }
+        .queue-item img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
+        .btn-action { padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; width: 100%; }
+        .btn-show { background: var(--or); color: #fff; }
+        .btn-del { background: #333; color: #888; }
+        
+        .empty-state { text-align: center; opacity: 0.3; margin-top: 100px; font-family: 'Orbitron'; }
+    </style>
+</head>
+<body>
 
-        <!-- ขวา: ชื่อผู้ส่ง + ข้อความ -->
-        <div class="w-[55%] h-[85%] flex flex-col justify-end">
-            <!-- ชื่อผู้ส่ง -->
-            <div class="mb-10">
-                <span class="text-4xl text-gray-400 font-bold tracking-widest block mb-4 uppercase italic">SENDER:</span>
-                <h2 class="text-9xl font-black text-white truncate">${data.sender}</h2>
-            </div>
-            
-            <!-- กล่องข้อความ -->
-            <div class="bg-gradient-to-br from-pink-600/20 to-purple-900/40 p-12 rounded-[4rem] border-l-[15px] border-pink-500 backdrop-blur-md">
-                <p class="text-7xl font-medium leading-tight text-pink-100">
-                    "${data.message}"
-                </p>
-            </div>
+    <!-- สัญลักษณ์บอกว่าจอกำลังออนอยู่ -->
+    <div class="status-indicator">J</div>
+
+    <div id="monitor-view">
+        <!-- หน้าจอหลักจะว่างเปล่า (สีดำ) จนกว่าจะมีคำสั่ง SHOW -->
+        <div id="display-card" class="display-card">
+            <img id="main-photo" class="display-photo" src="" alt="">
+            <div id="main-name" class="display-name">-</div>
+            <div id="main-msg" class="display-msg">-</div>
+            <div id="main-amt" class="display-amt">TIP: 0.-</div>
         </div>
     </div>
 
-    <!-- เส้นตกแต่งวิ่งรอบจอ -->
-    <div class="absolute inset-0 border-[20px] border-pink-500/20 pointer-events-none"></div>
-</div>
+    <!-- แผงควบคุม (เอาเมาส์จ่อด้านซ้ายเพื่อเปิด) -->
+    <div id="admin-panel">
+        <h2 style="font-family:'Orbitron'; color:var(--or); font-size:1.4rem; text-align:center;">ADMIN QUEUE</h2>
+        <div id="queue-container">
+            <div class="empty-state">NO QUEUE</div>
+        </div>
+    </div>
 
-<script>
-    // ส่วนควบคุมเวลาแสดงผล
-    const SHOW_TIME = 40000; // 40 วินาที
-    // หลังจากครบ 40 วิ ให้ล้างหน้าจอ หรือโชว์วน VJ Loop ของร้าน
-    setTimeout(() => { document.getElementById('tip-display').style.opacity = '0'; }, SHOW_TIME);
-</script>
+    <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+
+    <script>
+        const fbConfig = { databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(fbConfig);
+        const db = firebase.database();
+
+        const queueContainer = document.getElementById('queue-container');
+        const displayCard = document.getElementById('display-card');
+        const notifSound = document.getElementById('notif-sound');
+
+        let currentTips = [];
+        let timer = null;
+
+        // ดึงข้อมูล Real-time
+        db.ref('live_tips').on('value', snap => {
+            const data = snap.val();
+            queueContainer.innerHTML = '';
+            currentTips = [];
+
+            if (!data) {
+                queueContainer.innerHTML = '<div class="empty-state">NO QUEUE</div>';
+                return;
+            }
+
+            Object.keys(data).forEach(key => {
+                currentTips.push({ id: key, ...data[key] });
+            });
+            currentTips.sort((a, b) => b.ts - a.ts);
+
+            currentTips.forEach(tip => {
+                const item = document.createElement('div');
+                item.className = 'queue-item';
+                item.style.marginBottom = "10px";
+                item.innerHTML = `
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <img src="${tip.photo || 'https://via.placeholder.com/100/000/ff6a00?text=USER'}" alt="">
+                        <div>
+                            <div style="color:var(--or); font-weight:bold;">${tip.name}</div>
+                            <div style="color:var(--gr); font-family:'Orbitron';">${tip.amount}.-</div>
+                        </div>
+                    </div>
+                    <div style="margin:8px 0; color:#eee; font-size:13px; border-left:2px solid var(--rd); padding-left:8px;">${tip.message}</div>
+                    <button class="btn-action btn-show" onclick="showOnScreen('${tip.id}')">PUSH TO SCREEN (40s)</button>
+                    <button class="btn-action btn-del" onclick="deleteTip('${tip.id}')">REMOVE</button>
+                    <div style="text-align:right; margin-top:5px;"><a href="${tip.slip}" target="_blank" style="color:#555; font-size:10px;">VIEW SLIP</a></div>
+                `;
+                queueContainer.appendChild(item);
+            });
+        });
+
+        // เสียงเตือน
+        db.ref('live_tips').on('child_added', (snap) => {
+            if (Date.now() - snap.val().ts < 10000) {
+                notifSound.play().catch(e => console.log("Sound blocked"));
+            }
+        });
+
+        function showOnScreen(id) {
+            const tip = currentTips.find(t => t.id === id);
+            if (!tip) return;
+
+            if(timer) clearTimeout(timer);
+
+            document.getElementById('main-photo').src = tip.photo || 'https://via.placeholder.com/280/000/ff6a00?text=BANGRU';
+            document.getElementById('main-name').innerText = tip.name;
+            document.getElementById('main-msg').innerText = tip.message;
+            document.getElementById('main-amt').innerText = `TIP: ${tip.amount}.-`;
+
+            displayCard.style.display = 'block';
+            
+            // ค้างไว้ 40 วินาที
+            timer = setTimeout(() => {
+                displayCard.style.display = 'none';
+            }, 40000);
+        }
+
+        async function deleteTip(id) {
+            if (confirm('Delete this queue?')) {
+                await db.ref('live_tips/' + id).remove();
+            }
+        }
+    </script>
+</body>
+</html>
+
+```
