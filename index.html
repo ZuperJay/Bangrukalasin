@@ -1,295 +1,844 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BANGRU KALASIN - PREMIER SYSTEM</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Kanit:wght@300;500;700&display=swap');
-        
-        :root { --neon-pink: #ff0088; --neon-blue: #00f2ff; --bg-dark: #080808; }
-        
-        body { 
-            font-family: 'Kanit', sans-serif; 
-            background: radial-gradient(circle at 50% -20%, #220011 0%, var(--bg-dark) 80%);
-            color: white; 
-            min-height: 100vh;
-            scroll-behavior: smooth;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BANGRU — TIP & LIVE</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<style>
+:root{
+  --or:#ff6a00;--or2:#ff9a3c;--gr:#00ff88;--cy:#00e5ff;
+  --pk:#ff2d78;--pu:#9b5de5;--gold:#ffd700;
+  --bg:#04040a;--bg2:#080812;
+  --card:rgba(255,255,255,.03);--border:rgba(255,255,255,.07);
+  --glow-or:0 0 24px rgba(255,106,0,.5);
+  --glow-gr:0 0 24px rgba(0,255,136,.5);
+  --glow-pk:0 0 24px rgba(255,45,120,.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{
+  font-family:'Kanit',sans-serif;background:var(--bg);color:#dde;
+  min-height:100vh;overflow-x:hidden;padding-bottom:40px;
+}
 
-        .logo-bangru { 
-            font-family: 'Orbitron', sans-serif; 
-            background: linear-gradient(to bottom, #fff 20%, var(--neon-pink) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(255, 0, 136, 0.4));
-        }
+/* animated bg */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;
+  background-image:
+    linear-gradient(rgba(255,106,0,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,106,0,.03) 1px,transparent 1px);
+  background-size:44px 44px;
+  animation:gPan 25s linear infinite;pointer-events:none;
+}
+@keyframes gPan{0%{background-position:0 0}100%{background-position:44px 44px}}
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 35% at 50% -5%,rgba(255,106,0,.1),transparent),
+    radial-gradient(ellipse 40% 60% at 100% 50%,rgba(255,45,120,.05),transparent),
+    radial-gradient(ellipse 40% 60% at 0% 80%,rgba(0,229,255,.04),transparent);
+}
+.scanline{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.04) 3px,rgba(0,0,0,.04) 4px)}
 
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-        }
+/* ─── WRAP ─── */
+.wrap{position:relative;z-index:2;max-width:480px;margin:0 auto;padding:0 14px}
 
-        /* ปุ่มเลือกเงินแบบนีออน */
-        .amount-btn {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .amount-btn.active {
-            background: rgba(255, 0, 136, 0.15);
-            border-color: var(--neon-pink);
-            color: white;
-            box-shadow: 0 0 20px rgba(255, 0, 136, 0.4), inset 0 0 10px rgba(255, 0, 136, 0.2);
-            transform: translateY(-2px);
-        }
+/* ─── HEADER ─── */
+.hdr{
+  text-align:center;padding:28px 14px 20px;position:relative;z-index:2;
+}
+.logo{
+  font-family:'Orbitron',monospace;font-size:32px;font-weight:900;letter-spacing:6px;
+  background:linear-gradient(135deg,#fff 0%,var(--or) 55%,var(--or2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 16px rgba(255,106,0,.45));
+  margin-bottom:4px;
+}
+.logo-sub{font-family:'Orbitron';font-size:9px;letter-spacing:6px;color:rgba(255,106,0,.45);margin-bottom:12px}
+.hdr-tagline{font-size:12px;color:#444;letter-spacing:1px}
 
-        /* ปุ่มจองโต๊ะ (Nodes) */
-        .map-node {
-            position: absolute;
-            background: rgba(0, 242, 255, 0.1);
-            border: 2px solid rgba(0, 242, 255, 0.3);
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .map-node.active {
-            background: var(--neon-pink);
-            border-color: #fff;
-            box-shadow: 0 0 25px var(--neon-pink);
-            transform: scale(1.2);
-        }
+/* ─── NAV PILLS ─── */
+.nav-row{
+  display:flex;gap:8px;margin:0 0 16px;
+  position:relative;z-index:2;
+}
+.nav-pill{
+  flex:1;padding:11px 8px;text-align:center;border-radius:10px;
+  font-family:'Orbitron';font-size:9px;font-weight:700;letter-spacing:1px;
+  cursor:pointer;border:1.5px solid var(--border);background:var(--card);
+  color:#444;transition:.2s;
+}
+.nav-pill.active{
+  border-color:rgba(255,106,0,.5);color:var(--or);
+  background:rgba(255,106,0,.08);
+  box-shadow:var(--glow-or),inset 0 0 12px rgba(255,106,0,.06);
+}
+.nav-pill:hover:not(.active){border-color:#333;color:#888}
 
-        /* Input Styling */
-        input, textarea {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            border-radius: 1rem !important;
-            color: white !important;
-            transition: border-color 0.3s;
-        }
-        input:focus, textarea:focus {
-            border-color: var(--neon-pink) !important;
-            outline: none;
-        }
-    </style>
+/* ─── CARD ─── */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:20px;margin-bottom:12px;
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,106,0,.3),transparent);
+}
+.card-title{
+  font-family:'Orbitron';font-size:9px;font-weight:700;letter-spacing:3px;
+  color:var(--or);opacity:.7;margin-bottom:14px;
+  display:flex;align-items:center;gap:6px;
+}
+.card-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,106,0,.2),transparent)}
+
+/* ─── SECTION TIPS ─── */
+
+/* 1. Photo upload */
+.photo-upload{
+  position:relative;width:90px;height:90px;margin:0 auto 4px;
+  border-radius:50%;border:2px solid rgba(255,106,0,.3);
+  cursor:pointer;overflow:hidden;
+  background:rgba(255,106,0,.05);
+  transition:.2s;
+}
+.photo-upload:hover{border-color:var(--or);box-shadow:var(--glow-or)}
+.photo-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:5}
+.photo-placeholder{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;gap:4px;pointer-events:none;
+}
+.photo-placeholder span:first-child{font-size:26px}
+.photo-placeholder span:last-child{font-size:8px;letter-spacing:1px;color:#444;font-family:'Orbitron'}
+#photoPreview{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;display:none;border-radius:50%;
+}
+.photo-label{text-align:center;font-size:10px;color:#444;letter-spacing:1px;margin-top:6px}
+
+/* 2. Amount buttons */
+.amt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:7px}
+.amt-btn{
+  padding:14px 6px;border-radius:8px;
+  background:rgba(255,255,255,.03);border:1.5px solid var(--border);
+  color:#666;font-family:'Orbitron';font-size:13px;font-weight:700;
+  cursor:pointer;transition:.2s;letter-spacing:1px;
+}
+.amt-btn:hover{border-color:rgba(255,106,0,.3);color:var(--or)}
+.amt-btn.active{
+  background:rgba(255,106,0,.12);border-color:var(--or);color:var(--or);
+  box-shadow:var(--glow-or),inset 0 0 10px rgba(255,106,0,.1);
+  transform:translateY(-2px);
+}
+.amt-super{
+  width:100%;padding:14px;border-radius:8px;
+  background:rgba(255,215,0,.04);border:1.5px solid rgba(255,215,0,.2);
+  color:#888;font-family:'Orbitron';font-size:14px;font-weight:900;
+  cursor:pointer;transition:.2s;letter-spacing:2px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.amt-super:hover{background:rgba(255,215,0,.08);border-color:rgba(255,215,0,.4)}
+.amt-super.active{
+  background:rgba(255,215,0,.12);border-color:var(--gold);color:var(--gold);
+  box-shadow:0 0 24px rgba(255,215,0,.35),inset 0 0 12px rgba(255,215,0,.08);
+  transform:translateY(-2px);
+}
+
+/* 3. Bank buttons */
+.bank-grid{display:flex;flex-direction:column;gap:7px}
+.bank-btn{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;border-radius:10px;
+  background:rgba(255,255,255,.03);border:1.5px solid var(--border);
+  cursor:pointer;transition:.2s;
+  font-family:'Kanit';font-size:13px;color:#888;
+  text-align:left;width:100%;
+}
+.bank-btn:hover{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05)}
+.bank-btn.active{border-color:rgba(255,106,0,.5);background:rgba(255,106,0,.06);color:#dde}
+.bank-logo{
+  width:38px;height:38px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.bank-info{flex:1;min-width:0}
+.bank-name{font-weight:700;font-size:12px;letter-spacing:.5px}
+.bank-acc{font-size:11px;color:#555;letter-spacing:1px;margin-top:2px}
+.bank-copy{
+  background:rgba(255,106,0,.1);border:1px solid rgba(255,106,0,.3);
+  border-radius:6px;padding:5px 10px;color:var(--or);
+  font-size:10px;font-family:'Orbitron';font-weight:700;letter-spacing:1px;
+  cursor:pointer;flex-shrink:0;transition:.2s;
+}
+.bank-copy:hover{background:rgba(255,106,0,.2);box-shadow:var(--glow-or)}
+
+/* QR display */
+.qr-wrap{
+  text-align:center;padding:14px 0 8px;
+  display:none;animation:qrIn .35s ease;
+}
+@keyframes qrIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.qr-frame{
+  width:160px;height:160px;background:#fff;border-radius:14px;
+  padding:8px;margin:0 auto 8px;
+  box-shadow:0 0 40px rgba(255,106,0,.2),0 20px 60px rgba(0,0,0,.6);
+}
+.qr-frame img{width:100%;height:100%;object-fit:contain;border-radius:6px}
+.qr-note{font-size:9px;letter-spacing:3px;color:#444;font-family:'Orbitron';animation:blink 1.8s infinite}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:.8}}
+
+/* 4-5. Inputs */
+.finput{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1.5px solid var(--border);border-radius:8px;
+  padding:12px 14px;color:#dde;font-family:'Kanit';font-size:13px;
+  outline:none;transition:.2s;margin-bottom:8px;
+}
+.finput:focus{border-color:rgba(255,106,0,.5);box-shadow:0 0 14px rgba(255,106,0,.12)}
+.finput::placeholder{color:#333}
+.finput.err{border-color:#ef4444!important;box-shadow:0 0 10px rgba(239,68,68,.2)!important}
+
+/* 6. Slip upload */
+.slip-zone{
+  position:relative;border:2px dashed rgba(255,106,0,.2);border-radius:12px;
+  padding:22px 16px;text-align:center;cursor:pointer;
+  background:rgba(255,106,0,.02);transition:.2s;margin-bottom:10px;
+  overflow:hidden;
+}
+.slip-zone:hover{border-color:rgba(255,106,0,.5);background:rgba(255,106,0,.04)}
+.slip-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:10;width:100%;height:100%}
+.slip-icon{
+  width:48px;height:48px;border-radius:50%;
+  background:rgba(255,106,0,.1);border:1px solid rgba(255,106,0,.2);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 10px;font-size:22px;
+}
+.slip-title{font-family:'Orbitron';font-size:10px;font-weight:700;color:#555;letter-spacing:2px;margin-bottom:4px}
+.slip-sub{font-size:10px;color:#333;letter-spacing:.5px}
+#slipPreview{
+  display:none;max-width:100%;max-height:180px;
+  border-radius:10px;border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
+}
+.slip-ok{
+  display:none;align-items:center;justify-content:center;gap:6px;
+  color:var(--gr);font-family:'Orbitron';font-size:10px;letter-spacing:2px;
+  margin-top:8px;
+}
+
+/* 7. Submit button */
+.send-btn{
+  width:100%;padding:17px;border-radius:10px;border:none;
+  font-family:'Orbitron';font-size:12px;font-weight:900;letter-spacing:3px;
+  cursor:not-allowed;transition:.35s;
+  background:#111120;color:#333;
+  position:relative;overflow:hidden;
+}
+.send-btn:not(:disabled){
+  background:linear-gradient(135deg,var(--pk),var(--pu));
+  color:#fff;cursor:pointer;
+  box-shadow:0 0 30px rgba(255,45,120,.35),0 4px 20px rgba(0,0,0,.4);
+}
+.send-btn:not(:disabled):hover{
+  box-shadow:0 0 50px rgba(255,45,120,.6),0 6px 30px rgba(0,0,0,.5);
+  transform:translateY(-2px);
+}
+.send-btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);
+  pointer-events:none;
+}
+
+/* ─── DJ LINEUP ─── */
+.lineup-grid{display:flex;flex-direction:column;gap:9px}
+.lineup-item{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(255,255,255,.02);border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;transition:.15s;
+}
+.lineup-item:hover{border-color:rgba(255,106,0,.2);background:rgba(255,106,0,.03)}
+.lineup-date{
+  min-width:50px;text-align:center;
+  font-family:'Orbitron';font-size:20px;font-weight:900;color:var(--or);
+  line-height:1;
+}
+.lineup-month{font-size:9px;color:#444;letter-spacing:1px;font-family:'Orbitron'}
+.lineup-info{flex:1}
+.lineup-dj{font-weight:700;font-size:14px;color:#dde;letter-spacing:.5px}
+.lineup-tag{font-size:10px;color:#555;margin-top:2px}
+.lineup-badge{
+  font-family:'Orbitron';font-size:8px;font-weight:700;letter-spacing:1px;
+  padding:4px 9px;border-radius:5px;flex-shrink:0;
+}
+.badge-live{background:rgba(255,45,120,.15);border:1px solid rgba(255,45,120,.4);color:var(--pk)}
+.badge-coming{background:rgba(255,106,0,.1);border:1px solid rgba(255,106,0,.3);color:var(--or)}
+.badge-special{background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);color:var(--gold)}
+
+/* ─── QUICK LINKS ─── */
+.qlinks{display:flex;flex-direction:column;gap:8px}
+.qlink-btn{
+  display:flex;align-items:center;gap:14px;
+  padding:15px 18px;border-radius:12px;
+  border:1.5px solid var(--border);background:var(--card);
+  cursor:pointer;transition:.2s;text-decoration:none;
+  color:#dde;
+}
+.qlink-btn:hover{transform:translateX(4px)}
+.qlink-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.qlink-text .t1{font-weight:700;font-size:13px;letter-spacing:.5px}
+.qlink-text .t2{font-size:10px;color:#444;margin-top:2px;letter-spacing:.5px}
+.qlink-arrow{margin-left:auto;color:#333;font-size:18px}
+
+/* Reserve link */
+.reserve-btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:16px;border-radius:12px;
+  background:linear-gradient(135deg,rgba(255,106,0,.15),rgba(255,154,60,.08));
+  border:1.5px solid rgba(255,106,0,.4);
+  color:var(--or);font-family:'Orbitron';font-size:11px;font-weight:700;letter-spacing:2px;
+  cursor:pointer;transition:.2s;text-decoration:none;
+  box-shadow:var(--glow-or);
+}
+.reserve-btn:hover{box-shadow:0 0 40px rgba(255,106,0,.6);transform:translateY(-2px)}
+
+/* Facebook */
+.fb-link{
+  display:flex;align-items:center;gap:14px;
+  padding:15px 18px;border-radius:12px;
+  background:rgba(24,119,242,.08);border:1.5px solid rgba(24,119,242,.3);
+  color:#60a8ff;text-decoration:none;transition:.2s;
+}
+.fb-link:hover{background:rgba(24,119,242,.14);box-shadow:0 0 20px rgba(24,119,242,.2)}
+.fb-icon{width:44px;height:44px;border-radius:10px;background:rgba(24,119,242,.15);display:flex;align-items:center;justify-content:center;font-size:22px}
+
+/* ─── TOAST ─── */
+.toast{
+  position:fixed;bottom:20px;left:50%;
+  transform:translateX(-50%) translateY(100px);
+  background:rgba(7,7,15,.97);border:1px solid rgba(255,106,0,.3);
+  border-radius:10px;padding:11px 20px;
+  font-family:'Orbitron';font-size:11px;letter-spacing:1px;
+  z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s;
+  opacity:0;white-space:nowrap;
+  box-shadow:0 0 20px rgba(255,106,0,.15),0 20px 60px rgba(0,0,0,.8);
+}
+.toast.on{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ─── SECTION VISIBILITY ─── */
+.sec{display:none}
+.sec.active{display:block}
+
+/* progress steps */
+.steps{display:flex;gap:4px;margin-bottom:16px}
+.step{flex:1;height:2px;background:rgba(255,255,255,.06);border-radius:2px;transition:.3s}
+.step.done{background:var(--or);box-shadow:0 0 8px rgba(255,106,0,.5)}
+</style>
 </head>
-<body class="pb-10">
+<body>
+<div class="scanline"></div>
 
-    <header class="p-10 text-center">
-        <h1 class="logo-bangru text-6xl font-black mb-2 tracking-tighter">BANGRU</h1>
-        <p class="text-cyan-400 text-[10px] tracking-[0.6em] font-bold uppercase mb-4">Kalasin Modern Club</p>
-    </header>
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">BANGRU</div>
+  <div class="logo-sub">KALASIN · TIP & LIVE SYSTEM</div>
+  <div class="hdr-tagline">ส่งทิปให้ศิลปิน · ขึ้นจอ LED สด</div>
+</div>
 
-    <!-- Nav Tabs -->
-    <nav class="flex justify-center mb-8 px-6">
-        <div class="glass-panel p-1 rounded-2xl flex w-full max-w-sm">
-            <button onclick="switchTab('booking')" id="tab-booking" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all bg-white/10 text-white">RESERVE</button>
-            <button onclick="switchTab('tips')" id="tab-tips" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all text-gray-500">TIPS & LIVE</button>
-        </div>
-    </nav>
+<div class="wrap">
 
-    <!-- SECTION: RESERVE (MAP) -->
-    <main id="section-booking" class="max-w-4xl mx-auto px-4">
-        <div class="glass-panel rounded-[2.5rem] overflow-hidden">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
-                <span class="text-[10px] text-gray-400 tracking-[0.3em] font-bold uppercase">Table Selection</span>
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-ping"></span>
-                    <span class="text-[10px] text-green-500 font-bold">ONLINE</span>
-                </div>
-            </div>
-            <div class="w-full overflow-x-auto p-6">
-                <div class="relative w-[900px] h-[600px] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black">
-                    <img src="image.png" class="absolute inset-0 w-full h-full object-cover opacity-80">
-                    <!-- Nodes (เหมือนเวอร์ชันก่อนหน้า) -->
-                    <div onclick="selectTable('V1', this)" class="map-node top-[17%] left-[72.5%] w-10 h-10"></div>
-                    <div onclick="selectTable('V2', this)" class="map-node top-[17%] left-[78%] w-10 h-10"></div>
-                    <div onclick="selectTable('1', this)" class="map-node top-[24.5%] left-[30.2%] w-9 h-9"></div>
-                    <div onclick="selectTable('2', this)" class="map-node top-[24.5%] left-[36.5%] w-9 h-9"></div>
-                </div>
-            </div>
-        </div>
+  <!-- NAV -->
+  <div class="nav-row">
+    <button class="nav-pill active" id="nav-tip" onclick="switchSec('tip')">💸 TIP & LIVE</button>
+    <button class="nav-pill" id="nav-lineup" onclick="switchSec('lineup')">🎧 DJ LINEUP</button>
+    <button class="nav-pill" id="nav-links" onclick="switchSec('links')">🔗 LINKS</button>
+  </div>
 
-        <div id="booking-form" class="mt-8 space-y-4 opacity-20 pointer-events-none transition-all duration-500">
-            <div class="grid grid-cols-2 gap-4">
-                <input type="text" id="book-name" placeholder="ชื่อผู้จอง" class="p-4">
-                <input type="tel" id="book-phone" placeholder="เบอร์โทร" class="p-4">
-            </div>
-            <input type="date" id="book-date" class="w-full p-4" style="color-scheme: dark;">
-            <button onclick="submitBooking()" class="w-full py-5 rounded-2xl bg-gradient-to-r from-pink-600 to-purple-700 font-black shadow-[0_0_30px_rgba(255,0,136,0.3)]">CONFIRM BOOKING</button>
-        </div>
-    </main>
+  <!-- ══════════ SECTION: TIP ══════════ -->
+  <div class="sec active" id="sec-tip">
 
-    <!-- SECTION: TIPS (NEW DARK UI) -->
-    <main id="section-tips" class="max-w-md mx-auto px-4 hidden">
-        <div class="glass-panel rounded-[2.5rem] p-8 space-y-8 border-pink-500/20">
-            <div class="text-center">
-                <p class="text-pink-500 text-[10px] tracking-[0.4em] font-bold mb-2">LED SCREEN SYSTEM</p>
-                <h2 class="text-2xl font-black text-white italic">SEND YOUR TIP</h2>
-            </div>
-
-            <!-- Amount Selection -->
-            <div class="grid grid-cols-3 gap-3">
-                <button onclick="setAmount(100, this)" class="amount-btn py-5 rounded-2xl font-black text-lg">100</button>
-                <button onclick="setAmount(300, this)" class="amount-btn py-5 rounded-2xl font-black text-lg">300</button>
-                <button onclick="setAmount(500, this)" class="amount-btn py-5 rounded-2xl font-black text-lg">500</button>
-            </div>
-            <button onclick="setAmount(1000, this)" class="amount-btn w-full py-5 rounded-2xl font-black text-xl text-yellow-500 border-yellow-500/20">1,000 (SUPER TIP)</button>
-
-            <!-- QR Display Area -->
-            <div id="qr-area" class="hidden transform scale-110 py-4">
-                <div class="bg-white p-4 rounded-3xl mx-auto w-56 h-56 shadow-[0_0_50px_rgba(255,255,255,0.1)]">
-                    <img id="qr-img" class="w-full h-full object-contain">
-                </div>
-                <p class="text-center text-[10px] text-gray-500 mt-4 uppercase tracking-widest animate-pulse">Scan to Pay with PromptPay</p>
-            </div>
-
-            <!-- Input Fields -->
-            <div class="space-y-4">
-                <div class="relative">
-                    <i class="fas fa-user absolute left-4 top-4 text-gray-600"></i>
-                    <input type="text" id="tip-name" placeholder="SENDER NAME" class="w-full pl-12 p-4">
-                </div>
-                <div class="relative">
-                    <i class="fas fa-comment absolute left-4 top-4 text-gray-600"></i>
-                    <textarea id="tip-msg" placeholder="MESSAGE TO DJ / MC" class="w-full pl-12 p-4" rows="2"></textarea>
-                </div>
-                
-                <!-- Slip Upload Box -->
-                <div class="relative group">
-                    <input type="file" id="tip-slip" class="absolute inset-0 opacity-0 cursor-pointer z-20" onchange="previewImg()">
-                    <div class="glass-panel p-8 rounded-2xl border-dashed border-pink-500/30 text-center group-hover:border-pink-500 transition-colors">
-                        <div id="upload-ui">
-                            <div class="w-12 h-12 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <i class="fas fa-receipt text-pink-500"></i>
-                            </div>
-                            <p class="text-xs font-bold text-gray-400">UPLOAD SLIP</p>
-                            <p class="text-[9px] text-gray-600 mt-1 uppercase">Required for verification</p>
-                        </div>
-                        <img id="prev-slip" class="hidden max-h-48 mx-auto rounded-xl shadow-2xl border border-white/10">
-                    </div>
-                </div>
-            </div>
-
-            <button id="btn-submit-tip" disabled onclick="submitTip()" class="w-full py-6 rounded-[1.5rem] bg-gray-800 text-gray-500 font-black text-lg tracking-widest transition-all">
-                SEND TO LIVE SCREEN
-            </button>
-        </div>
-    </main>
-
-    <!-- Selection Bar -->
-    <div id="selection-bar" class="fixed bottom-6 left-6 right-6 max-w-sm mx-auto z-50 transform translate-y-32 transition-transform duration-500">
-        <div class="glass-panel p-4 rounded-3xl border-pink-500/40 bg-black/60 backdrop-blur-3xl flex justify-between items-center shadow-2xl">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-pink-500 flex items-center justify-center shadow-lg shadow-pink-500/40">
-                    <i class="fas fa-chair text-white"></i>
-                </div>
-                <div>
-                    <p class="text-[9px] text-gray-500 uppercase tracking-widest font-bold">Table Selected</p>
-                    <p id="display-table" class="text-xl font-black text-white">--</p>
-                </div>
-            </div>
-            <button onclick="document.getElementById('booking-form').scrollIntoView({behavior:'smooth'})" class="bg-white text-black px-6 py-3 rounded-2xl font-bold text-[10px] tracking-widest uppercase">Next</button>
-        </div>
+    <!-- progress bar -->
+    <div class="steps">
+      <div class="step" id="st1"></div>
+      <div class="step" id="st2"></div>
+      <div class="step" id="st3"></div>
+      <div class="step" id="st4"></div>
+      <div class="step" id="st5"></div>
     </div>
 
-    <script>
-        // Firebase Config (Jay's Account)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
-            authDomain: "bangru-kalasin.firebaseapp.com",
-            databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
-            projectId: "bangru-kalasin",
-            storageBucket: "bangru-kalasin.firebasestorage.app",
-            messagingSenderId: "150447340465",
-            appId: "1:150447340465:web:b3c5ada0ad8eb240ea1b90"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+    <!-- 1. PHOTO UPLOAD -->
+    <div class="card">
+      <div class="card-title">01 · รูปโปรไฟล์ของคุณ</div>
+      <div class="photo-upload" id="photoZone">
+        <input type="file" id="photoFile" accept="image/*" onchange="loadPhoto()">
+        <div class="photo-placeholder" id="photoPlaceholder">
+          <span>📸</span>
+          <span>ADD PHOTO</span>
+        </div>
+        <img id="photoPreview" src="" alt="">
+      </div>
+      <div class="photo-label">อัพโหลดรูปที่จะแสดงบนจอ LED (ไม่บังคับ)</div>
+    </div>
 
-        let selectedTable = "";
-        let tipAmount = 0;
-        let slipImg = "";
+    <!-- 2. AMOUNT -->
+    <div class="card">
+      <div class="card-title">02 · เลือกจำนวนทิป</div>
+      <div class="amt-grid">
+        <button class="amt-btn" onclick="setAmt(50,this)">฿50</button>
+        <button class="amt-btn" onclick="setAmt(100,this)">฿100</button>
+        <button class="amt-btn" onclick="setAmt(200,this)">฿200</button>
+        <button class="amt-btn" onclick="setAmt(500,this)">฿500</button>
+        <button class="amt-btn" onclick="setAmt(1000,this)">฿1,000</button>
+        <button class="amt-btn" id="customAmtBtn" onclick="toggleCustom(this)">กำหนดเอง</button>
+      </div>
+      <div id="customAmtWrap" style="display:none;margin-top:8px">
+        <input class="finput" id="customAmt" type="number" placeholder="ระบุจำนวน (บาท)" min="20" oninput="setCustomAmt()">
+      </div>
+      <!-- SUPER TIP -->
+      <button class="amt-super" id="superBtn" onclick="setAmt(1000,this)">
+        <span>⚡</span><span>฿1,000 — SUPER TIP</span><span>⚡</span>
+      </button>
+      <div id="amtDisplay" style="text-align:center;margin-top:8px;font-family:Orbitron;font-size:11px;color:#444;letter-spacing:2px;display:none">
+        จำนวน: <span id="amtVal" style="color:var(--or)">—</span> บาท
+      </div>
+    </div>
 
-        function switchTab(tab) {
-            const isBooking = tab === 'booking';
-            document.getElementById('section-booking').classList.toggle('hidden', !isBooking);
-            document.getElementById('section-tips').classList.toggle('hidden', isBooking);
-            
-            document.getElementById('tab-booking').className = isBooking ? "flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-white" : "flex-1 py-3 text-sm font-bold text-gray-500";
-            document.getElementById('tab-tips').className = !isBooking ? "flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-white" : "flex-1 py-3 text-sm font-bold text-gray-500";
-        }
+    <!-- 3. BANK / PROMPTPAY -->
+    <div class="card">
+      <div class="card-title">03 · ช่องทางการโอน</div>
+      <div class="bank-grid">
 
-        function selectTable(id, el) {
-            selectedTable = id;
-            document.querySelectorAll('.map-node').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById('display-table').innerText = "TABLE " + id;
-            document.getElementById('selection-bar').style.transform = "translateY(0)";
-            document.getElementById('booking-form').style.opacity = "1";
-            document.getElementById('booking-form').style.pointerEvents = "auto";
-        }
+        <!-- PromptPay -->
+        <button class="bank-btn" onclick="selectBank('promptpay',this)">
+          <div class="bank-logo" style="background:rgba(0,155,120,.15)">💳</div>
+          <div class="bank-info">
+            <div class="bank-name" style="color:#00c896">PromptPay</div>
+            <div class="bank-acc">064-265-3497 (นายกอล์ฟ)</div>
+          </div>
+          <span class="bank-copy" onclick="copyNum(event,'0642653497')">COPY</span>
+        </button>
 
-        async function submitBooking() {
-            const name = document.getElementById('book-name').value;
-            const phone = document.getElementById('book-phone').value;
-            const date = document.getElementById('book-date').value;
-            if(!name || !phone || !date) return alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-            await db.ref('bookings').push({ table: selectedTable, name, phone, date, timestamp: Date.now() });
-            alert("จองโต๊ะสำเร็จ!"); location.reload();
-        }
+        <!-- Kasikorn -->
+        <button class="bank-btn" onclick="selectBank('kbank',this)">
+          <div class="bank-logo" style="background:rgba(0,180,80,.15)">🟩</div>
+          <div class="bank-info">
+            <div class="bank-name" style="color:#00c850">ธ.กสิกรไทย (KBank)</div>
+            <div class="bank-acc">XXX-X-XXXXX-X · นายกอล์ฟ</div>
+          </div>
+          <span class="bank-copy" onclick="copyNum(event,'KBANK_ACC')">COPY</span>
+        </button>
 
-        function setAmount(amt, btn) {
-            tipAmount = amt;
-            document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('qr-img').src = `https://promptpay.io/0642653497/${amt}.png`;
-            document.getElementById('qr-area').classList.remove('hidden');
-            checkReady();
-        }
+        <!-- SCB -->
+        <button class="bank-btn" onclick="selectBank('scb',this)">
+          <div class="bank-logo" style="background:rgba(100,0,200,.15)">💜</div>
+          <div class="bank-info">
+            <div class="bank-name" style="color:#c080ff">ธ.ไทยพาณิชย์ (SCB)</div>
+            <div class="bank-acc">XXX-XXXXXX-X · นายกอล์ฟ</div>
+          </div>
+          <span class="bank-copy" onclick="copyNum(event,'SCB_ACC')">COPY</span>
+        </button>
 
-        function previewImg() {
-            const file = document.getElementById('tip-slip').files[0];
-            const reader = new FileReader();
-            reader.onloadend = () => { 
-                slipImg = reader.result; 
-                document.getElementById('prev-slip').src = slipImg;
-                document.getElementById('prev-slip').classList.remove('hidden');
-                document.getElementById('upload-ui').classList.add('hidden');
-                checkReady();
-            };
-            reader.readAsDataURL(file);
-        }
+      </div>
 
-        function checkReady() {
-            const btn = document.getElementById('btn-submit-tip');
-            if(tipAmount && slipImg) {
-                btn.disabled = false;
-                btn.className = "w-full py-6 rounded-[1.5rem] bg-gradient-to-r from-pink-600 to-purple-700 text-white font-black text-lg shadow-lg shadow-pink-500/30";
-            }
-        }
+      <!-- QR -->
+      <div class="qr-wrap" id="qrWrap">
+        <div class="qr-frame"><img id="qrImg" src="" alt="QR PromptPay"></div>
+        <div class="qr-note">SCAN WITH YOUR BANKING APP · แสกนจ่าย</div>
+      </div>
+    </div>
 
-        async function submitTip() {
-            const btn = document.getElementById('btn-submit-tip');
-            btn.innerText = "SENDING..."; btn.disabled = true;
-            try {
-                await db.ref('live_tips').push({
-                    amount: tipAmount,
-                    sender: document.getElementById('tip-name').value || "FC BANGRU",
-                    message: document.getElementById('tip-msg').value || "จัดเต็ม!",
-                    slip: slipImg, timestamp: Date.now()
-                });
-                alert("ส่งสำเร็จ! รอชมบนจอ LED ได้เลยครับ");
-                location.reload();
-            } catch(e) { alert("ERROR! ลองใหม่อีกครั้ง"); }
-        }
-    </script>
+    <!-- 4-5. NAME + MESSAGE -->
+    <div class="card">
+      <div class="card-title">04 · ข้อมูลผู้ส่ง</div>
+      <input class="finput" id="tipName" type="text" placeholder="👤 ชื่อของคุณ (จะขึ้นบนจอ LED) *" maxlength="30" oninput="checkReady()">
+      <textarea class="finput" id="tipMsg" placeholder="💬 ข้อความถึง DJ / MC (จะอ่านออกอากาศ)" rows="2" maxlength="100" style="resize:none" oninput="checkReady()"></textarea>
+      <div style="font-size:10px;color:#333;text-align:right;margin-top:-6px;letter-spacing:.5px">
+        <span id="msgCount">0</span>/100
+      </div>
+    </div>
+
+    <!-- 6. SLIP UPLOAD -->
+    <div class="card">
+      <div class="card-title">06 · อัพโหลดสลิปการโอน <span style="color:#ef4444;font-size:10px">* จำเป็น</span></div>
+      <div class="slip-zone" id="slipZone">
+        <input type="file" id="slipFile" accept="image/*" onchange="loadSlip()">
+        <div id="slipUI">
+          <div class="slip-icon">🧾</div>
+          <div class="slip-title">TAP TO UPLOAD SLIP</div>
+          <div class="slip-sub">รองรับ JPG, PNG — แนบสลิปเงินโอนเพื่อยืนยัน</div>
+        </div>
+        <img id="slipPreview" src="" alt="">
+        <div class="slip-ok" id="slipOk">✓ &nbsp;อัพโหลดสลิปแล้ว — พร้อมส่ง</div>
+      </div>
+      <div id="slipRequired" style="display:none;font-size:10px;color:#ef4444;font-family:Orbitron;letter-spacing:1px;margin-top:4px">
+        ⚠ กรุณาอัพโหลดสลิปก่อนส่ง
+      </div>
+    </div>
+
+    <!-- 7. SEND BUTTON -->
+    <button class="send-btn" id="sendBtn" disabled onclick="submitTip()">
+      🚀 &nbsp; SEND TO LIVE SCREEN
+    </button>
+
+    <div style="margin:10px 0 6px;font-size:10px;color:#333;text-align:center;letter-spacing:1px">
+      ข้อความจะขึ้นจอ LED ภายใน 1–2 นาที หลังยืนยัน
+    </div>
+
+    <!-- QUICK ACCESS -->
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <a class="reserve-btn" href="bangru-v7.html" style="flex:1;text-decoration:none">
+        🪑 &nbsp;จองโต๊ะ
+      </a>
+      <button class="reserve-btn" style="flex:1;background:rgba(155,93,229,.12);border-color:rgba(155,93,229,.4);color:var(--pu);box-shadow:0 0 20px rgba(155,93,229,.25)" onclick="switchSec('lineup')">
+        🎧 &nbsp;DJ LINEUP
+      </button>
+    </div>
+
+  </div><!-- end sec-tip -->
+
+  <!-- ══════════ SECTION: DJ LINEUP ══════════ -->
+  <div class="sec" id="sec-lineup">
+    <div class="card">
+      <div class="card-title">🎧 DJ LINEUP · พฤษภาคม 2025</div>
+      <div class="lineup-grid">
+
+        <div class="lineup-item">
+          <div class="lineup-date">
+            <div>10</div>
+            <div class="lineup-month">MAY</div>
+          </div>
+          <div class="lineup-info">
+            <div class="lineup-dj">DJ EXAMPLE A</div>
+            <div class="lineup-tag">Electronic · House · 21:00 – 01:00</div>
+          </div>
+          <span class="lineup-badge badge-live">✓ DONE</span>
+        </div>
+
+        <div class="lineup-item">
+          <div class="lineup-date" style="color:var(--pk)">
+            <div>17</div>
+            <div class="lineup-month">MAY</div>
+          </div>
+          <div class="lineup-info">
+            <div class="lineup-dj">DJ EXAMPLE B</div>
+            <div class="lineup-tag">R&B · HipHop · 20:00 – 00:00</div>
+          </div>
+          <span class="lineup-badge badge-live">🔴 LIVE</span>
+        </div>
+
+        <div class="lineup-item">
+          <div class="lineup-date" style="color:var(--or)">
+            <div>24</div>
+            <div class="lineup-month">MAY</div>
+          </div>
+          <div class="lineup-info">
+            <div class="lineup-dj">DJ EXAMPLE C</div>
+            <div class="lineup-tag">EDM · Techno · 21:00 – 02:00</div>
+          </div>
+          <span class="lineup-badge badge-coming">SOON</span>
+        </div>
+
+        <div class="lineup-item">
+          <div class="lineup-date" style="color:var(--gold)">
+            <div>31</div>
+            <div class="lineup-month">MAY</div>
+          </div>
+          <div class="lineup-info">
+            <div class="lineup-dj">SPECIAL GUEST</div>
+            <div class="lineup-tag">BIG PARTY · TBA · 20:00 – 03:00</div>
+          </div>
+          <span class="lineup-badge badge-special">⭐ BIG</span>
+        </div>
+
+      </div>
+      <div style="margin-top:12px;font-size:10px;color:#333;text-align:center;letter-spacing:1px">
+        * ตารางอาจเปลี่ยนแปลงได้ · ติดตามเพจร้านสำหรับข้อมูลล่าสุด
+      </div>
+    </div>
+
+    <a class="reserve-btn" href="bangru-v7.html" style="text-decoration:none;margin-top:4px;display:flex">
+      🪑 &nbsp;จองโต๊ะสำหรับคืนนั้น
+    </a>
+  </div>
+
+  <!-- ══════════ SECTION: LINKS ══════════ -->
+  <div class="sec" id="sec-links">
+    <div class="card">
+      <div class="card-title">🔗 QUICK LINKS</div>
+      <div class="qlinks">
+
+        <!-- Table Booking -->
+        <a class="qlink-btn reserve-btn" href="bangru-v7.html" style="text-decoration:none;border-color:rgba(255,106,0,.4)">
+          <div class="qlink-icon" style="background:rgba(255,106,0,.12)">🪑</div>
+          <div class="qlink-text">
+            <div class="t1">จองโต๊ะ BANGRU</div>
+            <div class="t2">Floor Map · Real-time Booking System</div>
+          </div>
+          <div class="qlink-arrow">→</div>
+        </a>
+
+        <!-- Facebook Page -->
+        <a class="qlink-btn fb-link" href="https://www.facebook.com/bangrukalasin" target="_blank" style="text-decoration:none">
+          <div class="fb-icon">📘</div>
+          <div class="qlink-text">
+            <div class="t1" style="color:#60a8ff">เพจ BANGRU KALASIN</div>
+            <div class="t2">facebook.com/bangrukalasin</div>
+          </div>
+          <div class="qlink-arrow" style="color:#60a8ff">→</div>
+        </a>
+
+        <!-- Line -->
+        <a class="qlink-btn" href="https://line.me/ti/p/~bangru" target="_blank" style="text-decoration:none;border-color:rgba(0,200,80,.3);background:rgba(0,200,80,.04)">
+          <div class="qlink-icon" style="background:rgba(0,200,80,.12);font-size:22px">💬</div>
+          <div class="qlink-text">
+            <div class="t1" style="color:#00c850">LINE Official</div>
+            <div class="t2">สอบถาม · จอง · สอบถามโปรฯ</div>
+          </div>
+          <div class="qlink-arrow" style="color:#00c850">→</div>
+        </a>
+
+        <!-- Instagram -->
+        <a class="qlink-btn" href="https://instagram.com/bangrukalasin" target="_blank" style="text-decoration:none;border-color:rgba(200,60,120,.3);background:rgba(200,60,120,.03)">
+          <div class="qlink-icon" style="background:rgba(200,60,120,.12);font-size:22px">📸</div>
+          <div class="qlink-text">
+            <div class="t1" style="color:#e06090">Instagram</div>
+            <div class="t2">@bangrukalasin</div>
+          </div>
+          <div class="qlink-arrow" style="color:#e06090">→</div>
+        </a>
+
+        <!-- TikTok -->
+        <a class="qlink-btn" href="https://tiktok.com/@bangrukalasin" target="_blank" style="text-decoration:none;border-color:rgba(0,229,255,.2);background:rgba(0,229,255,.02)">
+          <div class="qlink-icon" style="background:rgba(0,229,255,.1);font-size:22px">🎵</div>
+          <div class="qlink-text">
+            <div class="t1" style="color:var(--cy)">TikTok</div>
+            <div class="t2">@bangrukalasin</div>
+          </div>
+          <div class="qlink-arrow" style="color:var(--cy)">→</div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Google Maps -->
+    <div class="card" style="text-align:center">
+      <div class="card-title">📍 ที่ตั้งร้าน</div>
+      <div style="font-size:13px;color:#888;line-height:1.8;margin-bottom:12px">
+        BANGRU KALASIN<br>
+        <span style="font-size:11px;color:#555">กาฬสินธุ์ · เปิดทุกวันศุกร์ – อาทิตย์ · 19:00 – 02:00</span>
+      </div>
+      <a href="https://maps.google.com/?q=BANGRU+KALASIN" target="_blank"
+         style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;background:rgba(255,106,0,.1);border:1px solid rgba(255,106,0,.3);color:var(--or);font-family:Orbitron;font-size:10px;font-weight:700;letter-spacing:2px;text-decoration:none;transition:.2s"
+         onmouseover="this.style.boxShadow='var(--glow-or)'" onmouseout="this.style.boxShadow='none'">
+        📍 &nbsp; GET DIRECTIONS
+      </a>
+    </div>
+  </div>
+
+</div><!-- end wrap -->
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── FIREBASE ── */
+const FB_CFG={
+  apiKey:"AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
+  authDomain:"bangru-kalasin.firebaseapp.com",
+  databaseURL:"https://bangru-kalasin-default-rtdb.firebaseio.com",
+  projectId:"bangru-kalasin",
+  storageBucket:"bangru-kalasin.firebasestorage.app",
+  messagingSenderId:"150447340465",
+  appId:"1:150447340465:web:b3c5ada0ad8eb240ea1b90"
+};
+try{ if(!firebase.apps.length) firebase.initializeApp(FB_CFG); }catch(e){}
+const db=firebase.database();
+
+/* ── STATE ── */
+let tipAmt=0, slipData='', photoData='', selBank='';
+const PROMPTPAY='0642653497';
+
+/* ── SECTION SWITCH ── */
+function switchSec(sec){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-pill').forEach(p=>p.classList.remove('active'));
+  document.getElementById('sec-'+sec).classList.add('active');
+  document.getElementById('nav-'+sec).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── PHOTO ── */
+function loadPhoto(){
+  const f=document.getElementById('photoFile').files[0];
+  if(!f)return;
+  const r=new FileReader();
+  r.onloadend=()=>{
+    photoData=r.result;
+    const img=document.getElementById('photoPreview');
+    img.src=photoData; img.style.display='block';
+    document.getElementById('photoPlaceholder').style.display='none';
+    updateSteps();
+  };
+  r.readAsDataURL(f);
+}
+
+/* ── AMOUNT ── */
+function setAmt(amt,btn){
+  tipAmt=amt;
+  document.querySelectorAll('.amt-btn,.amt-super').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('amtDisplay').style.display='block';
+  document.getElementById('amtVal').textContent=amt.toLocaleString();
+  // update super btn style if 1000
+  if(amt===1000) document.getElementById('superBtn').classList.add('active');
+  // show QR if promptpay selected
+  if(selBank==='promptpay') showQR(amt);
+  updateSteps(); checkReady();
+}
+
+function toggleCustom(btn){
+  const wrap=document.getElementById('customAmtWrap');
+  const show=wrap.style.display==='none';
+  wrap.style.display=show?'block':'none';
+  if(show) document.getElementById('customAmt').focus();
+  btn.classList.toggle('active',show);
+}
+
+function setCustomAmt(){
+  const v=parseInt(document.getElementById('customAmt').value)||0;
+  if(v>=20){
+    tipAmt=v;
+    document.getElementById('amtDisplay').style.display='block';
+    document.getElementById('amtVal').textContent=v.toLocaleString();
+    if(selBank==='promptpay') showQR(v);
+  }
+  updateSteps(); checkReady();
+}
+
+/* ── BANK ── */
+function selectBank(bank,btn){
+  selBank=bank;
+  document.querySelectorAll('.bank-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(bank==='promptpay'){
+    showQR(tipAmt||0);
+  } else {
+    document.getElementById('qrWrap').style.display='none';
+  }
+  updateSteps(); checkReady();
+}
+
+function showQR(amt){
+  const q=document.getElementById('qrWrap');
+  q.style.display='block';
+  document.getElementById('qrImg').src=`https://promptpay.io/${PROMPTPAY}/${Math.max(amt,1)}.png`;
+}
+
+function copyNum(e,num){
+  e.preventDefault(); e.stopPropagation();
+  navigator.clipboard.writeText(num).then(()=>toast('✅ คัดลอกแล้ว: '+num)).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=num; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    toast('✅ คัดลอกแล้ว: '+num);
+  });
+}
+
+/* ── SLIP ── */
+function loadSlip(){
+  const f=document.getElementById('slipFile').files[0];
+  if(!f)return;
+  const r=new FileReader();
+  r.onloadend=()=>{
+    slipData=r.result;
+    document.getElementById('slipPreview').src=slipData;
+    document.getElementById('slipPreview').style.display='block';
+    document.getElementById('slipUI').style.display='none';
+    document.getElementById('slipOk').style.display='flex';
+    document.getElementById('slipZone').style.borderColor='rgba(0,255,136,.4)';
+    document.getElementById('slipRequired').style.display='none';
+    updateSteps(); checkReady();
+  };
+  r.readAsDataURL(f);
+}
+
+/* ── MSG COUNT ── */
+document.getElementById('tipMsg').addEventListener('input',function(){
+  document.getElementById('msgCount').textContent=this.value.length;
+});
+
+/* ── READY CHECK ── */
+function checkReady(){
+  const name=document.getElementById('tipName').value.trim();
+  const ok=tipAmt>0 && slipData && name;
+  const btn=document.getElementById('sendBtn');
+  btn.disabled=!ok;
+  if(!ok && !slipData && tipAmt>0 && name){
+    document.getElementById('slipRequired').style.display='block';
+  }
+  updateSteps();
+}
+
+/* ── STEPS ── */
+function updateSteps(){
+  const s1=photoData; // optional but counts
+  const s2=tipAmt>0;
+  const s3=selBank!=='';
+  const s4=document.getElementById('tipName').value.trim()!=='';
+  const s5=slipData!=='';
+  [s2,s3,s4,s5,s5&&s2&&s3&&s4].forEach((v,i)=>{
+    document.getElementById('st'+(i+1)).classList.toggle('done',v);
+  });
+}
+
+/* ── SUBMIT ── */
+async function submitTip(){
+  if(!slipData){
+    document.getElementById('slipRequired').style.display='block';
+    document.getElementById('slipZone').scrollIntoView({behavior:'smooth',block:'center'});
+    document.getElementById('slipZone').style.borderColor='rgba(239,68,68,.6)';
+    toast('⚠️ กรุณาอัพโหลดสลิปก่อน');
+    return;
+  }
+  const btn=document.getElementById('sendBtn');
+  btn.textContent='🚀 SENDING...'; btn.disabled=true;
+  try{
+    await db.ref('live_tips').push({
+      amount:tipAmt,
+      bank:selBank,
+      sender:document.getElementById('tipName').value.trim()||'FC BANGRU',
+      message:document.getElementById('tipMsg').value.trim()||'จัดเต็ม! 🔥',
+      photo:photoData||'',
+      slip:slipData,
+      timestamp:Date.now()
+    });
+    toast('🎉 ส่งสำเร็จ! รอชมบนจอ LED ได้เลย!');
+    setTimeout(()=>{
+      // reset
+      tipAmt=0; slipData=''; photoData=''; selBank='';
+      location.reload();
+    },2500);
+  }catch(err){
+    console.error(err);
+    toast('❌ เกิดข้อผิดพลาด ลองใหม่อีกครั้ง');
+    btn.disabled=false; btn.textContent='🚀 SEND TO LIVE SCREEN';
+  }
+}
+
+/* ── TOAST ── */
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast on';
+  clearTimeout(t._t); t._t=setTimeout(()=>t.className='toast',3200);
+}
+
+// init
+document.getElementById('tipName').addEventListener('input',checkReady);
+</script>
 </body>
 </html>
