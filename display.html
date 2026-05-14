@@ -4,50 +4,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BANGRU ADMIN - CONTROL PANEL</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
+    <title>BANGRU KALASIN — LIVE MONITOR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Kanit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
-        body { font-family: 'Kanit', sans-serif; background: #0a0a0a; color: #fff; padding: 20px; margin: 0; }
-        .container { max-width: 600px; margin: auto; }
-        .header-title { text-align: center; color: #ff6a00; font-size: 1.8rem; margin-bottom: 20px; }
-        
-        .tip-card { 
-            background: #1a1a1a; border: 2px solid #333; border-radius: 15px; 
-            padding: 20px; margin-bottom: 20px; position: relative;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #000;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Kanit', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .slip-img { 
-            width: 100%; max-height: 400px; object-fit: contain; border-radius: 10px; 
-            margin-bottom: 15px; border: 1px solid #444; cursor: pointer; background: #000;
+
+        /* ── SYSTEM STATUS (LIVE INDICATOR) ── */
+        .system-status {
+            position: fixed;
+            bottom: 20px;
+            right: 25px;
+            z-index: 999; /* อยู่บนสุดเสมอ */
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            pointer-events: none;
         }
-        
-        .info { margin-bottom: 15px; }
-        .name { font-size: 1.4rem; color: #fff; font-weight: bold; display: flex; align-items: center; gap: 10px; }
-        .prof-pic { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ff6a00; }
-        .amount { font-size: 2.2rem; color: #00e878; font-weight: bold; margin: 5px 0; }
-        .message { background: #2a2a2a; padding: 12px; border-radius: 8px; color: #ddd; font-style: italic; }
-        
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        button { padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
-        button:active { transform: scale(0.95); }
-        .btn-approve { background: #ff6a00; color: white; }
-        .btn-reject { background: #333; color: white; border: 1px solid #555; }
-        
-        .status-badge { 
-            text-align: center; margin-bottom: 10px; padding: 6px; 
-            border-radius: 5px; font-weight: bold; background: #ffc107; color: #000;
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #ff3b3b;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ff3b3b;
+            animation: pulse-red 1.5s infinite;
+        }
+        .status-text {
+            color: rgba(255, 255, 255, 0.6);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        @keyframes pulse-red {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* ── TIP CARD CONTAINER ── */
+        #card {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+            padding: 40px;
+            z-index: 20;
+        }
+        #card.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ── AVATAR & RING ── */
+        .avatar-ring {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            border: 6px solid #ff6a00;
+            box-shadow: 0 0 40px rgba(255,106,0,0.7), 0 0 80px rgba(255,106,0,0.3);
+            overflow: hidden;
+            margin-bottom: 35px;
+            animation: ringPulse 2.5s ease-in-out infinite;
+        }
+        @keyframes ringPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(255,106,0,0.7); }
+            50% { transform: scale(1.03); box-shadow: 0 0 60px rgba(255,106,0,0.9); }
+        }
+        .avatar-ring img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-placeholder { 
+            width: 100%; height: 100%; background: #111; 
+            display: flex; align-items: center; justify-content: center; font-size: 6rem;
+        }
+
+        /* ── TEXT CONTENT ── */
+        .cust-name {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: clamp(2.5rem, 7vw, 4.5rem);
+            color: #fff;
+            text-align: center;
+            text-shadow: 0 0 25px rgba(255,255,255,0.3);
+            margin-bottom: 15px;
+        }
+        .tip-amount {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: clamp(5rem, 15vw, 11rem);
+            color: #ff6a00;
+            text-shadow: 0 0 30px rgba(255,106,0,0.8), 0 0 60px rgba(255,106,0,0.4);
+            margin-bottom: 20px;
+            animation: popIn 0.6s cubic-bezier(0.17, 0.89, 0.32, 1.28);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.4); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .cust-msg {
+            font-family: 'Kanit', sans-serif;
+            font-size: clamp(1.5rem, 4vw, 2.8rem);
+            color: #ff9a3c;
+            text-align: center;
+            max-width: 85vw;
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .prog-wrap { position: fixed; bottom: 0; left: 0; right: 0; height: 6px; background: #111; z-index: 100; }
+        .prog-bar { 
+            height: 100%; width: 100%; background: linear-gradient(90deg, #ff6a00, #ff2d78); 
+            transform-origin: left; box-shadow: 0 0 15px #ff6a00;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2 class="header-title">BANGRU ADMIN MONITOR</h2>
-        <div id="tip-list">กำลังรอรายการใหม่...</div>
+
+    <!-- สถานะ Live ที่มุมขวาล่าง -->
+    <div class="system-status">
+        <div class="status-dot"></div>
+        <div class="status-text">LIVE</div>
+    </div>
+
+    <!-- หน้าจอแสดงผล Tip -->
+    <div id="card">
+        <div class="avatar-ring">
+            <img id="c-photo" src="" style="display:none;">
+            <div id="c-ph" class="avatar-placeholder">🔥</div>
+        </div>
+        <div id="c-name" class="cust-name">NAME</div>
+        <div id="c-amt" class="tip-amount">0.-</div>
+        <div id="c-msg" class="cust-msg">MESSAGE</div>
+    </div>
+
+    <!-- แถบเวลาด้านล่าง -->
+    <div id="prog-wrap" class="prog-wrap" style="display:none;">
+        <div id="prog-bar" class="prog-bar"></div>
     </div>
 
     <script>
-        // --- Firebase Config (อัปเดตแบบเต็ม) ---
         const fbConfig = {
             apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
             authDomain: "bangru-kalasin.firebaseapp.com",
@@ -61,50 +177,63 @@
         firebase.initializeApp(fbConfig);
         const db = firebase.database();
 
-        // แสดงเฉพาะรายการที่รอการอนุมัติ (pending)
-        db.ref('live_tips').orderByChild('status').equalTo('pending').on('value', snap => {
-            const listDiv = document.getElementById('tip-list');
-            listDiv.innerHTML = '';
+        const SHOW_TIME = 40000; 
+        let queue = [];
+        let active = false;
+        const seen = new Set();
+
+        // ดึงเฉพาะรายการที่ได้รับการอนุมัติ (approved)
+        db.ref('live_tips').on('child_changed', snap => {
+            const key = snap.key;
             const data = snap.val();
-            
-            if (!data) {
-                listDiv.innerHTML = '<p style="text-align:center; color:#666; font-size:1.2rem; margin-top:50px;">ไม่มีรายการรอคิวในขณะนี้ ✅</p>';
-                return;
+            if (data && data.status === 'approved' && !seen.has(key)) {
+                seen.add(key);
+                queue.push(data);
+                runQueue();
             }
-
-            Object.keys(data).forEach(key => {
-                const item = data[key];
-                const card = document.createElement('div');
-                card.className = 'tip-card';
-                
-                let profImgHTML = item.photo ? `<img src="${item.photo}" class="prof-pic">` : '👤';
-                let slipImgHTML = item.slip ? `<img src="${item.slip}" class="slip-img" onclick="window.open(this.src)" alt="สลิปโอนเงิน">` : '<div style="text-align:center; padding: 20px; color: #f00;">ไม่มีรูปสลิป</div>';
-
-                card.innerHTML = `
-                    <div class="status-badge">🔥 มีรายการใหม่เข้ามา! ตรวจสอบสลิปก่อนกดยืนยัน 🔥</div>
-                    ${slipImgHTML}
-                    <div class="info">
-                        <div class="name">${profImgHTML} ${item.name}</div>
-                        <div class="amount">${item.amount}.-</div>
-                        <div class="message">"${item.message || 'ไม่มีข้อความ'}"</div>
-                    </div>
-                    <div class="btn-group">
-                        <button class="btn-approve" onclick="updateStatus('${key}', 'approved')">✅ ยืนยัน (ขึ้นจอ)</button>
-                        <button class="btn-reject" onclick="updateStatus('${key}', 'rejected')">❌ ปฏิเสธ (ลบทิ้ง)</button>
-                    </div>
-                `;
-                listDiv.prepend(card); // เรียงรายการใหม่ไว้บนสุด
-            });
         });
 
-        function updateStatus(key, newStatus) {
-            if (newStatus === 'rejected') {
-                if(confirm('ต้องการลบรายการนี้ใช่หรือไม่?')) {
-                    db.ref('live_tips/' + key).remove();
-                }
+        function runQueue() {
+            if (active || queue.length === 0) return;
+            const item = queue.shift();
+            
+            // ใส่ข้อมูล
+            document.getElementById('c-name').textContent = item.name || 'FC BANGRU';
+            document.getElementById('c-amt').textContent = (item.amount || 0).toLocaleString() + '.-';
+            document.getElementById('c-msg').textContent = item.message || '';
+            
+            if (item.photo) {
+                document.getElementById('c-photo').src = item.photo;
+                document.getElementById('c-photo').style.display = 'block';
+                document.getElementById('c-ph').style.display = 'none';
             } else {
-                db.ref('live_tips/' + key).update({ status: 'approved' });
+                document.getElementById('c-photo').style.display = 'none';
+                document.getElementById('c-ph').style.display = 'flex';
             }
+
+            // แสดงผล
+            active = true;
+            document.getElementById('card').classList.add('show');
+            document.getElementById('prog-wrap').style.display = 'block';
+            
+            // Animation Bar
+            const bar = document.getElementById('prog-bar');
+            bar.style.transition = 'none';
+            bar.style.transform = 'scaleX(1)';
+            setTimeout(() => {
+                bar.style.transition = `transform ${SHOW_TIME}ms linear`;
+                bar.style.transform = 'scaleX(0)';
+            }, 50);
+
+            // ปิดเมื่อครบเวลา
+            setTimeout(() => {
+                document.getElementById('card').classList.remove('show');
+                document.getElementById('prog-wrap').style.display = 'none';
+                setTimeout(() => {
+                    active = false;
+                    runQueue();
+                }, 1000);
+            }, SHOW_TIME);
         }
     </script>
 </body>
