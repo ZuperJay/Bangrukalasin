@@ -3,266 +3,456 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BANGRU KALASIN — LIVE MONITOR</title>
-    <!-- ใช้ Google Fonts ที่ดูทันสมัย -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Firebase SDK (Compat Version) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BANGRU — TIP & BOOKING V.4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
         :root {
-            --primary-color: #ff6a00;
-            --live-green: #28a745;
-            --bg-dark: #000000;
+            --or: #ff6a00; --gr: #00e878; --cy: #00d8ee; --pk: #ff2d78; --pu: #c084fc; --gd: #d97706; --rd: #f06060;
+            --bg: #050508; --bg2: #0a0a10; --border: rgba(255,255,255,.08); --glow-or: 0 0 15px rgba(255,106,0,.5);
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; margin: 0; padding: 0; }
+        body { font-family: 'Kanit', sans-serif; background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
+        
+        /* ── VIDEO HEADER & NAV ── */
+        .vid-header { position: relative; width: 100%; min-height: 250px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 2px solid var(--or); padding: 20px 10px; }
+        .vid-header video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; object-fit: cover; }
+        .vid-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(5,5,8,0.95)); z-index: -1; }
+        .logo-text { font-family: 'Orbitron', sans-serif; font-size: 3rem; font-weight: 900; letter-spacing: 5px; color: var(--or); text-shadow: var(--glow-or); margin-bottom: 5px; }
+        .logo-sub { font-family: 'Orbitron'; font-size: 0.8rem; letter-spacing: 3px; color: rgba(255,106,0,0.7); margin-bottom: 20px; }
+        
+        .top-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; max-width: 500px; z-index: 10; }
+        .nav-btn { padding: 10px 5px; border-radius: 10px; font-weight: 700; font-size: 0.8rem; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; background: rgba(255,255,255,0.05); border: 1px solid #333; color: #aaa; transition: 0.3s; }
+        .nav-btn.active { background: var(--or); color: #000; border-color: var(--or); box-shadow: var(--glow-or); }
+        .nav-btn span { font-size: 1.2rem; }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 15px; padding-bottom: 50px; }
+        .page-section { display: none; animation: fadeIn 0.4s ease; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── FORMS ── */
+        .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 15px; padding: 15px; margin-bottom: 15px; }
+        .card-title { font-size: 0.95rem; color: var(--or); font-weight: 700; margin-bottom: 15px; display: block; }
+        .amt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .amt-btn { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #111; color: #fff; font-family: 'Orbitron'; font-weight: 700; cursor: pointer; }
+        .amt-btn.active { background: var(--or); border-color: var(--or); }
+        .f-input { width: 100%; background: #111; border: 1px solid #333; border-radius: 8px; padding: 12px; color: #fff; margin-bottom: 10px; font-family: 'Kanit'; }
+        .upload-box { width: 100%; height: 120px; border: 2px dashed #444; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; background: #0a0a0a; margin-bottom: 10px; }
+        .upload-box img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; display: none; }
+        .btn-main { width: 100%; padding: 15px; border-radius: 10px; border: none; font-family: 'Orbitron'; font-weight: 900; font-size: 1.1rem; background: #333; color: #666; cursor: pointer; }
+        .btn-main.ready { background: var(--or); color: #fff; box-shadow: var(--glow-or); }
+
+        /* ================= V.4 EXACT FLOOR MAP CSS ================= */
+        .map-wrap { overflow-x: auto; background: #07070a; border: 1px solid #222; border-radius: 15px; padding: 15px; margin-bottom: 20px; }
+        /* Map Container: 4 Columns (Z5 | Center | Z4/3 | Cashier/Bar) */
+        .map-inner { min-width: 850px; display: flex; gap: 15px; position: relative; padding: 10px; background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); }
+        
+        .m-col { display: flex; flex-direction: column; gap: 15px; }
+        .zone { border: 1px solid #444; border-radius: 8px; padding: 12px; background: rgba(0,0,0,0.6); position: relative; }
+        .z-title { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #07070a; padding: 0 5px; font-family: 'Orbitron'; font-size: 9px; white-space: nowrap; font-weight: bold; border-radius: 3px; }
+        
+        /* Table Style */
+        .t { 
+            width: 32px; height: 26px; display: flex; align-items: center; justify-content: center;
+            border-radius: 4px; font-family: 'Orbitron'; font-size: 11px; font-weight: 700; cursor: pointer;
+            border: 1px solid #555; background: #111; color: #aaa; transition: 0.2s; position: relative;
+        }
+        .t:hover { border-color: #fff; color: #fff; transform: scale(1.1); z-index: 10; }
+        .t.selected { box-shadow: 0 0 10px #fff; border-color: #fff; color: #fff; }
+        .t.void { opacity: 0; pointer-events: none; }
+        
+        /* Booked Table Style: Black with Uploaded Photo */
+        .t.booked { 
+            background-color: #000 !important; 
+            border-color: #222 !important; 
+            color: transparent !important; 
+            pointer-events: none; 
+            background-size: cover !important; 
+            background-position: center !important; 
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Grids */
+        .grid-2c { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .grid-4c { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 
-        body {
-            background-color: var(--bg-dark);
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            font-family: 'Kanit', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
+        /* Colors */
+        .z-gr { border-color: var(--gr); } .z-gr .z-title { color: var(--gr); border: 1px solid var(--gr); } .z-gr .t { border-color: var(--gr); color: var(--gr); background: rgba(0,232,120,0.1); }
+        .z-rd { border-color: var(--rd); } .z-rd .z-title { color: var(--rd); border: 1px solid var(--rd); } .z-rd .t { border-color: var(--rd); color: var(--rd); background: rgba(240,96,96,0.1); }
+        .z-cy { border-color: var(--cy); } .z-cy .z-title { color: var(--cy); border: 1px solid var(--cy); } .z-cy .t { border-color: var(--cy); color: var(--cy); background: rgba(0,216,238,0.1); }
+        .z-pu { border-color: var(--pu); } .z-pu .z-title { color: var(--pu); border: 1px solid var(--pu); } .z-pu .t { border-color: var(--pu); color: var(--pu); background: rgba(192,132,252,0.1); }
+        .z-gd { border-color: var(--gd); } .z-gd .z-title { color: var(--gd); border: 1px solid var(--gd); } .z-gd .t { border-color: var(--gd); color: var(--gd); background: rgba(217,119,6,0.1); }
 
-        /* ── LIVE STATUS INDICATOR (มุมขวาล่าง) ── */
-        .live-status {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 6px 15px;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-        }
+        .stage-box { width: 100%; border: 2px solid var(--or); padding: 10px; text-align: center; color: var(--or); font-family: 'Orbitron'; font-weight: 900; background: rgba(255,106,0,0.1); border-radius: 8px; margin-bottom: 10px; }
+        .light-box { width: 100%; border: 1px solid #3b82f6; padding: 10px; text-align: center; color: #3b82f6; font-family: 'Orbitron'; font-size: 14px; border-radius: 6px; margin-top: 10px; }
+        
+        .walkway { position: absolute; left: 0; right: 0; top: 48%; height: 0; border-top: 2px dashed rgba(255,255,255,0.4); z-index: 1; pointer-events: none; }
+        .walkway::before { content: 'IN →'; position: absolute; left: 5px; top: -10px; font-size: 10px; color: #00e878; font-weight: bold; background: #000; padding: 0 5px; }
 
-        .live-dot {
-            width: 10px;
-            height: 10px;
-            background-color: var(--live-green);
-            border-radius: 50%;
-            box-shadow: 0 0 12px var(--live-green);
-            animation: blink 1.2s infinite;
-        }
-
-        .live-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        @keyframes blink {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.3; transform: scale(0.9); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        /* ── DISPLAY CARD ── */
-        #display-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            text-align: center;
-            z-index: 10;
-        }
-
-        #display-card.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Avatar Styling */
-        .avatar-container {
-            position: relative;
-            width: 250px;
-            height: 250px;
-            margin-bottom: 30px;
-        }
-
-        .avatar-border {
-            position: absolute;
-            inset: -8px;
-            border: 4px solid var(--primary-color);
-            border-radius: 50%;
-            box-shadow: 0 0 30px rgba(255, 106, 0, 0.5);
-            animation: pulse-border 2s infinite;
-        }
-
-        .avatar-image {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #1a1a1a;
-            position: relative;
-            z-index: 2;
-        }
-
-        @keyframes pulse-border {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 0.4; }
-            100% { transform: scale(1); opacity: 0.8; }
-        }
-
-        /* Typography */
-        .name-label {
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-
-        .amount-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 8rem;
-            font-weight: 900;
-            color: var(--primary-color);
-            line-height: 1;
-            margin-bottom: 20px;
-            text-shadow: 0 0 40px rgba(255, 106, 0, 0.6);
-        }
-
-        .message-box {
-            font-size: 2.2rem;
-            color: #ffd2b3;
-            max-width: 80vw;
-            font-weight: 400;
-            line-height: 1.4;
-        }
-
-        /* ── PROGRESS BAR ── */
-        .progress-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .progress-bar {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(90deg, #ff6a00, #ffc400);
-            transform-origin: left;
-            box-shadow: 0 0 15px var(--primary-color);
-        }
+        /* ── MODALS ── */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; flex-direction: column; }
+        .modal.active { display: flex; }
+        .close-modal { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 30px; cursor: pointer; }
+        
+        /* Promo Scroll Slider */
+        .promo-scroll { display: flex; overflow-x: auto; gap: 15px; width: 100%; max-width: 400px; padding-bottom: 15px; scroll-snap-type: x mandatory; }
+        .promo-scroll img { width: 100%; flex-shrink: 0; border-radius: 10px; scroll-snap-align: start; border: 2px solid var(--or); }
     </style>
 </head>
 <body>
 
-    <!-- สัญลักษณ์ Live -->
-    <div class="live-status">
-        <div class="live-dot"></div>
-        <div class="live-text">LIVE</div>
-    </div>
-
-    <!-- ส่วนแสดงผล -->
-    <div id="display-card">
-        <div class="avatar-container">
-            <div class="avatar-border"></div>
-            <img id="user-photo" class="avatar-image" src="" alt="User">
+    <header class="vid-header">
+        <video autoplay muted loop playsinline id="bg-video"><source src="video.mp4" type="video/mp4"></video>
+        <div class="vid-overlay"></div>
+        <h1 class="logo-text">BANGRU</h1>
+        <div class="logo-sub">KALASIN LIVE SYSTEM</div>
+        
+        <div class="top-nav">
+            <a class="nav-btn active btn-tip" onclick="nav('tip')"><span>💸</span>ให้ทิป (TIP)</a>
+            <a class="nav-btn btn-book" onclick="nav('book')"><span>🪑</span>จองโต๊ะ (MAP)</a>
+            <a class="nav-btn" onclick="toggleModal('modal-promo')"><span>🔥</span>โปรโมชั่น</a>
+            <a class="nav-btn" onclick="toggleModal('modal-lineup')"><span>🎧</span>LINEUP</a>
         </div>
-        <div id="user-name" class="name-label">ชื่อลูกค้า</div>
-        <div id="tip-amount" class="amount-value">0.-</div>
-        <div id="user-message" class="message-box">ข้อความของคุณจะแสดงตรงนี้</div>
+    </header>
+
+    <div class="container">
+        
+        <!-- ================= PAGE: TIP ================= -->
+        <div id="page-tip" class="page-section active">
+            <div class="card">
+                <span class="card-title">1. ข้อมูลของคุณ (ขึ้นจอ LED)</span>
+                <label class="upload-box" id="u-box" style="height: 110px;">
+                    <input type="file" hidden accept="image/*" onchange="processImg(this, 'u')">
+                    <div id="u-ui" style="text-align:center; color:#888;">📷<br>อัปโหลดรูปโปรไฟล์<br><small>(ไม่บังคับ)</small></div>
+                    <img id="u-img">
+                </label>
+                <input type="text" id="t-name" class="f-input" placeholder="ชื่อที่จะขึ้นจอ (NAME)">
+                <textarea id="t-msg" class="f-input" rows="2" placeholder="ข้อความถึงดีเจ (MESSAGE)"></textarea>
+            </div>
+
+            <div class="card">
+                <span class="card-title">2. เลือกจำนวนทิป & โอนเงิน</span>
+                <div class="amt-grid">
+                    <button class="amt-btn active" onclick="setA(this, 100)">100.-</button>
+                    <button class="amt-btn" onclick="setA(this, 300)">300.-</button>
+                    <button class="amt-btn" onclick="setA(this, 500)">500.-</button>
+                    <button class="amt-btn" onclick="setA(this, 1000)">1000.-</button>
+                    <button class="amt-btn" onclick="setA(this, 2000)">2000.-</button>
+                    <button class="amt-btn" onclick="setA(this, 5000)">5000.-</button>
+                </div>
+                <div style="text-align:center; margin-bottom:10px;">
+                    <img src="qr.png" alt="QR" style="width: 150px; border-radius: 10px; border: 2px solid var(--or); padding: 5px; background: #fff;">
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.85rem; display: flex; justify-content: space-between;">
+                    <span>กสิกรไทย<br><b style="color:var(--gr); font-size: 1rem;">093-8-29649-9</b></span>
+                    <span onclick="copy('0938296499')" style="color:var(--or); cursor:pointer;">คัดลอก</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="card-title">3. ยืนยันการโอนเงิน</span>
+                <label class="upload-box" id="s-box" style="border-color:var(--gr);">
+                    <input type="file" hidden accept="image/*" onchange="processImg(this, 's')">
+                    <div id="s-ui" style="color:var(--gr); font-weight:bold;">+ แนบสลิปที่นี่</div>
+                    <img id="s-img">
+                </label>
+            </div>
+            <button id="btn-send" class="btn-main" onclick="sendTip()">ส่งขึ้นจอ LED</button>
+        </div>
+
+        <!-- ================= PAGE: BOOKING (V.4 MAP) ================= -->
+        <div id="page-book" class="page-section">
+            <h3 style="color:var(--gr); text-align:center; margin-bottom:10px; font-family:'Orbitron';">FLOOR MAP V.4</h3>
+            
+            <div class="map-wrap">
+                <div class="map-inner">
+                    <div class="walkway"></div>
+
+                    <!-- Column 1: ZONE 5 -->
+                    <div class="m-col" style="width: 80px; justify-content: space-between;">
+                        <div class="zone z-gr">
+                            <div class="z-title">ZONE 5 UPPER</div>
+                            <div class="grid-2c">
+                                <div class="t z5" id="t-55">55</div><div class="t z5" id="t-56">56</div>
+                                <div class="t z5" id="t-57">57</div><div class="t z5" id="t-58">58</div>
+                                <div class="t z5" id="t-59">59</div><div class="t z5" id="t-60">60</div>
+                                <div class="t z5" id="t-61">61</div><div class="t z5" id="t-62">62</div>
+                                <div class="t z5" id="t-63">63</div><div class="t z5" id="t-64">64</div>
+                            </div>
+                        </div>
+                        <div class="zone z-gr">
+                            <div class="z-title">ZONE 5 LOWER</div>
+                            <div class="grid-2c">
+                                <div class="t z5" id="t-65">65</div><div class="t z5" id="t-66">66</div>
+                                <div class="t z5" id="t-67">67</div><div class="t z5" id="t-68">68</div>
+                                <div class="t z5" id="t-69">69</div><div class="t z5" id="t-70">70</div>
+                                <div class="t z5" id="t-71">71</div><div class="t z5" id="t-72">72</div>
+                                <div class="t z5" id="t-73">73</div><div class="t z5" id="t-74">74</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Stage, Zone 1, Zone 2 -->
+                    <div class="m-col" style="flex: 1;">
+                        <div class="stage-box">DJ STAGE</div>
+                        
+                        <div class="zone z-rd">
+                            <div class="z-title">ZONE 1 (หน้าเวที)</div>
+                            <div style="display:flex; justify-content: center; gap: 20px;">
+                                <!-- Z1 Left Group -->
+                                <div class="grid-2c">
+                                    <div class="t z1" id="t-1">1</div><div class="t z1" id="t-2">2</div>
+                                    <div class="t z1" id="t-9">9</div><div class="t z1" id="t-8">8</div>
+                                    <div class="t z1" id="t-10">10</div><div class="t z1" id="t-11">11</div>
+                                </div>
+                                <!-- Z1 Middle Pillars (5, 14) -->
+                                <div style="display: flex; flex-direction: column; justify-content: space-between; padding-top: 15px;">
+                                    <div class="t z1" id="t-5">5</div>
+                                    <div class="t z1" id="t-14">14</div>
+                                </div>
+                                <!-- Z1 Right Group -->
+                                <div class="grid-2c">
+                                    <div class="t z1" id="t-3">3</div><div class="t z1" id="t-4">4</div>
+                                    <div class="t z1" id="t-7">7</div><div class="t z1" id="t-6">6</div>
+                                    <div class="t z1" id="t-12">12</div><div class="t z1" id="t-13">13</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="height: 30px;"></div> <!-- Spacer for Walkway -->
+
+                        <div class="zone z-cy">
+                            <div class="z-title">ZONE 2 (BACK CENTER)</div>
+                            <div class="grid-4c">
+                                <div class="t z2" id="t-15">15</div><div class="t z2" id="t-16">16</div><div class="t z2" id="t-17">17</div><div class="t z2" id="t-18">18</div>
+                                <div class="t z2" id="t-19">19</div><div class="t z2" id="t-20">20</div><div class="t z2" id="t-21">21</div><div class="t z2" id="t-22">22</div>
+                                <div class="t z2" id="t-23">23</div><div class="t z2" id="t-24">24</div><div class="t z2" id="t-25">25</div><div class="t z2" id="t-26">26</div>
+                                <div class="t z2" id="t-27">27</div><div class="t z2" id="t-28">28</div><div class="t z2" id="t-29">29</div><div class="t z2" id="t-30">30</div>
+                                <div class="t z2" id="t-31">31</div><div class="t z2" id="t-32">32</div><div class="t z2" id="t-33">33</div><div class="t z2" id="t-34">34</div>
+                            </div>
+                        </div>
+                        <div class="light-box">LIGHT x SOUND</div>
+                    </div>
+
+                    <!-- Column 3: Z4 VIP, SIDE, Z3 -->
+                    <div class="m-col" style="width: 170px;">
+                        <div style="display: flex; justify-content: flex-end;">
+                            <div class="zone z-gd" style="width: 90px;">
+                                <div class="z-title">ZONE 4 VIP</div>
+                                <div class="grid-2c">
+                                    <div class="t z4" id="t-V1">V1</div><div class="t z4" id="t-V2">V2</div>
+                                    <div class="t z4" id="t-V3">V3</div><div class="t z4" id="t-V4">V4</div>
+                                    <div class="t z4" id="t-V5">V5</div><div class="t z4" id="t-V6">V6</div>
+                                </div>
+                                <div style="border: 1px solid var(--cy); color: var(--cy); font-size: 8px; text-align:center; border-radius: 4px; margin-top: 5px;">ทางขึ้น ↑</div>
+                            </div>
+                        </div>
+
+                        <div style="height: 10px;"></div> <!-- Spacer -->
+
+                        <div style="display: flex; gap: 10px;">
+                            <!-- Side (Red) -->
+                            <div class="zone z-rd" style="width: 45px;">
+                                <div class="z-title">SIDE</div>
+                                <div style="display:flex; flex-direction:column; gap:6px;">
+                                    <div class="t z-rd" id="t-35">35</div>
+                                    <div class="t z-rd" id="t-36">36</div>
+                                    <div class="t z-rd" id="t-37">37</div>
+                                    <div class="t z-rd" id="t-38">38</div>
+                                    <div class="t void"></div>
+                                    <div class="t z-rd" id="t-39">39</div>
+                                </div>
+                            </div>
+
+                            <!-- Zone 3 (Purple) -->
+                            <div class="zone z-pu" style="flex:1;">
+                                <div class="z-title">ZONE 3</div>
+                                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px;">
+                                    <div class="t z3" id="t-40">40</div><div class="t z3" id="t-41">41</div><div class="t void"></div><div class="t void"></div>
+                                    <div class="t void"></div><div class="t void"></div><div class="t void"></div><div class="t void"></div>
+                                    <div class="t z3" id="t-42">42</div><div class="t z3" id="t-43">43</div><div class="t z3" id="t-44">44</div><div class="t z3" id="t-45">45</div>
+                                    <div class="t z3" id="t-49">49</div><div class="t z3" id="t-48">48</div><div class="t z3" id="t-47">47</div><div class="t z3" id="t-46">46</div>
+                                    <div class="t void"></div><div class="t z3" id="t-51">51</div><div class="t z3" id="t-52">52</div><div class="t z3" id="t-F1">F1</div>
+                                    <div class="t z3" id="t-50">50</div><div class="t void"></div><div class="t void"></div><div class="t z3" id="t-F2">F2</div>
+                                    <div class="t z3" id="t-53">53</div><div class="t void"></div><div class="t z3" id="t-54">54</div><div class="t void"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 4: Cashier, Bar, Toilet -->
+                    <div class="m-col" style="width: 50px;">
+                        <div style="border: 1px solid var(--gr); color: var(--gr); padding: 5px; text-align: center; font-size: 8px; border-radius: 4px;">CASHIER</div>
+                        <div style="flex: 1; border: 1px solid var(--rd); color: var(--rd); display: flex; align-items: center; justify-content: center; font-family: 'Orbitron'; font-size: 20px; writing-mode: vertical-rl; border-radius: 4px;">BAR</div>
+                        <div style="border: 1px solid var(--gd); color: var(--gd); padding: 5px; text-align: center; font-size: 10px; border-radius: 4px;">🚹🚺</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Form with Photo -->
+            <div id="book-form" class="card" style="display: none;">
+                <h3 id="b-title" style="color:var(--gr); font-family:'Orbitron'; margin-bottom:10px;">โต๊ะที่เลือก: --</h3>
+                
+                <label class="upload-box" id="b-box" style="border-color:var(--cy);">
+                    <input type="file" hidden accept="image/*" onchange="processImg(this, 'b')">
+                    <div id="b-ui" style="text-align:center; color:var(--cy); font-weight:bold;">📷<br>+ ใส่รูปเพื่อจองโต๊ะ<br><small>(บังคับ เพื่อขึ้นโชว์บนแผนที่)</small></div>
+                    <img id="b-img">
+                </label>
+
+                <input type="text" id="b-name" class="f-input" placeholder="ชื่อผู้จอง">
+                <input type="tel" id="b-tel" class="f-input" placeholder="เบอร์โทรติดต่อ">
+                <button class="btn-main ready" id="btn-book" onclick="submitBook()">ยืนยันการจอง</button>
+            </div>
+        </div>
     </div>
 
-    <!-- แถบเวลาลดลง -->
-    <div id="progress-wrap" class="progress-container" style="display:none;">
-        <div id="progress-timer" class="progress-bar"></div>
+    <!-- MODAL PROMOTION -->
+    <div id="modal-promo" class="modal">
+        <button class="close-modal" onclick="toggleModal('modal-promo')">&times;</button>
+        <h2 style="color:var(--or); font-family:'Orbitron'; margin-bottom:15px;">PROMOTIONS</h2>
+        <div class="promo-scroll">
+            <!-- ใส่ URL รูปโปรโมชั่นของคุณที่นี่ -->
+            <img src="https://via.placeholder.com/400x500/111/FF6A00?text=PROMO+1" alt="Promo 1">
+            <img src="https://via.placeholder.com/400x500/111/00E878?text=PROMO+2" alt="Promo 2">
+            <img src="https://via.placeholder.com/400x500/111/00D8EE?text=PROMO+3" alt="Promo 3">
+        </div>
+        <p style="color:#888; font-size:0.8rem; margin-top:10px;">(เลื่อนซ้าย-ขวา เพื่อดูเพิ่มเติม)</p>
+    </div>
+
+    <!-- MODAL LINEUP -->
+    <div id="modal-lineup" class="modal">
+        <button class="close-modal" onclick="toggleModal('modal-lineup')">&times;</button>
+        <img src="lineup.png" style="width: 100%; max-width: 400px; border-radius: 15px; border: 2px solid var(--cy);" onerror="this.src='https://via.placeholder.com/400x600/111/00D8EE?text=LINEUP+COMING+SOON'">
     </div>
 
     <script>
-        // ข้อมูล Firebase อ้างอิงจากรูปภาพที่คุณส่งมา
-        const firebaseConfig = {
+        // --- Firebase Config ของคุณ ---
+        const fbConfig = {
             apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
             authDomain: "bangru-kalasin.firebaseapp.com",
             databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
             projectId: "bangru-kalasin",
             storageBucket: "bangru-kalasin.firebasestorage.app",
             messagingSenderId: "150447340465",
-            appId: "1:150447340465:web:d39c310e5e32030aea1b90" // อัปเดต App ID แล้ว
+            appId: "1:150447340465:web:d39c310e5e32030aea1b90",
+            measurementId: "G-YDGMDD1EEL"
         };
-
-        firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(fbConfig);
         const db = firebase.database();
 
-        const DISPLAY_DURATION = 40000; // 40 วินาที
-        let tipQueue = [];
-        let isProcessing = false;
+        let tipAmt = 100, uData = "", sData = "", bData = "", selTable = "";
 
-        // ดักฟังเฉพาะข้อมูลที่สถานะเปลี่ยนเป็น approved
-        db.ref('live_tips').on('child_changed', (snapshot) => {
-            const data = snapshot.val();
-            if (data.status === 'approved') {
-                tipQueue.push(data);
-                if (!isProcessing) processQueue();
+        function nav(p) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('page-' + p).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.querySelector('.btn-' + p).classList.add('active');
+            if(p === 'book') initMap();
+        }
+
+        function toggleModal(id) { document.getElementById(id).classList.toggle('active'); }
+        function setA(btn, v) { document.querySelectorAll('.amt-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); tipAmt = v; }
+        function copy(t) { const el = document.createElement('textarea'); el.value = t; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); alert('คัดลอกเลขบัญชีแล้ว'); }
+
+        // --- ระบบบีบอัดรูปภาพ (สำคัญมาก เพื่อไม่ให้เว็บค้าง) ---
+        function processImg(input, type) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width, h = img.height, max = (type === 's') ? 800 : 300; // สลิป 800px, โปรไฟล์/จองโต๊ะ 300px
+                        if(w > h) { if(w > max) { h *= max/w; w = max; } } else { if(h > max) { w *= max/h; h = max; } }
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        
+                        document.getElementById(type + '-img').src = dataUrl;
+                        document.getElementById(type + '-img').style.display = 'block';
+                        document.getElementById(type + '-ui').style.display = 'none';
+
+                        if(type === 'u') uData = dataUrl;
+                        if(type === 's') { sData = dataUrl; document.getElementById('btn-send').classList.add('ready'); }
+                        if(type === 'b') bData = dataUrl;
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
             }
-        });
+        }
 
-        async function processQueue() {
-            if (tipQueue.length === 0) {
-                isProcessing = false;
-                return;
-            }
+        async function sendTip() {
+            if(!sData) return alert('กรุณาอัปโหลดสลิปเงินโอนก่อนครับ');
+            const btn = document.getElementById('btn-send');
+            btn.innerText = 'กำลังส่ง...'; btn.disabled = true;
+            try {
+                // ส่งไปให้แอดมินอนุมัติก่อน
+                await db.ref('live_tips').push({
+                    name: document.getElementById('t-name').value || 'FC BANGRU',
+                    message: document.getElementById('t-msg').value || 'จัดเต็ม!',
+                    amount: tipAmt, photo: uData, slip: sData, ts: Date.now()
+                });
+                alert('ส่งข้อมูลสำเร็จ! รอแอดมินตรวจสอบสักครู่ครับ');
+                location.reload();
+            } catch(e) { alert('Error!'); btn.disabled = false; btn.innerText = 'ส่งขึ้นจอ LED'; }
+        }
 
-            isProcessing = true;
-            const currentTip = tipQueue.shift();
+        // --- ระบบดึงข้อมูลโต๊ะ ---
+        function initMap() {
+            db.ref('bookings').on('value', snap => {
+                const data = snap.val() || {};
+                document.querySelectorAll('.t:not(.void)').forEach(el => {
+                    const id = el.id.replace('t-', '');
+                    el.classList.remove('booked');
+                    el.style.backgroundImage = 'none'; // รีเซ็ตรูป
+                    
+                    if(data[id]) {
+                        el.classList.add('booked');
+                        if(data[id].photo) {
+                            el.style.backgroundImage = `url(${data[id].photo})`; // ใส่รูปที่ลูกค้าแนบมา
+                        }
+                        el.onclick = null; // ป้องกันการกดโต๊ะซ้ำ
+                    } else {
+                        el.onclick = () => selectT(id, el);
+                    }
+                });
+            });
+        }
 
-            // อัปเดตข้อมูลในหน้าจอ
-            document.getElementById('user-name').innerText = currentTip.name || 'FC BANGRU';
-            document.getElementById('tip-amount').innerText = (currentTip.amount || 0).toLocaleString() + '.-';
-            document.getElementById('user-message').innerText = currentTip.message || '';
-            document.getElementById('user-photo').src = currentTip.photo || 'https://via.placeholder.com/250?text=BANGRU';
+        function selectT(id, el) {
+            document.querySelectorAll('.t').forEach(t => t.classList.remove('selected'));
+            el.classList.add('selected');
+            selTable = id;
+            document.getElementById('b-title').innerText = "โต๊ะที่เลือก: " + id;
+            document.getElementById('book-form').style.display = 'block';
+            document.getElementById('book-form').scrollIntoView({behavior: 'smooth'});
+        }
 
-            // เริ่มแสดงผล
-            const card = document.getElementById('display-card');
-            const progWrap = document.getElementById('progress-wrap');
-            const progBar = document.getElementById('progress-timer');
-
-            card.classList.add('active');
-            progWrap.style.display = 'block';
+        async function submitBook() {
+            const n = document.getElementById('b-name').value;
+            const t = document.getElementById('b-tel').value;
+            if(!n || !t) return alert("กรุณากรอกชื่อและเบอร์โทร");
+            if(!bData) return alert("กรุณาอัปโหลดรูปภาพเพื่อใช้แสดงบนโต๊ะ"); // บังคับใส่รูป
             
-            // รีเซ็ต Progress Bar
-            progBar.style.transition = 'none';
-            progBar.style.transform = 'scaleX(1)';
-            
-            // เริ่มนับถอยหลัง Bar
-            setTimeout(() => {
-                progBar.style.transition = `transform ${DISPLAY_DURATION}ms linear`;
-                progBar.style.transform = 'scaleX(0)';
-            }, 100);
+            const btn = document.getElementById('btn-book');
+            btn.innerText = 'กำลังจอง...'; btn.disabled = true;
 
-            // รอจนครบเวลา
-            await new Promise(resolve => setTimeout(resolve, DISPLAY_DURATION));
-
-            // จางหายไป
-            card.classList.remove('active');
-            setTimeout(() => {
-                progWrap.style.display = 'none';
-                processQueue(); // ทำคิวถัดไป
-            }, 800);
+            try {
+                await db.ref('bookings/' + selTable).set({ name: n, tel: t, photo: bData, ts: Date.now() });
+                alert("จองโต๊ะสำเร็จ! โต๊ะจะเปลี่ยนเป็นสีดำและมีรูปของคุณ");
+                document.getElementById('book-form').style.display = 'none';
+                document.getElementById('b-name').value = '';
+                document.getElementById('b-tel').value = '';
+                bData = ""; document.getElementById('b-img').style.display = 'none'; document.getElementById('b-ui').style.display = 'block';
+                btn.innerText = 'ยืนยันการจอง'; btn.disabled = false;
+            } catch(e) { alert("Error!"); btn.innerText = 'ยืนยันการจอง'; btn.disabled = false; }
         }
     </script>
 </body>
 </html>
+
 
 ```
