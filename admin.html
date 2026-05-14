@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BANGRU ADMIN - จัดการรายการทิป</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <style>
+        :root {
+            --primary: #ff6a00;
+            --success: #28a745;
+            --danger: #dc3545;
+            --bg: #f4f7f6;
+        }
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .header h1 { margin: 0; font-size: 1.5rem; color: var(--primary); }
+        
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--success);
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0.3; } }
+
+        .tip-list {
+            display: grid;
+            gap: 15px;
+        }
+        .tip-item {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #ccc;
+            transition: transform 0.2s;
+        }
+        .tip-item.pending { border-left-color: #ffc107; }
+        .tip-item.approved { border-left-color: var(--success); opacity: 0.7; }
+
+        .tip-info { display: flex; align-items: center; gap: 15px; }
+        .tip-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #eee;
+        }
+        .tip-details h3 { margin: 0; font-size: 1.1rem; }
+        .tip-details p { margin: 2px 0; font-size: 0.9rem; color: #666; }
+        .amount { color: var(--primary); font-weight: bold; font-size: 1.2rem; }
+
+        .actions { display: flex; gap: 10px; }
+        button {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+        button:active { transform: scale(0.95); }
+        .btn-approve { background: var(--success); color: white; }
+        .btn-reject { background: #eee; color: #666; }
+        .btn-delete { background: var(--danger); color: white; }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Bangru Admin Panel</h1>
+        <div class="live-badge">
+            <div class="dot"></div> System Live
+        </div>
+    </div>
+
+    <div id="tip-container" class="tip-list">
+        <div class="empty-state">กำลังโหลดข้อมูล...</div>
+    </div>
+
+    <script>
+        // ข้อมูลจากรูปภาพของคุณ
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
+            authDomain: "bangru-kalasin.firebaseapp.com",
+            databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
+            projectId: "bangru-kalasin",
+            storageBucket: "bangru-kalasin.firebasestorage.app",
+            messagingSenderId: "150447340465",
+            appId: "1:150447340465:web:d39c310e5e32030aea1b90"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // ดึงข้อมูลทิปทั้งหมด
+        db.ref('live_tips').on('value', (snapshot) => {
+            const container = document.getElementById('tip-container');
+            container.innerHTML = '';
+            
+            const data = snapshot.val();
+            if (!data) {
+                container.innerHTML = '<div class="empty-state">ยังไม่มีรายการทิปส่งเข้ามา</div>';
+                return;
+            }
+
+            // แปลง Object เป็น Array และเรียงลำดับใหม่สุดขึ้นก่อน
+            const items = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `tip-item ${item.status || 'pending'}`;
+                
+                div.innerHTML = `
+                    <div class="tip-info">
+                        <img src="${item.photo || 'https://via.placeholder.com/50'}" alt="User">
+                        <div class="tip-details">
+                            <h3>${item.name || 'ไม่ระบุชื่อ'} <span class="amount">${(item.amount || 0).toLocaleString()}.-</span></h3>
+                            <p>${item.message || '-'}</p>
+                            <p style="font-size:0.7rem;">ID: ${item.id}</p>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        ${item.status !== 'approved' ? 
+                            `<button class="btn-approve" onclick="updateStatus('${item.id}', 'approved')">ยืนยัน (ขึ้นจอ)</button>` : 
+                            `<span style="color:green; font-weight:bold; padding: 8px;">แสดงผลแล้ว</span>`
+                        }
+                        <button class="btn-delete" onclick="deleteTip('${item.id}')">ลบ</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        });
+
+        // ฟังก์ชันอัปเดตสถานะเป็น approved เพื่อให้ไปโผล่ที่หน้าจอ display.html
+        function updateStatus(id, status) {
+            db.ref('live_tips/' + id).update({ status: status })
+            .then(() => console.log('Approved!'))
+            .catch(err => alert('เกิดข้อผิดพลาด: ' + err));
+        }
+
+        // ฟังก์ชันลบรายการ
+        function deleteTip(id) {
+            if(confirm('ยืนยันการลบรายการนี้?')) {
+                db.ref('live_tips/' + id).remove();
+            }
+        }
+    </script>
+</body>
+</html>
+
+```
