@@ -4,94 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BANGRU ADMIN - SLIP CHECKER</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <title>BANGRU - ADMIN APPROVAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
-        :root { --or: #ff6a00; --gr: #00e878; --rd: #ff2d78; }
-        body { font-family: 'Kanit', sans-serif; background: #0f1015; color: #fff; margin: 0; padding: 20px; }
-        
-        .header { 
-            background: linear-gradient(135deg, #1a1b23 0%, #000 100%);
-            padding: 25px; border-radius: 15px; margin-bottom: 25px; 
-            border: 1px solid rgba(255,106,0,0.3);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .header h1 { margin: 0; font-family: 'Orbitron'; color: var(--or); font-size: 1.8rem; }
-        
-        .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 25px; }
-        @media(max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
-        
-        .panel { background: #1a1b23; padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        h2 { font-size: 1.2rem; margin-bottom: 20px; color: #aaa; border-left: 4px solid var(--or); padding-left: 15px; }
-        
-        /* การ์ดรายการทิปแบบเน้นเช็คสลิป */
-        .tip-card { 
-            background: #25262e; border-radius: 12px; padding: 15px; margin-bottom: 20px;
-            display: grid; grid-template-columns: 1fr 200px; gap: 20px;
-            border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
-        }
-        .tip-card:hover { border-color: var(--or); }
-        
-        .info-side { display: flex; gap: 15px; }
-        .profile-img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; border: 2px solid #444; }
-        
-        .details { flex: 1; }
-        .details h3 { margin: 0 0 5px 0; font-size: 1.3rem; color: #fff; }
-        .amount-tag { font-family: 'Orbitron'; font-size: 1.5rem; color: var(--gr); font-weight: 700; margin: 5px 0; }
-        .msg-box { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; font-size: 0.9rem; color: #ccc; margin-top: 10px; border: 1px dashed #444; }
-        
-        /* ส่วนของสลิป */
-        .slip-side { position: relative; cursor: zoom-in; }
-        .slip-img { width: 100%; height: 250px; object-fit: contain; background: #000; border-radius: 8px; border: 1px solid #333; }
-        .slip-label { position: absolute; top: 5px; right: 5px; background: var(--gr); color: #000; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
-
-        .actions { grid-column: span 2; display: flex; gap: 10px; margin-top: 10px; border-top: 1px solid #3d3e4a; padding-top: 15px; }
-        
-        .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-family: 'Kanit'; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; }
-        .btn-approve { background: var(--gr); color: #000; }
-        .btn-approve:hover { background: #00ff84; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,232,120,0.3); }
-        .btn-delete { background: rgba(255,45,120,0.1); color: var(--rd); border: 1px solid var(--rd); }
-        .btn-delete:hover { background: var(--rd); color: #fff; }
-
-        /* จัดการโต๊ะ */
-        .book-card { 
-            background: #25262e; padding: 15px; border-radius: 12px; margin-bottom: 10px;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .table-id { background: var(--or); color: #000; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 900; font-family: 'Orbitron'; font-size: 1.2rem; }
-        
-        /* Modal ขยายรูป */
-        #zoom-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: none; align-items: center; justify-content: center; }
-        #zoom-modal img { max-width: 95%; max-height: 95%; object-fit: contain; }
+        body { background: #111; color: #fff; font-family: 'Kanit'; padding: 20px; }
+        .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .item { background: #222; border: 1px solid #444; border-radius: 15px; padding: 15px; }
+        .imgs { display: flex; gap: 10px; margin: 10px 0; }
+        .imgs img { width: 48%; height: 150px; object-fit: cover; border-radius: 8px; border: 1px solid #333; }
+        .label { font-size: 10px; color: #888; text-transform: uppercase; }
+        .btn-approve { width: 100%; padding: 15px; background: #00e878; color: #000; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; }
+        .btn-approve:hover { filter: brightness(1.2); }
+        .btn-reject { width: 100%; padding: 10px; background: #333; color: #f06060; border: none; border-radius: 10px; margin-top: 8px; font-size: 12px; cursor: pointer; }
+        h1 { font-family: 'Orbitron'; color: #ff6a00; border-bottom: 2px solid #ff6a00; padding-bottom: 10px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <h1>🛠 BANGRU ADMIN SYSTEM</h1>
-        <div style="text-align:right;">
-            <div id="status" style="color:var(--gr); font-size: 0.8rem;">● ระบบเชื่อมต่อปกติ</div>
-            <div style="font-size: 0.7rem; color: #666;">KALASIN LIVE ENGINE</div>
-        </div>
-    </div>
-
-    <div class="grid">
-        <!-- ฝั่งตรวจสอบทิปและสลิป -->
-        <div class="panel">
-            <h2>💰 ตรวจสอบสลิป & รายการทิป (Pending)</h2>
-            <div id="tips-list">กำลังดึงข้อมูล...</div>
-        </div>
-
-        <!-- ฝั่งจัดการโต๊ะ -->
-        <div class="panel">
-            <h2>🪑 จัดการสถานะโต๊ะ (Booking)</h2>
-            <div id="books-list">กำลังดึงข้อมูล...</div>
-        </div>
-    </div>
-
-    <div id="zoom-modal" onclick="this.style.display='none'"><img id="zoom-img"></div>
+    <h1>TIPS APPROVAL</h1>
+    <div id="list" class="list"></div>
 
     <script>
         const fbConfig = {
@@ -100,101 +32,45 @@
             databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
             projectId: "bangru-kalasin",
             storageBucket: "bangru-kalasin.firebasestorage.app",
-            messagingSenderId: "150447340465",
-            appId: "1:150447340465:web:d39c310e5e32030aea1b90",
-            measurementId: "G-YDGMDD1EEL"
+            appId: "1:150447340465:web:d39c310e5e32030aea1b90"
         };
         firebase.initializeApp(fbConfig);
         const db = firebase.database();
 
-        // ฟังรายการทิปใหม่
         db.ref('live_tips').on('value', snap => {
+            const list = document.getElementById('list');
+            list.innerHTML = "";
             const data = snap.val();
-            const list = document.getElementById('tips-list');
-            if(!data) { list.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">ไม่มีรายการรอตรวจสอบ</div>'; return; }
+            if(!data) { list.innerHTML = "No pending tips."; return; }
 
-            let html = '';
-            Object.entries(data).forEach(([id, item]) => {
-                const uImg = item.photo || 'https://via.placeholder.com/100?text=NO+IMAGE';
-                const sImg = item.slip || 'https://via.placeholder.com/200x300?text=NO+SLIP';
-                html += `
-                    <div class="tip-card">
-                        <div class="info-side">
-                            <img src="${uImg}" class="profile-img" onclick="zoom('${uImg}')">
-                            <div class="details">
-                                <h3>${item.name}</h3>
-                                <div class="amount-tag">${item.amount} THB</div>
-                                <div class="msg-box">“${item.message}”</div>
-                                <div style="font-size:0.7rem; color:#666; margin-top:10px;">เวลาส่ง: ${new Date(item.ts).toLocaleTimeString()}</div>
-                            </div>
-                        </div>
-                        <div class="slip-side" onclick="zoom('${sImg}')">
-                            <span class="slip-label">หลักฐานการโอน</span>
-                            <img src="${sImg}" class="slip-img">
-                        </div>
-                        <div class="actions">
-                            <button class="btn btn-delete" onclick="delTip('${id}')">ลบรายการ (ไม่ผ่าน)</button>
-                            <button class="btn btn-approve" onclick="approveTip('${id}', ${JSON.stringify(item).replace(/"/g, '&quot;')})">✅ ยืนยันยอดเงิน & ขึ้นจอ LED</button>
-                        </div>
+            Object.keys(data).reverse().forEach(key => {
+                const tip = data[key];
+                if(tip.status !== 'pending') return;
+
+                const card = document.createElement('div');
+                card.className = "item";
+                card.innerHTML = `
+                    <div style="font-size: 1.2rem; font-weight: bold; color: #00d8ee;">${tip.amount} THB</div>
+                    <div style="font-size: 1rem; margin-bottom: 5px;">โดย: ${tip.name}</div>
+                    <div style="font-size: 0.9rem; color: #ccc;">"${tip.message}"</div>
+                    <div class="imgs">
+                        <div><div class="label">Profile</div><img src="${tip.photo || 'https://via.placeholder.com/150'}"></div>
+                        <div><div class="label">Slip (Check this!)</div><img src="${tip.slip}" style="border: 2px solid #00e878;"></div>
                     </div>
+                    <button class="btn-approve" onclick="approve('${key}')">APPROVE & SHOW ON SCREEN</button>
+                    <button class="btn-reject" onclick="reject('${key}')">REJECT / DELETE</button>
                 `;
+                list.appendChild(card);
             });
-            list.innerHTML = html;
         });
 
-        // ฟังรายการโต๊ะ
-        db.ref('bookings').on('value', snap => {
-            const data = snap.val();
-            const list = document.getElementById('books-list');
-            if(!data) { list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">ยังไม่มีการจอง</div>'; return; }
-
-            let html = '';
-            Object.entries(data).forEach(([tid, item]) => {
-                html += `
-                    <div class="book-card">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div class="table-id">${tid}</div>
-                            <div>
-                                <div style="font-weight:bold;">${item.name}</div>
-                                <div style="font-size:0.8rem; color:#888;">📞 ${item.tel}</div>
-                            </div>
-                        </div>
-                        <button class="btn btn-delete" style="flex:none; padding:8px 12px; font-size:0.8rem;" onclick="cancelBook('${tid}')">ยกเลิกโต๊ะ</button>
-                    </div>
-                `;
-            });
-            list.innerHTML = html;
-        });
-
-        function zoom(src) {
-            document.getElementById('zoom-img').src = src;
-            document.getElementById('zoom-modal').style.display = 'flex';
+        function approve(key) {
+            db.ref('live_tips/' + key).update({ status: 'approved', approvedAt: Date.now() });
         }
-
-        function delTip(id) { if(confirm('ต้องการลบรายการนี้ทิ้งใช่ไหม? (ข้อมูลจะไม่ขึ้นจอ)')) db.ref('live_tips/' + id).remove(); }
-
-        async function approveTip(id, item) {
-            try {
-                // ส่งไปที่ approved_tips เพื่อแสดงบนจอ LED
-                await db.ref('approved_tips').push({
-                    name: item.name,
-                    amount: item.amount,
-                    message: item.message,
-                    photo: item.photo,
-                    ts: Date.now()
-                });
-                // ลบออกจากรายการรอตรวจสอบ
-                await db.ref('live_tips/' + id).remove();
-            } catch(e) { alert('เกิดข้อผิดพลาดในการอนุมัติ'); }
-        }
-
-        function cancelBook(id) {
-            if(confirm('ยกเลิกการจองโต๊ะ ' + id + ' ใช่ไหม?')) {
-                db.ref('bookings/' + id).remove();
-            }
+        function reject(key) {
+            if(confirm('Delete this tip?')) db.ref('live_tips/' + key).remove();
         }
     </script>
 </body>
 </html>
 
-```
