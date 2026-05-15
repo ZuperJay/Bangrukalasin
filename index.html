@@ -4,337 +4,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BANGRU — TIP & BOOKING V.4</title>
+    <title>BANGRU — TIP & BOOKING</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
         :root {
-            --or: #ff6a00; --or-g: linear-gradient(45deg, #ff6a00, #ff9a3c);
-            --gr: #00e878; --cy: #00d8ee; --pk: #ff2d78; --pu: #c084fc;
-            --gd: #d97706; --rd: #f06060; --bg: #050508;
-            --card: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
-            --blur: blur(15px);
-            --glow: 0 0 20px rgba(255, 106, 0, 0.4);
+            --or: #ff6a00; --or2: #ff9a3c; --gr: #00e878; --cy: #00d8ee;
+            --pk: #ff2d78; --pu: #c084fc; --gd: #d97706; --rd: #f06060;
+            --bg: #050508; --bg2: #0a0a10;
+            --card: rgba(255,255,255,.03); --border: rgba(255,255,255,.08);
+            --glow-or: 0 0 20px rgba(255,106,0,.5);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; margin: 0; padding: 0; }
+        body { font-family: 'Kanit', sans-serif; background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
+
+        /* ── VIDEO HEADER & NAV ── */
+        .vid-header {
+            position: relative; width: 100%; min-height: 280px; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border-bottom: 2px solid var(--or); padding: 30px 15px 20px;
+        }
+        .vid-header video {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2; object-fit: cover; object-position: center;
+        }
+        .vid-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(5,5,8,0.95)); z-index: -1; }
         
-        body { 
-            font-family: 'Kanit', sans-serif; 
-            background: var(--bg); 
-            color: #fff; 
-            min-height: 100vh; 
-            overflow-x: hidden; 
-        }
-
-        /* FULLSCREEN VIDEO BACKGROUND - เหมือนเดิม */
-        #bg-video {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
-            z-index: -100;
-            transform: translateX(-50%) translateY(-50%);
-            object-fit: cover;
-            filter: brightness(0.4) contrast(1.1);
-        }
-
-        .overlay {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at center, transparent 0%, rgba(5,5,8,0.8) 100%);
-            z-index: -99;
-        }
-
-        /* HEADER SECTION */
-        header {
-            padding: 40px 20px 20px;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-            background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
-        }
-
         .logo-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 3.5rem;
-            font-weight: 900;
-            letter-spacing: 8px;
-            color: var(--or);
-            text-shadow: var(--glow);
-            margin-bottom: 5px;
+            font-family: 'Orbitron', sans-serif; font-size: 3.5rem; font-weight: 900;
+            letter-spacing: 8px; color: var(--or); text-shadow: var(--glow-or); margin-bottom: 5px; line-height: 1;
         }
+        .logo-sub { font-family: 'Orbitron'; font-size: 0.8rem; letter-spacing: 5px; color: rgba(255,106,0,0.7); margin-bottom: 25px; }
 
-        .top-nav {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            width: 100%;
-            max-width: 500px;
-            margin: 20px auto 0;
-        }
-
+        .top-nav { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 500px; z-index: 10; }
         .nav-btn {
-            background: var(--card);
-            border: 1px solid var(--border);
-            backdrop-filter: var(--blur);
-            padding: 12px 5px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: #aaa;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
+            flex: 1; min-width: 110px; padding: 12px 10px; border-radius: 12px; font-weight: 700; font-size: 0.8rem;
+            text-align: center; cursor: pointer; transition: 0.3s; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
         }
-
-        .nav-btn.active {
-            background: var(--or);
-            color: #000;
-            border-color: var(--or);
-            box-shadow: var(--glow);
-        }
-
-        /* CONTAINER & CARDS */
-        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        .nav-btn.btn-tip { background: rgba(255,106,0,0.15); border: 1px solid var(--or); color: var(--or); box-shadow: 0 0 10px rgba(255,106,0,0.2); }
+        .nav-btn.btn-tip.active { background: var(--or); color: #000; box-shadow: var(--glow-or); }
         
-        .page-section { display: none; animation: slideUp 0.5s ease; }
+        .nav-btn.btn-book { background: rgba(0,232,120,0.1); border: 1px solid var(--gr); color: var(--gr); }
+        .nav-btn.btn-book.active { background: var(--gr); color: #000; box-shadow: 0 0 15px rgba(0,232,120,0.5); }
+        
+        .nav-btn.btn-lineup { background: rgba(0,216,238,0.1); border: 1px solid var(--cy); color: var(--cy); }
+        .nav-btn.btn-page { background: rgba(59,89,152,0.2); border: 1px solid #3b5998; color: #60a8ff; }
+        
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.2); }
+
+        /* ── MARQUEE ── */
+        .marquee { width: 100%; background: rgba(255,106,0,0.1); border-bottom: 1px solid rgba(255,106,0,0.3); padding: 5px 0; overflow: hidden; white-space: nowrap; }
+        .marquee span { display: inline-block; font-family: 'Orbitron'; font-size: 0.75rem; color: var(--or2); animation: scroll 15s linear infinite; }
+        @keyframes scroll { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+
+        /* ── LAYOUT ── */
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; padding-bottom: 50px; }
+        .page-section { display: none; animation: fadeIn 0.4s ease; }
         .page-section.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card {
-            background: var(--card);
-            backdrop-filter: var(--blur);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+        /* ── CARDS & INPUTS ── */
+        .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        .card-title { font-family: 'Kanit'; font-size: 0.95rem; color: var(--or); font-weight: 700; margin-bottom: 15px; display: block; letter-spacing: 1px; }
 
-        .card-title {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--or);
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .amt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .amt-btn { padding: 12px 5px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: #fff; font-family: 'Orbitron'; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .amt-btn.active { background: var(--or); border-color: var(--or); box-shadow: var(--glow-or); }
 
-        .f-input {
-            width: 100%;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
-            color: #fff;
-            font-family: 'Kanit';
-            margin-bottom: 12px;
-            transition: 0.3s;
-        }
+        .f-input { width: 100%; background: rgba(255,106,0,0.05); border: 1px solid rgba(255,106,0,0.3); border-radius: 10px; padding: 15px; color: #fff; font-size: 1rem; margin-bottom: 10px; transition: 0.3s; font-family: 'Kanit'; }
+        .f-input:focus { border-color: var(--or); box-shadow: 0 0 10px rgba(255,106,0,0.2); }
 
-        .f-input:focus { border-color: var(--or); background: rgba(0,0,0,0.5); }
-
-        /* AMOUNT GRID */
-        .amt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .amt-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px 5px;
-            color: #fff;
-            font-family: 'Orbitron';
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .amt-btn.active {
-            background: var(--or);
-            color: #000;
-            border-color: var(--or);
-            transform: scale(1.05);
-        }
-
-        /* UPLOAD BOX */
-        .upload-box {
-            width: 100%;
-            height: 160px;
-            border: 2px dashed #444;
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            background: rgba(0,0,0,0.2);
-            cursor: pointer;
-            margin-bottom: 15px;
-        }
+        .upload-box { width: 100%; height: 150px; border: 2px dashed rgba(255,106,0,0.4); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; background: rgba(255,106,0,0.03); transition: 0.3s; position: relative; }
         .upload-box img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; display: none; }
+        .upload-box.done { border-style: solid; border-color: var(--gr); }
 
-        .btn-main {
-            width: 100%;
-            padding: 20px;
-            border-radius: 15px;
-            border: none;
-            background: #222;
-            color: #555;
-            font-family: 'Orbitron';
-            font-weight: 900;
-            font-size: 1.4rem;
-            cursor: pointer;
-            transition: 0.4s;
-            margin-top: 10px;
-        }
+        .btn-main { width: 100%; padding: 18px; border-radius: 12px; border: none; font-family: 'Orbitron'; font-weight: 900; font-size: 1.1rem; background: #333; color: #666; cursor: not-allowed; transition: 0.3s; }
+        .btn-main.ready { background: linear-gradient(135deg, var(--or), var(--pk)); color: #fff; box-shadow: var(--glow-or); cursor: pointer; }
 
-        .btn-main.ready {
-            background: var(--or-g);
-            color: #fff;
-            box-shadow: var(--glow);
-        }
+        /* ── EXACT FLOOR MAP CSS ── */
+        .map-wrap { overflow-x: auto; background: #07070a; border: 1px solid #222; border-radius: 15px; padding: 15px; margin-bottom: 20px; }
+        .map-inner { min-width: 600px; display: flex; flex-direction: column; gap: 8px; position: relative; }
+        
+        .m-row { display: flex; gap: 8px; align-items: flex-start; justify-content: space-between; }
+        .m-col { display: flex; flex-direction: column; gap: 4px; }
+        .m-row-in { display: flex; gap: 4px; }
 
-        /* MAP V.4 - จากโค้ดเดิม */
-        .map-wrap { overflow-x: auto; padding: 10px 0; }
-        .map-inner { min-width: 850px; display: flex; gap: 20px; padding: 20px; }
-        .zone { border: 1px solid #333; border-radius: 15px; padding: 15px; background: rgba(0,0,0,0.4); position: relative; }
-        .z-title { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #07070a; padding: 0 10px; font-family: 'Orbitron'; font-size: 9px; font-weight: 900; color: #666; }
+        .z-title { font-family: 'Orbitron'; font-size: 8px; text-align: center; opacity: 0.8; letter-spacing: 1px; margin-bottom: 4px; line-height: 1.2; }
         
-        .t {
-            width: 34px; height: 34px; border-radius: 8px; border: 1px solid #444;
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Orbitron'; font-size: 11px; font-weight: 700;
-            background: #111; color: #888; cursor: pointer; transition: 0.2s;
+        .t { 
+            width: 32px; height: 26px; display: flex; align-items: center; justify-content: center;
+            border-radius: 4px; font-family: 'Orbitron'; font-size: 10px; font-weight: 700; cursor: pointer;
+            border: 1px solid; transition: 0.2s; user-select: none;
         }
-        .t.booked { background: #000; border-color: #222; color: #222; cursor: not-allowed; }
-        .t.selected { border-color: #fff; color: #fff; box-shadow: 0 0 15px #fff; transform: scale(1.1); z-index: 5; }
-        
-        /* Zone Color Glows */
-        .z-gr .t:not(.booked) { border-color: var(--gr); color: var(--gr); box-shadow: 0 0 5px rgba(0,232,120,0.2); }
-        .z-rd .t:not(.booked) { border-color: var(--rd); color: var(--rd); box-shadow: 0 0 5px rgba(240,96,96,0.2); }
-        .z-cy .t:not(.booked) { border-color: var(--cy); color: var(--cy); box-shadow: 0 0 5px rgba(0,216,238,0.2); }
-        
-        /* Modals */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
-        .modal.active { display: flex; flex-direction: column; }
-        .close-modal { position: absolute; top: 25px; right: 25px; background: none; border: none; color: #fff; font-size: 40px; cursor: pointer; }
+        .t:hover { transform: scale(1.15); z-index: 10; }
+        .t.void { opacity: 0; pointer-events: none; }
+        .t.booked { background: rgba(239,68,68,0.2) !important; border-color: #ef4444 !important; color: #fca5a5 !important; pointer-events: none; }
+        .t.selected { box-shadow: 0 0 15px #fff !important; border-color: #fff !important; color: #fff !important; transform: scale(1.1); z-index: 10; }
+
+        /* Zone Colors */
+        .z1 { background: rgba(224,144,80,0.15); border-color: #e09050; color: #e09050; }
+        .z2 { background: rgba(0,216,238,0.15); border-color: #00d8ee; color: #00d8ee; }
+        .z3 { background: rgba(192,132,252,0.15); border-color: #c084fc; color: #c084fc; }
+        .z4 { background: rgba(217,119,6,0.15); border-color: #d97706; color: #d97706; }
+        .z5 { background: rgba(0,232,120,0.15); border-color: #00e878; color: #00e878; }
+        .zs { background: rgba(240,96,96,0.15); border-color: #f06060; color: #f06060; }
+
+        /* Special Structures */
+        .stage { width: 100%; border: 2px solid #ff2d78; border-radius: 8px 8px 0 0; background: rgba(255,45,120,0.1); text-align: center; padding: 10px; color: #ff2d78; font-family: 'Orbitron'; font-size: 14px; font-weight: 900; letter-spacing: 2px; }
+        .stage-stem { width: 60px; height: 30px; border: 2px solid #ff2d78; border-top: none; margin: 0 auto; background: rgba(255,45,120,0.1); }
+        .walkway { width: 100%; height: 16px; border-top: 1px dashed rgba(255,255,255,0.2); border-bottom: 1px dashed rgba(255,255,255,0.2); display: flex; align-items: center; font-size: 8px; color: rgba(255,255,255,0.3); font-family: 'Orbitron'; letter-spacing: 3px; }
+        .cashier { width: 45px; height: 35px; border: 1px solid #00e878; color: #00e878; display: flex; align-items: center; justify-content: center; font-size: 7px; text-align: center; border-radius: 4px; }
+        .bar { width: 45px; height: 120px; border: 1px solid #ff2d78; color: #ff2d78; display: flex; align-items: center; justify-content: center; font-size: 12px; font-family: 'Orbitron'; font-weight: 900; writing-mode: vertical-rl; border-radius: 4px; }
+        .light-sound { flex: 1; height: 30px; border: 1px solid #3b82f6; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: 'Orbitron'; border-radius: 4px; }
+        .toilet { width: 90px; height: 30px; border: 1px solid #00d8ee; color: #00d8ee; display: flex; align-items: center; justify-content: center; font-size: 10px; border-radius: 4px; }
+
+        /* ── MODALS ── */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; flex-direction: column; }
+        .modal.active { display: flex; }
+        .close-modal { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <!-- VIDEO BACKGROUND -->
-    <video id="bg-video" autoplay muted loop playsinline poster="bg-poster.jpg">
-        <source src="video.mp4" type="video/mp4">
-    </video>
-    <div class="overlay"></div>
-
-    <header>
+    <!-- VIDEO HEADER & NAV -->
+    <header class="vid-header">
+        <video autoplay muted loop playsinline id="bg-video">
+            <source src="video.mp4" type="video/mp4">
+        </video>
+        <div class="vid-overlay"></div>
+        
         <h1 class="logo-text">BANGRU</h1>
+        <div class="logo-sub">KALASIN LIVE SYSTEM</div>
+        
         <div class="top-nav">
-            <div class="nav-btn active" id="btn-tip" onclick="nav('tip')"><span>💸</span>ทิป DJ</div>
-            <div class="nav-btn" id="btn-book" onclick="nav('book')"><span>🪑</span>จองโต๊ะ</div>
-            <div class="nav-btn" onclick="toggleModal('m-promo')"><span>🔥</span>โปรฯ</div>
-            <div class="nav-btn" onclick="toggleModal('m-lineup')"><span>🎧</span>DJ</div>
+            <a class="nav-btn btn-tip active" onclick="nav('tip')"><span>💸</span>ให้ทิป (TIP)</a>
+            <a class="nav-btn btn-lineup" onclick="toggleModal('modal-lineup')"><span>🎧</span>LINEUP</a>
+            <a class="nav-btn btn-book" onclick="nav('book')"><span>🪑</span>จองโต๊ะ</a>
+            <a href="https://facebook.com/bangrukalasin" target="_blank" class="nav-btn btn-page"><span>📘</span>PAGE FB</a>
         </div>
     </header>
 
+    <div class="marquee">
+        <span>★ SUPPORT YOUR DJ ★ BANGRU KALASIN ★ LIVE ON SCREEN ★ SCAN & PAY ★ BOOK YOUR TABLE NOW ★</span>
+    </div>
+
     <div class="container">
-        <!-- PAGE: TIP -->
+        
+        <!-- ================= PAGE: TIP ================= -->
         <div id="page-tip" class="page-section active">
+            
             <div class="card">
-                <span class="card-title">1. ข้อมูลการส่งทิป</span>
-                <label class="upload-box" id="u-box">
-                    <input type="file" hidden accept="image/*" onchange="processImg(this, 'u')">
-                    <div id="u-ui">👤 อัปโหลดรูปโปรไฟล์</div>
+                <span class="card-title">1. ข้อมูลของคุณ (จะแสดงบนจอ LED)</span>
+                <label class="upload-box" style="height: 110px; margin-bottom: 15px;" id="u-box">
+                    <input type="file" hidden accept="image/*" onchange="prev(this, 'u')">
+                    <div id="u-ui" style="text-align:center; color:#888; font-size:0.85rem;">📷<br>อัปโหลดรูปโปรไฟล์<br><small>(ไม่บังคับ)</small></div>
                     <img id="u-img">
                 </label>
-                <input type="text" id="t-name" class="f-input" placeholder="ชื่อของคุณ">
-                <textarea id="t-msg" class="f-input" rows="2" placeholder="ข้อความที่อยากบอก..."></textarea>
+                <input type="text" id="t-name" class="f-input" placeholder="ชื่อที่จะขึ้นจอ (NAME)">
+                <textarea id="t-msg" class="f-input" rows="2" placeholder="ข้อความถึงดีเจ (MESSAGE)"></textarea>
             </div>
 
             <div class="card">
-                <span class="card-title">2. เลือกจำนวนทิป</span>
+                <span class="card-title">2. เลือกจำนวนทิป & โอนเงิน</span>
                 <div class="amt-grid">
-                    <button class="amt-btn" onclick="setA(this, 40)">40</button>
-                    <button class="amt-btn active" onclick="setA(this, 50)">50</button>
-                    <button class="amt-btn" onclick="setA(this, 100)">100</button>
-                    <button class="amt-btn" onclick="setA(this, 200)">200</button>
-                    <button class="amt-btn" onclick="setA(this, 500)">500</button>
-                    <button class="amt-btn" onclick="setA(this, 1000)">1000</button>
+                    <button class="amt-btn" onclick="setA(this, 40)">40.-</button>
+                    <button class="amt-btn" onclick="setA(this, 50)">50.-</button>
+                    <button class="amt-btn active" onclick="setA(this, 100)">100.-</button>
+                    <button class="amt-btn" onclick="setA(this, 200)">200.-</button>
+                    <button class="amt-btn" onclick="setA(this, 500)">500.-</button>
+                    <button class="amt-btn" onclick="setA(this, 1000)">1000.-</button>
+                </div>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="qr.png" alt="QR Code PromptPay" style="width: 180px; height: 180px; object-fit: contain; border-radius: 10px; border: 2px solid var(--or); padding: 5px; background: #fff;">
+                    <p style="font-family: 'Orbitron'; color: var(--or); margin-top: 8px; font-size: 0.9rem; font-weight: bold;">SCAN QR TO PAY</p>
                 </div>
                 
-                <div style="text-align:center; margin-bottom: 20px;">
-                    <img src="qr.png" onerror="this.src='https://via.placeholder.com/200?text=PROMPTPAY+QR'" style="width:200px; border:5px solid #fff; border-radius:15px; box-shadow: 0 0 30px rgba(0,0,0,0.5);">
+                <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span>กสิกร (K-Bank)<br><b style="color:var(--gr); font-size: 1rem;">093-8-29649-9</b></span>
+                    <span onclick="copy('0938296499')" style="color:var(--or); cursor:pointer; font-weight:bold; padding: 5px 10px; border: 1px solid var(--or); border-radius: 5px;">คัดลอก</span>
                 </div>
-
-                <div style="background:rgba(255,255,255,0.05); padding:18px; border-radius:15px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div style="font-size:0.7rem; color:#888;">PROMPT PAY</div>
-                        <div style="font-size:1.3rem; color:var(--gr); font-weight:bold; font-family:'Orbitron';">0642653497</div>
-                    </div>
-                    <button onclick="copy('0642653497')" style="background:var(--or); border:none; padding:10px 15px; border-radius:10px; color:#000; font-weight:bold; cursor:pointer;">Copy</button>
+                <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span>พร้อมเพย์<br><b style="color:var(--cy); font-size: 1rem;">064-265-3497</b></span>
+                    <span onclick="copy('0642653497')" style="color:var(--or); cursor:pointer; font-weight:bold; padding: 5px 10px; border: 1px solid var(--or); border-radius: 5px;">คัดลอก</span>
                 </div>
             </div>
 
             <div class="card">
-                <span class="card-title">3. แนบสลิปยืนยัน</span>
-                <label class="upload-box" id="s-box" style="border-color:var(--gr)">
-                    <input type="file" hidden accept="image/*" onchange="processImg(this, 's')">
-                    <div id="s-ui" style="color:var(--gr)">📄 แตะเพื่อแนบรูปสลิป</div>
+                <span class="card-title">3. ยืนยันการโอนเงิน</span>
+                <label class="upload-box" id="s-box">
+                    <input type="file" hidden accept="image/*" onchange="prev(this, 's')">
+                    <div id="s-ui" style="text-align:center; color:var(--gr); font-weight:bold;">🧾<br>+ อัปโหลดสลิปที่นี่</div>
                     <img id="s-img">
                 </label>
             </div>
-            <button id="btn-send" class="btn-main" onclick="sendTip()">ส่งขึ้นจอ LED</button>
+
+            <button id="btn-send" class="btn-main" onclick="sendTip()">SEND TO LIVE SCREEN</button>
         </div>
 
-        <!-- PAGE: BOOKING (FULL MAP RESTORED) -->
+        <!-- ================= PAGE: BOOKING ================= -->
         <div id="page-book" class="page-section">
-            <div class="card" style="padding:10px;">
-                <div class="map-wrap">
-                    <div class="map-inner">
-                        <div class="m-col" style="width:90px;">
-                            <div class="zone z-gr"><div class="z-title">Z5 UP</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"><div class="t" id="t-55u">55</div><div class="t" id="t-56u">56</div><div class="t" id="t-57u">57</div><div class="t" id="t-58u">58</div><div class="t" id="t-59u">59</div><div class="t" id="t-60u">60</div><div class="t" id="t-61u">61</div><div class="t" id="t-62u">62</div><div class="t" id="t-63u">63</div><div class="t" id="t-64u">64</div></div></div>
+            <h2 style="font-family: 'Orbitron'; color: var(--gr); text-align: center; margin-bottom: 15px;">FLOOR MAP V.3</h2>
+            
+            <div class="map-wrap">
+                <div class="map-inner">
+                    <!-- TOP ROW -->
+                    <div class="m-row">
+                        <div class="m-col" style="width: 80px;">
+                            <div class="z-title" style="color: var(--gr);">ZONE 5<br>LEFT (UPPER)</div>
+                            <div class="m-row-in"><div class="t z5" id="t-41u">41</div><div class="t z5" id="t-42u">42</div></div>
+                            <div class="m-row-in"><div class="t z5" id="t-43u">43</div><div class="t z5" id="t-44">44</div></div>
+                            <div class="m-row-in"><div class="t z5" id="t-45">45</div><div class="t z5" id="t-56u">56</div></div>
+                            <div class="m-row-in"><div class="t z5" id="t-57u">57</div><div class="t z5" id="t-58u">58</div></div>
+                            <div class="m-row-in"><div class="t z5" id="t-59u">59</div><div class="t z5" id="t-60u">60</div></div>
                         </div>
-                        <div class="m-col" style="flex:1;">
-                            <div style="background:var(--or); color:#000; text-align:center; padding:12px; font-family:'Orbitron'; font-weight:900; border-radius:10px; margin-bottom:15px;">DJ STAGE</div>
-                            <div class="zone z-rd"><div class="z-title">ZONE 1</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"><div class="t" id="t-1">1</div><div class="t" id="t-2">2</div><div class="t" id="t-3">3</div><div class="t" id="t-4">4</div><div class="t" id="t-5">5</div><div class="t" id="t-6">6</div><div class="t" id="t-7">7</div><div class="t" id="t-8">8</div><div class="t" id="t-9">9</div><div class="t" id="t-10">10</div><div class="t" id="t-11">11</div><div class="t" id="t-12">12</div></div></div>
+                        
+                        <div class="m-col" style="flex: 1; align-items: center;">
+                            <div class="stage">DJ STAGE</div>
+                            <div class="m-row" style="width: 100%; justify-content: center; gap: 10px; margin-top: 5px;">
+                                <div class="m-col" style="align-items: flex-end;">
+                                    <div class="m-row-in"><div class="t z1" id="t-1">1</div><div class="t z1" id="t-2">2</div></div>
+                                    <div class="m-row-in"><div class="t z1" id="t-5">5</div><div class="t z1" id="t-6">6</div></div>
+                                    <div class="m-row-in"><div class="t z1" id="t-11">11</div><div class="t z1" id="t-12">12</div></div>
+                                </div>
+                                <div class="stage-stem"></div>
+                                <div class="m-col">
+                                    <div class="m-row-in"><div class="t z1" id="t-3">3</div><div class="t z1" id="t-4">4</div></div>
+                                    <div class="m-row-in"><div class="t z1" id="t-9">9</div><div class="t z1" id="t-10">10</div></div>
+                                    <div class="m-row-in"><div class="t z1" id="t-15">15</div><div class="t z1" id="t-16">16</div></div>
+                                </div>
+                            </div>
+                            <div class="m-row" style="gap: 20px; justify-content: center; margin-top: 5px;">
+                                <div class="t z1" id="t-8">8</div>
+                                <div class="t z1" id="t-14">14</div>
+                            </div>
+                            <div class="z-title" style="color: var(--gd); margin-top: 5px;">ZONE 1 หน้าเวที (14)</div>
                         </div>
-                        <div class="m-col" style="width:160px;">
-                             <div class="zone z-cy"><div class="z-title">ZONE 3</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"><div class="t" id="t-27">27</div><div class="t" id="t-28">28</div><div class="t" id="t-29">29</div><div class="t" id="t-30">30</div><div class="t" id="t-31">31</div><div class="t" id="t-32">32</div><div class="t" id="t-33">33</div><div class="t" id="t-34">34</div></div></div>
+
+                        <div class="m-col" style="width: 80px; align-items: center;">
+                            <div class="z-title" style="color: var(--gd);">ZONE 4 VIP<br>UPPER RIGHT</div>
+                            <div class="m-row-in"><div class="t z4" id="t-V1">V1</div><div class="t z4" id="t-V2">V2</div></div>
+                            <div class="m-row-in"><div class="t z4" id="t-V3">V3</div><div class="t z4" id="t-V4">V4</div></div>
+                            <div class="m-row-in"><div class="t z4" id="t-V5">V5</div><div class="t z4" id="t-V6">V6</div></div>
+                            <div style="border: 1px solid var(--cy); color: var(--cy); font-size: 8px; padding: 4px; border-radius: 4px; margin-top: 4px;">ทางขึ้น ↑</div>
+                        </div>
+
+                        <div class="m-col" style="gap: 5px;">
+                            <div class="cashier">CASHIER</div>
+                            <div class="bar">BAR</div>
                         </div>
                     </div>
+
+                    <div class="walkway">IN &rarr; &nbsp;&nbsp;&nbsp;&nbsp; WALKWAY</div>
+
+                    <div class="m-row">
+                        <div class="m-col" style="width: 80px;">
+                            <div class="z-title" style="color: var(--gr);">ZONE 5<br>LEFT (LOWER)</div>
+                            <div class="m-row-in"><div class="t z5" id="t-41l">41</div><div class="t z5" id="t-42l">42</div></div>
+                            <div class="m-row-in"><div class="t z5" id="t-43l">43</div><div class="t z5" id="t-54">54</div></div>
+                            <div class="m-row-in"><div class="t z5" id="t-55">55</div><div class="t z5" id="t-56l">56</div></div>
+                            <div class="m-row-in"><div class="t z5" id="t-57l">57</div><div class="t z5" id="t-58l">58</div></div>
+                            <div class="m-row-in"><div class="t z5" id="t-59l">59</div><div class="t z5" id="t-60l">60</div></div>
+                        </div>
+
+                        <div class="m-col" style="flex: 1; align-items: center;">
+                            <div class="z-title" style="color: var(--cy);">ZONE 2 · BACK CENTER (20)</div>
+                            <div class="m-row-in"><div class="t z2" id="t-17">17</div><div class="t z2" id="t-18">18</div><div class="t z2" id="t-19">19</div><div class="t z2" id="t-20">20</div></div>
+                            <div class="m-row-in"><div class="t z2" id="t-28">28</div><div class="t z2" id="t-26">26</div><div class="t z2" id="t-25">25</div><div class="t z2" id="t-24">24</div></div>
+                            <div class="m-row-in"><div class="t z2" id="t-29">29</div><div class="t z2" id="t-30">30</div><div class="t z2" id="t-31">31</div><div class="t z2" id="t-32">32</div></div>
+                            <div class="m-row-in"><div class="t z2" id="t-33">33</div><div class="t z2" id="t-34">34</div><div class="t z2" id="t-35">35</div><div class="t z2" id="t-36">36</div></div>
+                            <div class="m-row-in"><div class="t z2" id="t-37">37</div><div class="t z2" id="t-38">38</div><div class="t z2" id="t-39">39</div><div class="t z2" id="t-40">40</div></div>
+                        </div>
+
+                        <div class="m-col" style="width: 40px; align-items: center;">
+                            <div class="z-title" style="color: var(--rd);">SIDE (5)</div>
+                            <div class="t zs" id="t-s30">30</div>
+                            <div class="t zs" id="t-s34">34</div>
+                            <div class="t zs" id="t-s36">36</div>
+                            <div class="t zs" id="t-s38">38</div>
+                            <div class="t zs" id="t-s42">42</div>
+                        </div>
+
+                        <div class="m-col" style="width: 150px; align-items: center;">
+                            <div class="z-title" style="color: var(--pu);">ZONE 3 · RIGHT SIDE (14)</div>
+                            <div class="m-row-in"><div class="t z3" id="t-W1">W1</div><div class="t z3" id="t-W2">W2</div></div>
+                            <div class="m-row-in"><div class="t z3" id="t-W3">W3</div><div class="t z3" id="t-W4">W4</div></div>
+                            <div class="m-row-in"><div class="t z3" id="t-W5">W5</div><div class="t z3" id="t-W6">W6</div><div class="t z3" id="t-W7">W7</div><div class="t z3" id="t-W8">W8</div></div>
+                            <div class="m-row-in"><div class="t z3" id="t-W9">W9</div><div class="t z3" id="t-W10">W10</div><div class="t void"></div><div class="t void"></div></div>
+                            <div class="m-row-in"><div class="t z3" id="t-W12">W12</div><div class="t z3" id="t-W13">W13</div><div class="t z3" id="t-W14">W14</div></div>
+                        </div>
+                    </div>
+
+                    <div class="m-row" style="margin-top: 5px; align-items: center;">
+                        <div style="width: 80px;"></div>
+                        <div class="light-sound">||||| LIGHT & SOUND |||||</div>
+                        <div style="width: 40px;"></div>
+                        <div class="toilet">🚹 🚺 TOILET</div>
+                    </div>
+
                 </div>
             </div>
-            <div id="book-form" class="card" style="display:none; margin-top:15px;">
-                <h3 id="b-title" style="color:var(--cy); margin-bottom:15px; font-family:'Orbitron';">TABLE: --</h3>
+
+            <!-- Booking Form -->
+            <div id="book-form" class="card" style="display: none;">
+                <h3 id="b-title" style="color:var(--gr); font-family:'Orbitron'; margin-bottom:10px;">โต๊ะที่เลือก: --</h3>
                 <input type="text" id="b-name" class="f-input" placeholder="ชื่อผู้จอง">
-                <input type="tel" id="b-tel" class="f-input" placeholder="เบอร์โทร">
-                <button class="btn-main ready" onclick="submitBook()">ยืนยันจองโต๊ะ</button>
+                <input type="tel" id="b-tel" class="f-input" placeholder="เบอร์โทรติดต่อ">
+                <button class="btn-main ready" onclick="submitBook()">ยืนยันการจอง</button>
             </div>
         </div>
+
     </div>
 
-    <!-- MODALS -->
-    <div id="m-promo" class="modal">
-        <button class="close-modal" onclick="toggleModal('m-promo')">&times;</button>
-        <img src="promo1.jpg" style="width:100%; max-width:400px; border-radius:15px; border:1px solid var(--or);">
-    </div>
-    <div id="m-lineup" class="modal">
-        <button class="close-modal" onclick="toggleModal('m-lineup')">&times;</button>
-        <img src="lineup.png" style="width:100%; max-width:400px; border-radius:15px; border:1px solid var(--cy);">
+    <!-- MODAL LINEUP -->
+    <div id="modal-lineup" class="modal">
+        <button class="close-modal" onclick="toggleModal('modal-lineup')">&times;</button>
+        <img src="lineup.png" style="width: 100%; max-width: 400px; border-radius: 15px; border: 2px solid var(--cy);" onerror="this.src='https://via.placeholder.com/400x600?text=LINEUP+COMING+SOON'">
     </div>
 
     <script>
+        // --- Firebase Config (อัปเดตแบบเต็ม) ---
         const fbConfig = {
             apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
             authDomain: "bangru-kalasin.firebaseapp.com",
@@ -342,77 +333,92 @@
             projectId: "bangru-kalasin",
             storageBucket: "bangru-kalasin.firebasestorage.app",
             messagingSenderId: "150447340465",
-            appId: "1:150447340465:web:d39c310e5e32030aea1b90"
+            appId: "1:150447340465:web:d39c310e5e32030aea1b90",
+            measurementId: "G-YDGMDD1EEL"
         };
         firebase.initializeApp(fbConfig);
         const db = firebase.database();
 
-        let tipAmt = 50, uData = "", sData = "", selTable = "";
+        let tipAmt = 100, uData = "", sData = "", selTable = "";
 
+        // --- Navigation ---
         function nav(p) {
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
             document.getElementById('page-' + p).classList.add('active');
+            
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById('btn-' + p).classList.add('active');
+            document.querySelector('.btn-' + p).classList.add('active');
+
             if(p === 'book') initMap();
         }
 
-        function toggleModal(id) { document.getElementById(id).classList.toggle('active'); }
-        function setA(btn, v) { 
-            document.querySelectorAll('.amt-btn').forEach(b => b.classList.remove('active')); 
-            btn.classList.add('active'); 
-            tipAmt = v; 
-        }
-        function copy(t) {
-            const el = document.createElement('textarea'); el.value = t; document.body.appendChild(el);
-            el.select(); document.execCommand('copy'); document.body.removeChild(el);
-            alert('คัดลอกเบอร์โทรแล้ว: ' + t);
+        function toggleModal(id) {
+            document.getElementById(id).classList.toggle('active');
         }
 
-        function processImg(input, type) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        let w = img.width, h = img.height, max = (type === 's') ? 800 : 300;
-                        if(w > h) { if(w > max) { h *= max/w; w = max; } } else { if(h > max) { w *= max/h; h = max; } }
-                        canvas.width = w; canvas.height = h;
-                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                        const data = canvas.toDataURL('image/jpeg', 0.7);
-                        document.getElementById(type + '-img').src = data;
-                        document.getElementById(type + '-img').style.display = 'block';
-                        document.getElementById(type + '-ui').style.display = 'none';
-                        if(type === 'u') uData = data;
-                        if(type === 's') { sData = data; document.getElementById('btn-send').classList.add('ready'); }
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
+        // --- Tip System ---
+        function setA(btn, v) {
+            document.querySelectorAll('.amt-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            tipAmt = v;
+        }
+
+        function prev(input, type) {
+            if(input.files && input.files[0]) {
+                const r = new FileReader();
+                r.onload = e => {
+                    const res = e.target.result;
+                    document.getElementById(type + '-img').src = res;
+                    document.getElementById(type + '-img').style.display = 'block';
+                    document.getElementById(type + '-ui').style.display = 'none';
+                    if(type === 'u') uData = res;
+                    if(type === 's') {
+                        sData = res;
+                        document.getElementById('s-box').classList.add('done');
+                        document.getElementById('btn-send').classList.add('ready');
+                        document.getElementById('btn-send').disabled = false;
+                    }
+                }
+                r.readAsDataURL(input.files[0]);
             }
         }
 
-        async function sendTip() {
-            if(!sData) return alert('กรุณาแนบสลิป');
-            const b = document.getElementById('btn-send'); b.disabled = true; b.innerText = "SENDING...";
-            try {
-                await db.ref('live_tips').push({
-                    name: document.getElementById('t-name').value || 'FC',
-                    message: document.getElementById('t-msg').value || '',
-                    amount: tipAmt, photo: uData, slip: sData, ts: Date.now()
-                });
-                alert('ส่งข้อมูลสำเร็จ! รอขึ้นจอ LED');
-                location.reload();
-            } catch(e) { alert('Error!'); b.disabled = false; b.innerText = "ส่งขึ้นจอ LED"; }
+        function copy(t) {
+            const el = document.createElement('textarea'); el.value = t; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+            alert('คัดลอกเลขบัญชีแล้ว');
         }
 
+        async function sendTip() {
+            if(!sData) return alert('กรุณาอัปโหลดสลิปเงินโอนก่อนกดส่งครับ');
+            const btn = document.getElementById('btn-send');
+            btn.innerText = 'SENDING...'; btn.disabled = true;
+            try {
+                await db.ref('live_tips').push({
+                    name: document.getElementById('t-name').value || 'FC BANGRU',
+                    message: document.getElementById('t-msg').value || 'จัดเต็ม!',
+                    amount: tipAmt, 
+                    photo: uData, 
+                    slip: sData, 
+                    status: 'pending', // ส่งสถานะไปรอการอนุมัติ
+                    ts: Date.now()
+                });
+                alert('ส่งข้อมูลสำเร็จ! กรุณารอดีเจกดยืนยันสักครู่ครับ');
+                location.reload();
+            } catch(e) { 
+                alert('Error!'); 
+                btn.disabled = false; 
+                btn.innerText = 'SEND TO LIVE SCREEN'; 
+            }
+        }
+
+        // --- Booking Map ---
         function initMap() {
             db.ref('bookings').on('value', snap => {
                 const data = snap.val() || {};
-                document.querySelectorAll('.t').forEach(el => {
+                document.querySelectorAll('.t:not(.void)').forEach(el => {
                     const id = el.id.replace('t-', '');
-                    el.classList.remove('booked', 'selected');
+                    el.classList.remove('booked');
+                    
                     if(data[id]) {
                         el.classList.add('booked');
                         el.onclick = null;
@@ -427,21 +433,26 @@
             document.querySelectorAll('.t').forEach(t => t.classList.remove('selected'));
             el.classList.add('selected');
             selTable = id;
-            document.getElementById('b-title').innerText = "TABLE: " + id.replace(/[ul]/g, '');
+            
+            let displayId = id.replace(/[ul]/g, ''); 
+            document.getElementById('b-title').innerText = "โต๊ะที่เลือก: " + displayId;
             document.getElementById('book-form').style.display = 'block';
+            document.getElementById('book-form').scrollIntoView({behavior: 'smooth'});
         }
 
         async function submitBook() {
             const n = document.getElementById('b-name').value;
             const t = document.getElementById('b-tel').value;
-            if(!n || !t) return alert("ใส่ชื่อและเบอร์โทร");
+            if(!n || !t) return alert("กรุณากรอกชื่อและเบอร์โทร");
+            
             try {
                 await db.ref('bookings/' + selTable).set({ name: n, tel: t, ts: Date.now() });
-                alert("จองสำเร็จ!");
+                alert("จองโต๊ะสำเร็จ!");
                 document.getElementById('book-form').style.display = 'none';
+                document.getElementById('b-name').value = '';
+                document.getElementById('b-tel').value = '';
             } catch(e) { alert("Error!"); }
         }
     </script>
 </body>
 </html>
-
