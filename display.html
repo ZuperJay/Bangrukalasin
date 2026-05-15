@@ -3,189 +3,114 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BANGRU LED DISPLAY</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Kanit:wght@400;700&display=swap" rel="stylesheet">
+    <title>BANGRU LIVE DISPLAY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Kanit:wght@700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            background-color: #000; /* จอดำสนิท */
-            color: #fff; 
-            font-family: 'Kanit', sans-serif; 
-            overflow: hidden; 
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #000; color: #fff; overflow: hidden; font-family: 'Kanit'; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        
+        #display-container { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; animation: zoomIn 0.5s ease-out; }
+        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        .corner-logo { position: fixed; bottom: 20px; right: 30px; font-family: 'Orbitron'; font-size: 1.2rem; color: #ff6a00; opacity: 0.5; letter-spacing: 2px; }
+        .live-tag { position: fixed; top: 30px; right: 30px; font-family: 'Orbitron'; color: #ff2d78; font-size: 2rem; display: flex; align-items: center; gap: 10px; }
+        .live-tag::before { content: ''; width: 15px; height: 15px; background: #ff2d78; border-radius: 50%; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        .content-wrapper {
-            width: 100%;
-            max-width: 1400px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            animation: fadeIn 1s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-
-        /* จำนวนเงินให้อยู่บนสุด และใหญ่ที่สุด */
-        .top-amount {
-            font-family: 'Orbitron';
-            font-size: 14rem;
-            color: #ff6a00;
-            font-weight: 900;
-            line-height: 1;
-            margin-bottom: 40px;
-            text-shadow: 0 0 50px rgba(255,106,0,0.8);
-        }
-
-        /* กล่องรวมรูปและข้อความ (อยู่แถวเดียวกัน) */
-        .info-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 80px;
-            width: 100%;
-        }
-
-        /* โซนรูปภาพและวิดีโอแอนิเมชัน */
-        .photo-zone {
-            position: relative;
-            width: 400px;
-            height: 400px;
-        }
-
-        #m-photo {
-            width: 100%;
-            height: 100%;
-            border-radius: 20px;
-            object-fit: cover;
-            border: 8px solid #ff6a00;
-            box-shadow: 0 0 30px rgba(255,106,0,0.3);
+        .amount { font-family: 'Orbitron'; font-size: 8rem; color: #ff6a00; text-shadow: 0 0 40px rgba(255,106,0,0.6); margin-bottom: 10px; }
+        .name { font-size: 4rem; color: #fff; margin-bottom: 20px; }
+        
+        .photo-frame {
+            width: 450px; height: 450px;
+            border: 15px solid #ff6a00;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 0 100px rgba(255,106,0,0.4);
+            margin-bottom: 30px;
             background: #111;
         }
+        .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .message { font-size: 3rem; color: #00e878; text-align: center; max-width: 80%; line-height: 1.2; font-style: italic; }
 
-        /* * กล่องสำหรับใส่วิดีโอแอนิเมชัน (ตัวการ์ตูนเดินมาจับกรอบรูป)
-         * ใช้ CSS ทำให้วิดีโอครอบทับรูปภาพพอดี
-         * หมายเหตุ: วิดีโอควรเป็นไฟล์ .webm ที่มีพื้นหลังโปร่งใส (Transparent)
-         */
-        #anim-video {
-            position: absolute;
-            top: -50px; /* ปรับพิกัดเอาตามไฟล์วิดีโอจริง */
-            left: -50px;
-            width: 500px;
-            height: 500px;
-            z-index: 10;
-            pointer-events: none;
-            /* display: none; เปิดใช้เมื่อใส่วิดีโอจริง */
-        }
-
-        /* โซนข้อความ */
-        .text-zone {
-            display: flex;
-            flex-direction: column;
-            max-width: 700px;
-        }
-
-        .m-name { font-size: 6rem; font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 10px; }
-        .m-msg { 
-            font-size: 3.5rem; 
-            color: #ccc; 
-            line-height: 1.3; 
-            border-left: 8px solid #ff2d78; 
-            padding-left: 30px;
-            font-weight: 300;
-        }
-
-        /* หน้าจอกระพริบแจ้งเตือน */
-        #alert-screen {
-            position: fixed; inset: 0; background: #000; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .flash-text { font-family: 'Orbitron'; font-size: 8rem; color: #ff6a00; font-weight: 900; animation: flash 0.5s infinite alternate; }
-        @keyframes flash { from { text-shadow: 0 0 50px #ff6a00; } to { text-shadow: 0 0 100px #ff6a00; transform: scale(1.1); } }
+        .timer { position: fixed; bottom: 30px; font-family: 'Orbitron'; font-size: 2.5rem; color: #444; }
     </style>
 </head>
 <body>
 
-    <div class="content-wrapper">
-        <div class="top-amount" id="m-amount">THB 0</div>
-        
-        <div class="info-row">
-            <div class="photo-zone">
-                <!-- นำไฟล์วิดีโอแอนิเมชันมาใส่ตรงนี้ src="ชื่อไฟล์.webm" -->
-                <!-- <video id="anim-video" src="animation.webm" autoplay muted loop></video> -->
-                <img id="m-photo" src="https://via.placeholder.com/400x400/000/FF6A00?text=BANGRU">
-            </div>
-            
-            <div class="text-zone">
-                <div class="m-name" id="m-name">READY</div>
-                <div class="m-msg" id="m-message">รอข้อมูลจากแอดมิน</div>
-            </div>
-        </div>
-    </div>
+    <div class="live-tag">LIVE</div>
 
-    <div id="alert-screen"><div class="flash-text">NEW TIP!</div></div>
-    <div class="corner-logo">BANGRU KALASIN</div>
-    <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <div id="display-container">
+        <div class="amount" id="d-amount">0</div>
+        <div class="name" id="d-name">NAME</div>
+        <div class="photo-frame">
+            <img id="d-photo" src="">
+        </div>
+        <div class="message" id="d-message">MESSAGE</div>
+        <div class="timer" id="d-timer">40s</div>
+    </div>
 
     <script>
         const fbConfig = {
             apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
-            authDomain: "bangru-kalasin.firebaseapp.com",
             databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
             projectId: "bangru-kalasin",
-            storageBucket: "bangru-kalasin.firebasestorage.app",
-            messagingSenderId: "150447340465",
-            appId: "1:150447340465:web:d39c310e5e32030aea1b90",
-            measurementId: "G-YDGMDD1EEL"
+            appId: "1:150447340465:web:d39c310e5e32030aea1b90"
         };
         firebase.initializeApp(fbConfig);
         const db = firebase.database();
 
-        const sound = document.getElementById('notif-sound');
-        let isFirstLoad = true;
+        let isShowing = false;
+        let queue = [];
 
-        // อ่านข้อมูลเฉพาะที่แอดมินกดอนุมัติแล้ว
-        db.ref('approved_tips').limitToLast(1).on('child_added', snap => {
-            const data = snap.val();
-            if (!data) return;
-
-            // อัปเดตหน้าจอ
-            document.getElementById('m-amount').innerText = data.amount + '.-';
-            document.getElementById('m-name').innerText = data.name;
-            document.getElementById('m-message').innerText = data.message || '';
-            
-            if (data.photo && data.photo.length > 100) {
-                document.getElementById('m-photo').src = data.photo;
-            } else {
-                document.getElementById('m-photo').src = "https://via.placeholder.com/400x400/000/FF6A00?text=FC";
+        db.ref('live_tips').on('child_changed', snap => {
+            const tip = snap.val();
+            if(tip.status === 'approved' && !isShowing) {
+                showTip(tip);
             }
-
-            // ถ้าเปิดใช้งานวิดีโอ ให้สั่งเล่นวิดีโอใหม่ตั้งแต่ต้น
-            // const vid = document.getElementById('anim-video');
-            // if(vid) { vid.currentTime = 0; vid.play(); }
-
-            if (!isFirstLoad) {
-                sound.play().catch(e => {});
-                const alertEl = document.getElementById('alert-screen');
-                alertEl.style.display = 'flex';
-                setTimeout(() => { alertEl.style.display = 'none'; }, 2000);
-            }
-            isFirstLoad = false;
         });
 
-        // คลิกลงบนจอ 1 ครั้งตอนเปิดเว็บ เพื่อให้เบราว์เซอร์อนุญาตให้เสียงดัง
-        document.body.onclick = () => { sound.play().then(() => { sound.pause(); sound.currentTime = 0; }); };
+        // ดึงของเก่าที่เพิ่งอนุมัติด้วย (เผื่อเปิดจอทีหลัง)
+        db.ref('live_tips').orderByChild('status').equalTo('approved').limitToLast(1).on('value', snap => {
+            const data = snap.val();
+            if(data && !isShowing) {
+                const key = Object.keys(data)[0];
+                showTip(data[key]);
+            }
+        });
+
+        function showTip(tip) {
+            isShowing = true;
+            const container = document.getElementById('display-container');
+            document.getElementById('d-amount').innerText = tip.amount + ".-";
+            document.getElementById('d-name').innerText = tip.name;
+            document.getElementById('d-photo').src = tip.photo || 'https://via.placeholder.com/500?text=BANGRU';
+            document.getElementById('d-message').innerText = tip.message;
+            
+            container.style.display = 'flex';
+            
+            let count = 40;
+            const timerEl = document.getElementById('d-timer');
+            timerEl.innerText = count + "s";
+
+            const interval = setInterval(() => {
+                count--;
+                timerEl.innerText = count + "s";
+                if(count <= 0) {
+                    clearInterval(interval);
+                    container.style.display = 'none';
+                    isShowing = false;
+                    // เมื่อโชว์จบ ให้เปลี่ยนสถานะเป็น 'shown' เพื่อไม่ให้วนกลับมาโชว์อีก
+                    // ค้นหา key เพื่ออัปเดต (ในระบบจริงควรเก็บ key ไว้ตอนรับ data)
+                    db.ref('live_tips').orderByChild('ts').equalTo(tip.ts).once('value', s => {
+                        const k = Object.keys(s.val())[0];
+                        db.ref('live_tips/' + k).update({ status: 'shown' });
+                    });
+                }
+            }, 1000);
+        }
     </script>
 </body>
 </html>
 
-
-```
