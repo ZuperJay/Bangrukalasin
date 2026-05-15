@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -27,8 +26,8 @@
             border-bottom: 2px solid var(--or); padding: 30px 15px 20px;
         }
         .vid-header video {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -2; object-fit: cover; object-position: center;
+            position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%;
+            width: auto; height: auto; z-index: -2; transform: translate(-50%, -50%); object-fit: contain;
         }
         .vid-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(5,5,8,0.95)); z-index: -1; }
         
@@ -138,6 +137,7 @@
         <h1 class="logo-text">BANGRU</h1>
         <div class="logo-sub">KALASIN LIVE SYSTEM</div>
         
+        <!-- นำปุ่มมาไว้ใต้โลโก้ ทับบนวิดีโอ -->
         <div class="top-nav">
             <a class="nav-btn btn-tip active" onclick="nav('tip')"><span>💸</span>ให้ทิป (TIP)</a>
             <a class="nav-btn btn-lineup" onclick="toggleModal('modal-lineup')"><span>🎧</span>LINEUP</a>
@@ -155,6 +155,7 @@
         <!-- ================= PAGE: TIP ================= -->
         <div id="page-tip" class="page-section active">
             
+            <!-- STEP 1: ใส่ข้อมูล -->
             <div class="card">
                 <span class="card-title">1. ข้อมูลของคุณ (จะแสดงบนจอ LED)</span>
                 <label class="upload-box" style="height: 110px; margin-bottom: 15px;" id="u-box">
@@ -166,6 +167,7 @@
                 <textarea id="t-msg" class="f-input" rows="2" placeholder="ข้อความถึงดีเจ (MESSAGE)"></textarea>
             </div>
 
+            <!-- STEP 2: จ่ายเงิน / โอนเงิน -->
             <div class="card">
                 <span class="card-title">2. เลือกจำนวนทิป & โอนเงิน</span>
                 <div class="amt-grid">
@@ -178,6 +180,7 @@
                 </div>
 
                 <div style="text-align: center; margin: 20px 0;">
+                    <!-- ดึงรูป QR ที่อัปโหลดมาใช้งาน -->
                     <img src="qr.png" alt="QR Code PromptPay" style="width: 180px; height: 180px; object-fit: contain; border-radius: 10px; border: 2px solid var(--or); padding: 5px; background: #fff;">
                     <p style="font-family: 'Orbitron'; color: var(--or); margin-top: 8px; font-size: 0.9rem; font-weight: bold;">SCAN QR TO PAY</p>
                 </div>
@@ -192,6 +195,7 @@
                 </div>
             </div>
 
+            <!-- STEP 3: อัปโหลดสลิป -->
             <div class="card">
                 <span class="card-title">3. ยืนยันการโอนเงิน</span>
                 <label class="upload-box" id="s-box">
@@ -204,14 +208,16 @@
             <button id="btn-send" class="btn-main" onclick="sendTip()">SEND TO LIVE SCREEN</button>
         </div>
 
-        <!-- ================= PAGE: BOOKING ================= -->
+        <!-- ================= PAGE: BOOKING (EXACT MAP) ================= -->
         <div id="page-book" class="page-section">
             <h2 style="font-family: 'Orbitron'; color: var(--gr); text-align: center; margin-bottom: 15px;">FLOOR MAP V.3</h2>
             
             <div class="map-wrap">
                 <div class="map-inner">
+                    
                     <!-- TOP ROW -->
                     <div class="m-row">
+                        <!-- Z5 Upper -->
                         <div class="m-col" style="width: 80px;">
                             <div class="z-title" style="color: var(--gr);">ZONE 5<br>LEFT (UPPER)</div>
                             <div class="m-row-in"><div class="t z5" id="t-41u">41</div><div class="t z5" id="t-42u">42</div></div>
@@ -221,21 +227,27 @@
                             <div class="m-row-in"><div class="t z5" id="t-59u">59</div><div class="t z5" id="t-60u">60</div></div>
                         </div>
                         
+                        <!-- STAGE & Z1 -->
                         <div class="m-col" style="flex: 1; align-items: center;">
                             <div class="stage">DJ STAGE</div>
+                            
                             <div class="m-row" style="width: 100%; justify-content: center; gap: 10px; margin-top: 5px;">
+                                <!-- Z1 Left -->
                                 <div class="m-col" style="align-items: flex-end;">
                                     <div class="m-row-in"><div class="t z1" id="t-1">1</div><div class="t z1" id="t-2">2</div></div>
                                     <div class="m-row-in"><div class="t z1" id="t-5">5</div><div class="t z1" id="t-6">6</div></div>
                                     <div class="m-row-in"><div class="t z1" id="t-11">11</div><div class="t z1" id="t-12">12</div></div>
                                 </div>
+                                <!-- Stem -->
                                 <div class="stage-stem"></div>
+                                <!-- Z1 Right -->
                                 <div class="m-col">
                                     <div class="m-row-in"><div class="t z1" id="t-3">3</div><div class="t z1" id="t-4">4</div></div>
                                     <div class="m-row-in"><div class="t z1" id="t-9">9</div><div class="t z1" id="t-10">10</div></div>
                                     <div class="m-row-in"><div class="t z1" id="t-15">15</div><div class="t z1" id="t-16">16</div></div>
                                 </div>
                             </div>
+                            <!-- Z1 Bottom Row -->
                             <div class="m-row" style="gap: 20px; justify-content: center; margin-top: 5px;">
                                 <div class="t z1" id="t-8">8</div>
                                 <div class="t z1" id="t-14">14</div>
@@ -243,6 +255,7 @@
                             <div class="z-title" style="color: var(--gd); margin-top: 5px;">ZONE 1 หน้าเวที (14)</div>
                         </div>
 
+                        <!-- Z4 VIP -->
                         <div class="m-col" style="width: 80px; align-items: center;">
                             <div class="z-title" style="color: var(--gd);">ZONE 4 VIP<br>UPPER RIGHT</div>
                             <div class="m-row-in"><div class="t z4" id="t-V1">V1</div><div class="t z4" id="t-V2">V2</div></div>
@@ -251,15 +264,19 @@
                             <div style="border: 1px solid var(--cy); color: var(--cy); font-size: 8px; padding: 4px; border-radius: 4px; margin-top: 4px;">ทางขึ้น ↑</div>
                         </div>
 
+                        <!-- Bar & Cashier -->
                         <div class="m-col" style="gap: 5px;">
                             <div class="cashier">CASHIER</div>
                             <div class="bar">BAR</div>
                         </div>
                     </div>
 
+                    <!-- WALKWAY -->
                     <div class="walkway">IN &rarr; &nbsp;&nbsp;&nbsp;&nbsp; WALKWAY</div>
 
+                    <!-- BOTTOM ROW -->
                     <div class="m-row">
+                        <!-- Z5 Lower -->
                         <div class="m-col" style="width: 80px;">
                             <div class="z-title" style="color: var(--gr);">ZONE 5<br>LEFT (LOWER)</div>
                             <div class="m-row-in"><div class="t z5" id="t-41l">41</div><div class="t z5" id="t-42l">42</div></div>
@@ -269,6 +286,7 @@
                             <div class="m-row-in"><div class="t z5" id="t-59l">59</div><div class="t z5" id="t-60l">60</div></div>
                         </div>
 
+                        <!-- Z2 Back Center (20) -->
                         <div class="m-col" style="flex: 1; align-items: center;">
                             <div class="z-title" style="color: var(--cy);">ZONE 2 · BACK CENTER (20)</div>
                             <div class="m-row-in"><div class="t z2" id="t-17">17</div><div class="t z2" id="t-18">18</div><div class="t z2" id="t-19">19</div><div class="t z2" id="t-20">20</div></div>
@@ -278,6 +296,7 @@
                             <div class="m-row-in"><div class="t z2" id="t-37">37</div><div class="t z2" id="t-38">38</div><div class="t z2" id="t-39">39</div><div class="t z2" id="t-40">40</div></div>
                         </div>
 
+                        <!-- SIDE -->
                         <div class="m-col" style="width: 40px; align-items: center;">
                             <div class="z-title" style="color: var(--rd);">SIDE (5)</div>
                             <div class="t zs" id="t-s30">30</div>
@@ -287,6 +306,7 @@
                             <div class="t zs" id="t-s42">42</div>
                         </div>
 
+                        <!-- Z3 Right Side -->
                         <div class="m-col" style="width: 150px; align-items: center;">
                             <div class="z-title" style="color: var(--pu);">ZONE 3 · RIGHT SIDE (14)</div>
                             <div class="m-row-in"><div class="t z3" id="t-W1">W1</div><div class="t z3" id="t-W2">W2</div></div>
@@ -297,6 +317,7 @@
                         </div>
                     </div>
 
+                    <!-- FOOTER -->
                     <div class="m-row" style="margin-top: 5px; align-items: center;">
                         <div style="width: 80px;"></div>
                         <div class="light-sound">||||| LIGHT & SOUND |||||</div>
@@ -325,17 +346,8 @@
     </div>
 
     <script>
-        // --- Firebase Config (อัปเดตแบบเต็ม) ---
-        const fbConfig = {
-            apiKey: "AIzaSyDgpZ0T2E7yO7EjnfVwZzesKw0eNJC7kJc",
-            authDomain: "bangru-kalasin.firebaseapp.com",
-            databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com",
-            projectId: "bangru-kalasin",
-            storageBucket: "bangru-kalasin.firebasestorage.app",
-            messagingSenderId: "150447340465",
-            appId: "1:150447340465:web:d39c310e5e32030aea1b90",
-            measurementId: "G-YDGMDD1EEL"
-        };
+        // --- Firebase Config ---
+        const fbConfig = { databaseURL: "https://bangru-kalasin-default-rtdb.firebaseio.com" };
         firebase.initializeApp(fbConfig);
         const db = firebase.database();
 
@@ -396,19 +408,10 @@
                 await db.ref('live_tips').push({
                     name: document.getElementById('t-name').value || 'FC BANGRU',
                     message: document.getElementById('t-msg').value || 'จัดเต็ม!',
-                    amount: tipAmt, 
-                    photo: uData, 
-                    slip: sData, 
-                    status: 'pending', // ส่งสถานะไปรอการอนุมัติ
-                    ts: Date.now()
+                    amount: tipAmt, photo: uData, slip: sData, ts: Date.now()
                 });
-                alert('ส่งข้อมูลสำเร็จ! กรุณารอดีเจกดยืนยันสักครู่ครับ');
-                location.reload();
-            } catch(e) { 
-                alert('Error!'); 
-                btn.disabled = false; 
-                btn.innerText = 'SEND TO LIVE SCREEN'; 
-            }
+                alert('ส่งข้อมูลขึ้นจอสำเร็จ!'); location.reload();
+            } catch(e) { alert('Error!'); btn.disabled = false; btn.innerText = 'SEND TO LIVE SCREEN'; }
         }
 
         // --- Booking Map ---
@@ -434,6 +437,7 @@
             el.classList.add('selected');
             selTable = id;
             
+            // Format ID for display (e.g. 41u -> 41)
             let displayId = id.replace(/[ul]/g, ''); 
             document.getElementById('b-title').innerText = "โต๊ะที่เลือก: " + displayId;
             document.getElementById('book-form').style.display = 'block';
