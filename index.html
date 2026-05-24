@@ -66,28 +66,32 @@
            FLOOR MAP V5 STYLES
         ══════════════════════════════════════ */
         .map-wrap{overflow-x:auto;background:#07070a;border:1px solid #222;border-radius:15px;padding:12px;margin-bottom:20px;}
-        .map-inner{min-width:680px;display:flex;flex-direction:column;gap:6px;}
+        .map-inner{min-width:720px;display:flex;flex-direction:column;gap:6px;}
 
-        /* rows */
-        .m-top-row{display:flex;flex-direction:row;gap:8px;align-items:flex-start;}
-        .m-bot-row{display:flex;flex-direction:row;gap:8px;align-items:flex-start;}
+        /* 4-column grid: LEFT | CENTER | VIP | CASHIER */
+        .map-grid-row{
+            display:grid;
+            grid-template-columns:83px 1fr 90px 60px;
+            gap:8px;
+            align-items:start;
+        }
 
         /* generic zone block */
         .z-block{display:flex;flex-direction:column;gap:3px;align-items:flex-start;}
         .t-pair{display:flex;gap:3px;}
 
         /* CENTER zone1 */
-        .z-center{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
+        .z-center{display:flex;flex-direction:column;align-items:center;gap:3px;}
         .z1-grid{display:flex;gap:3px;}
-
-        /* RIGHT TOP: VIP + CASHIER/BAR */
-        .z-right-top{display:flex;gap:6px;align-items:flex-start;}
 
         /* ZONE 2 grid rows */
         .z2-grid{display:flex;gap:3px;}
 
         /* ZONE 3 rows */
         .z3-row{display:flex;gap:3px;align-items:center;}
+
+        /* bot col2: zone2 + zone3 side by side */
+        .bot-center{display:flex;gap:10px;align-items:flex-start;}
 
         /* table cell */
         .t{
@@ -232,10 +236,10 @@
         <div class="map-wrap">
           <div class="map-inner">
 
-            <!-- ── TOP ROW ── -->
-            <div class="m-top-row">
+            <!-- ══ TOP ROW: 4 columns ══ -->
+            <div class="map-grid-row">
 
-              <!-- LEFT UPPER (55-64) -->
+              <!-- col1: LEFT UPPER (55-64) -->
               <div class="z-block">
                 <div class="z-title" style="color:#00e878;">LEFT ZONE</div>
                 <div class="t-pair"><div class="t z5" id="t-55">55</div><div class="t z5" id="t-56">56</div></div>
@@ -245,23 +249,20 @@
                 <div class="t-pair"><div class="t z5" id="t-63">63</div><div class="t z5" id="t-64">64</div></div>
               </div>
 
-              <!-- CENTER: Stage + Zone1 -->
+              <!-- col2: Stage + Zone1 -->
               <div class="z-center">
                 <div class="stage">🎧 D.J STAGE</div>
                 <div class="stage-stem"></div>
-                <!-- Row 1,2 | 3,4 -->
                 <div class="z1-grid">
                   <div class="t z1" id="t-1">1</div><div class="t z1" id="t-2">2</div>
                   <div style="width:14px;"></div>
                   <div class="t z1" id="t-3">3</div><div class="t z1" id="t-4">4</div>
                 </div>
-                <!-- Row 9,8 | 7 | 6,5 -->
                 <div class="z1-grid">
                   <div class="t z1" id="t-9">9</div><div class="t z1" id="t-8">8</div>
                   <div class="t z1" id="t-7">7</div>
                   <div class="t z1" id="t-6">6</div><div class="t z1" id="t-5">5</div>
                 </div>
-                <!-- Row 10,11,12,13,14 -->
                 <div class="z1-grid">
                   <div class="t z1" id="t-10">10</div><div class="t z1" id="t-11">11</div>
                   <div class="t z1" id="t-12">12</div>
@@ -270,7 +271,7 @@
                 <div class="z-title" style="color:#e09050;margin-top:3px;">ZONE 1 • หน้าเวที (14)</div>
               </div>
 
-              <!-- VIP -->
+              <!-- col3: VIP -->
               <div class="z-block">
                 <div class="z-title" style="color:#d97706;">ZONE 4 VIP</div>
                 <div class="t-pair"><div class="t z4" id="t-V6">V6</div><div class="t z4" id="t-V1">V1</div></div>
@@ -279,7 +280,7 @@
                 <div class="stair-label">ทางขึ้น ↑</div>
               </div>
 
-              <!-- CASHIER + BAR -->
+              <!-- col4: CASHIER + BAR -->
               <div class="z-block" style="align-items:center;gap:4px;">
                 <div class="cashier">CASHIER<br>แคชเชียร์</div>
                 <div class="bar">BAR</div>
@@ -289,10 +290,10 @@
 
             <div class="walkway">— WALKWAY —</div>
 
-            <!-- ── BOT ROW ── -->
-            <div class="m-bot-row">
+            <!-- ══ BOT ROW: same 4 columns ══ -->
+            <div class="map-grid-row">
 
-              <!-- LEFT LOWER (65-74) -->
+              <!-- col1: LEFT LOWER (65-74) -->
               <div class="z-block">
                 <div class="t-pair"><div class="t z5" id="t-65">65</div><div class="t z5" id="t-66">66</div></div>
                 <div class="t-pair"><div class="t z5" id="t-68">68</div><div class="t z5" id="t-67">67</div></div>
@@ -301,62 +302,75 @@
                 <div class="t-pair"><div class="t z5" id="t-73">73</div><div class="t z5" id="t-74">74</div></div>
               </div>
 
-              <!-- ZONE 2 Back Center 4×5 -->
-              <div class="z-block">
-                <div class="z-title" style="color:#00d8ee;">ZONE 2 • BACK CENTER (20)</div>
-                <div class="z2-grid"><div class="t z2" id="t-15">15</div><div class="t z2" id="t-16">16</div><div class="t z2" id="t-17">17</div><div class="t z2" id="t-18">18</div></div>
-                <div class="z2-grid"><div class="t z2" id="t-19">19</div><div class="t z2" id="t-20">20</div><div class="t z2" id="t-21">21</div><div class="t z2" id="t-22">22</div></div>
-                <div class="z2-grid"><div class="t z2" id="t-23">23</div><div class="t z2" id="t-24">24</div><div class="t z2" id="t-25">25</div><div class="t z2" id="t-26">26</div></div>
-                <div class="z2-grid"><div class="t z2" id="t-27">27</div><div class="t z2" id="t-28">28</div><div class="t z2" id="t-29">29</div><div class="t z2" id="t-30">30</div></div>
-                <div class="z2-grid"><div class="t z2" id="t-31">31</div><div class="t z2" id="t-32">32</div><div class="t z2" id="t-33">33</div><div class="t z2" id="t-34">34</div></div>
-                <div class="light-sound">💡 LIGHT × SOUND</div>
-              </div>
+              <!-- col2+col3: Zone2 และ Zone3 เคียงกัน ชิดกัน -->
+              <div style="display:flex;flex-direction:row;gap:6px;align-items:flex-start;grid-column:2/4;">
 
-              <!-- SIDE + ZONE 3 -->
-              <div class="z-block">
-                <div class="z-title" style="color:#ff2d78;">ZONE 3 • RIGHT SIDE</div>
-                <!-- 35 → 36, 37 | 38 far -->
-                <div class="z3-row">
-                  <div class="t zs" id="t-35">35</div>
-                  <div class="t z3" id="t-36">36</div><div class="t z3" id="t-37">37</div>
-                  <div style="width:6px;"></div>
-                  <div class="t z3" id="t-38">38</div>
+                <!-- Zone2 -->
+                <div class="z-block" style="align-items:center;">
+                  <div class="z-title" style="color:#00d8ee;">ZONE 2 • BACK CENTER (20)</div>
+                  <div class="z2-grid"><div class="t z2" id="t-15">15</div><div class="t z2" id="t-16">16</div><div class="t z2" id="t-17">17</div><div class="t z2" id="t-18">18</div></div>
+                  <div class="z2-grid"><div class="t z2" id="t-19">19</div><div class="t z2" id="t-20">20</div><div class="t z2" id="t-21">21</div><div class="t z2" id="t-22">22</div></div>
+                  <div class="z2-grid"><div class="t z2" id="t-23">23</div><div class="t z2" id="t-24">24</div><div class="t z2" id="t-25">25</div><div class="t z2" id="t-26">26</div></div>
+                  <div class="z2-grid"><div class="t z2" id="t-27">27</div><div class="t z2" id="t-28">28</div><div class="t z2" id="t-29">29</div><div class="t z2" id="t-30">30</div></div>
+                  <div class="z2-grid"><div class="t z2" id="t-31">31</div><div class="t z2" id="t-32">32</div><div class="t z2" id="t-33">33</div><div class="t z2" id="t-34">34</div></div>
+                  <div class="light-sound">💡 LIGHT × SOUND</div>
                 </div>
-                <!-- 42 → 41,40,39 | 47 far -->
-                <div class="z3-row">
-                  <div class="t zs" id="t-42">42</div>
-                  <div class="t z3" id="t-41">41</div><div class="t z3" id="t-40">40</div><div class="t z3" id="t-39">39</div>
-                  <div style="width:6px;"></div>
-                  <div class="t z3" id="t-47">47</div>
+
+                <!-- Zone3 — pattern ตามรูป 2 -->
+                <div class="z-block" style="margin-left:4px;">
+                  <div class="z-title" style="color:#ff2d78;">ZONE 3 • RIGHT SIDE</div>
+                  <!-- row: 35(side) 36 37 | 38 far right -->
+                  <div class="z3-row">
+                    <div class="t zs" id="t-35">35</div>
+                    <div class="t z3" id="t-36">36</div>
+                    <div class="t z3" id="t-37">37</div>
+                    <div style="width:6px;"></div>
+                    <div class="t z3" id="t-38">38</div>
+                  </div>
+                  <!-- row: 42(side) 41 40 39 | 47 far right -->
+                  <div class="z3-row">
+                    <div class="t zs" id="t-42">42</div>
+                    <div class="t z3" id="t-41">41</div>
+                    <div class="t z3" id="t-40">40</div>
+                    <div class="t z3" id="t-39">39</div>
+                    <div style="width:6px;"></div>
+                    <div class="t z3" id="t-47">47</div>
+                  </div>
+                  <!-- row: 43(side) 44 45 46 | 48 far right -->
+                  <div class="z3-row">
+                    <div class="t zs" id="t-43">43</div>
+                    <div class="t z3" id="t-44">44</div>
+                    <div class="t z3" id="t-45">45</div>
+                    <div class="t z3" id="t-46">46</div>
+                    <div style="width:6px;"></div>
+                    <div class="t z3" id="t-48">48</div>
+                  </div>
+                  <!-- row: indent 37px → 49, 54(dup) -->
+                  <div class="z3-row" style="padding-left:37px;">
+                    <div class="t z3" id="t-49">49</div>
+                    <div class="t z3" id="t-54b">54</div>
+                  </div>
+                  <!-- row: 51(side) 50 -->
+                  <div class="z3-row">
+                    <div class="t zs" id="t-51">51</div>
+                    <div class="t z3" id="t-50">50</div>
+                  </div>
+                  <!-- row: indent 37px → 52 53 -->
+                  <div class="z3-row" style="padding-left:37px;">
+                    <div class="t z3" id="t-52">52</div>
+                    <div class="t z3" id="t-53">53</div>
+                  </div>
+                  <!-- row: indent 74px → 54 -->
+                  <div class="z3-row" style="padding-left:74px;">
+                    <div class="t z3" id="t-54">54</div>
+                  </div>
+                  <div class="toilet">🚹🚺 ห้องน้ำ</div>
                 </div>
-                <!-- 43 → 44,45,46 | 48 far -->
-                <div class="z3-row">
-                  <div class="t zs" id="t-43">43</div>
-                  <div class="t z3" id="t-44">44</div><div class="t z3" id="t-45">45</div><div class="t z3" id="t-46">46</div>
-                  <div style="width:6px;"></div>
-                  <div class="t z3" id="t-48">48</div>
-                </div>
-                <!-- indent: 49 | 54b far -->
-                <div class="z3-row" style="padding-left:37px;">
-                  <div class="t z3" id="t-49">49</div>
-                  <div style="width:6px;"></div>
-                  <div class="t z3" id="t-54b">54</div>
-                </div>
-                <!-- 51 → 50 -->
-                <div class="z3-row">
-                  <div class="t zs" id="t-51">51</div>
-                  <div class="t z3" id="t-50">50</div>
-                </div>
-                <!-- 52, 53 -->
-                <div class="z3-row" style="padding-left:37px;">
-                  <div class="t z3" id="t-52">52</div><div class="t z3" id="t-53">53</div>
-                </div>
-                <!-- 54 bottom center -->
-                <div class="z3-row" style="padding-left:108px;">
-                  <div class="t z3" id="t-54">54</div>
-                </div>
-                <div class="toilet">🚹🚺 ห้องน้ำ</div>
-              </div>
+
+              </div><!-- end zone2+zone3 flex -->
+
+              <!-- col4: empty -->
+              <div></div>
 
             </div><!-- end bot row -->
 
