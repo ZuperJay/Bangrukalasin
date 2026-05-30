@@ -33,6 +33,8 @@
         .nav-btn.btn-promo{background:rgba(255,45,120,0.1);border:1px solid var(--pk);color:var(--pk);}
         .nav-btn.btn-fb{background:rgba(24,119,242,0.15);border:1px solid #1877f2;color:#1877f2;}
         .nav-btn.btn-lineup{background:rgba(0,216,238,0.1);border:1px solid var(--cy);color:var(--cy);}
+        .nav-btn.btn-soccer{background:rgba(0,232,120,0.15);border:1px solid #22c55e;color:#22c55e;}
+        .nav-btn.btn-soccer.active{background:#22c55e;color:#000;box-shadow:0 0 15px rgba(34,197,94,0.6);}
         .nav-btn:hover{transform:translateY(-2px);filter:brightness(1.2);}
 
         /* ── MARQUEE ── */
@@ -158,6 +160,34 @@
         .popup-btns button{flex:1;padding:14px;border-radius:10px;border:none;font-family:'Orbitron';font-weight:900;font-size:0.85rem;cursor:pointer;}
         .btn-cancel{background:#222;color:#888;}
         .btn-confirm{background:linear-gradient(135deg,var(--gr),var(--cy));color:#000;}
+
+        /* ── SOCCER PAGE ── */
+        .soccer-wrap{
+            background:#07070a;border:1px solid #22c55e;border-radius:16px;
+            overflow:hidden;position:relative;padding-bottom:56.25%;height:0;
+        }
+        .soccer-wrap iframe{
+            position:absolute;top:0;left:0;width:100%;height:100%;
+            border:none;
+        }
+        .soccer-header{
+            font-family:'Orbitron';color:#22c55e;font-size:1rem;
+            text-align:center;margin-bottom:15px;
+            text-shadow:0 0 15px rgba(34,197,94,0.5);
+            letter-spacing:2px;
+        }
+        .soccer-note{
+            text-align:center;font-size:0.75rem;color:rgba(255,255,255,0.4);
+            margin-top:10px;font-family:'Kanit';
+        }
+        .soccer-open-btn{
+            display:block;width:100%;padding:14px;margin-top:12px;
+            background:rgba(34,197,94,0.1);border:1px solid #22c55e;
+            color:#22c55e;border-radius:10px;font-family:'Orbitron';
+            font-size:0.8rem;font-weight:700;text-align:center;
+            cursor:pointer;text-decoration:none;transition:0.3s;letter-spacing:1px;
+        }
+        .soccer-open-btn:hover{background:#22c55e;color:#000;}
     </style>
 </head>
 <body>
@@ -175,6 +205,7 @@
         <a class="nav-btn btn-fb" onclick="openFB()"><span>📘</span>FACEBOOK</a>
         <a class="nav-btn btn-book" onclick="nav('book')"><span>🪑</span>จองโต๊ะ</a>
         <a class="nav-btn btn-lineup" onclick="toggleModal('modal-lineup')"><span>🎧</span>LINEUP</a>
+        <a class="nav-btn btn-soccer" onclick="nav('soccer')"><span>⚽</span>ดูบอลสด</a>
     </div>
 </header>
 
@@ -391,6 +422,24 @@
 
     </div><!-- page-book -->
 
+    <!-- ══════════ SOCCER PAGE ══════════ -->
+    <div id="page-soccer" class="page-section">
+        <p class="soccer-header">⚽ ดูบอลสด LIVE</p>
+        <div class="soccer-wrap">
+            <iframe
+                id="soccer-frame"
+                src=""
+                allowfullscreen
+                allow="autoplay; fullscreen"
+                scrolling="no"
+            ></iframe>
+        </div>
+        <p class="soccer-note">⚠️ หากภาพไม่แสดง กด "เปิดเว็บเต็ม" ด้านล่าง</p>
+        <a class="soccer-open-btn" href="http://doballkub.com/live/watch/57936" target="_blank">
+            🌐 เปิดเว็บเต็ม (หากดูไม่ออก)
+        </a>
+    </div>
+
 </div><!-- container -->
 
 <!-- ══════════ BOOKING POPUP OVERLAY ══════════ -->
@@ -451,12 +500,21 @@
         document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
         document.querySelector('.btn-'+p).classList.add('active');
         if(p==='book') initMap();
+        if(p==='soccer') loadSoccer();
     }
     function toggleModal(id){document.getElementById(id).classList.toggle('active');}
     function openFB(){
         const url="https://www.facebook.com/share/1GwzKcaWwH/?mibextid=wwXIfr";
         window.location.href="fb://facewebmodal/f?href="+encodeURIComponent(url);
         setTimeout(()=>window.open(url,'_blank'),1000);
+    }
+
+    /* ── Soccer ── */
+    let soccerLoaded=false;
+    function loadSoccer(){
+        if(soccerLoaded) return;
+        document.getElementById('soccer-frame').src='http://doballkub.com/live/watch/57936';
+        soccerLoaded=true;
     }
 
     /* ── Tip ── */
