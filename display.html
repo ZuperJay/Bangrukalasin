@@ -58,8 +58,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding: 48px 60px 40px;
+            justify-content: center;
+            padding: 32px 48px 40px;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.6s ease;
@@ -71,21 +71,20 @@
         .tip-row {
             display: flex;
             flex-direction: row;
-            align-items: flex-start;
-            gap: 52px;
+            align-items: center;        /* จัดกลางแนวตั้ง */
+            gap: 48px;
             width: 100%;
-            max-width: 1400px;
-            margin-top: 20px;
+            max-width: 1600px;
         }
 
-        /* รูปลูกค้า — สี่เหลี่ยมจัตุรัส ไม่ตัดรูป */
+        /* ── รูปลูกค้า — ใหญ่ขึ้นมาก ── */
         .photo-wrap {
             flex-shrink: 0;
-            width: clamp(240px, 28vw, 420px);
+            width: clamp(340px, 48vw, 680px);   /* ← ใหญ่ขึ้น 48vw จากเดิม 28vw */
             aspect-ratio: 1 / 1;
-            border-radius: 24px;
-            border: 4px solid #ff6a00;
-            box-shadow: 0 0 30px rgba(255,106,0,0.8), 0 0 80px rgba(255,106,0,0.35);
+            border-radius: 28px;
+            border: 5px solid #ff6a00;
+            box-shadow: 0 0 40px rgba(255,106,0,0.9), 0 0 100px rgba(255,106,0,0.45);
             overflow: hidden;
             animation: ringPulse 2s ease-in-out infinite;
             background: radial-gradient(circle, #1a1a1a, #000);
@@ -94,18 +93,17 @@
             justify-content: center;
         }
         @keyframes ringPulse {
-            0%,100%{ box-shadow: 0 0 30px rgba(255,106,0,0.8), 0 0 80px rgba(255,106,0,0.35); }
-            50%    { box-shadow: 0 0 55px rgba(255,106,0,1),   0 0 130px rgba(255,106,0,0.6); }
+            0%,100%{ box-shadow: 0 0 40px rgba(255,106,0,0.9), 0 0 100px rgba(255,106,0,0.45); }
+            50%    { box-shadow: 0 0 70px rgba(255,106,0,1),   0 0 160px rgba(255,106,0,0.7); }
         }
-        /* รูปเต็มกรอบ ไม่ถูกตัด */
         .photo-wrap img {
             width: 100%;
             height: 100%;
-            object-fit: contain;   /* ← เปลี่ยนจาก cover → contain ไม่ตัดรูป */
+            object-fit: contain;
             object-position: center;
         }
         .photo-placeholder {
-            font-size: clamp(4rem, 8vw, 7rem);
+            font-size: clamp(6rem, 12vw, 10rem);   /* emoji placeholder ใหญ่ตาม */
         }
 
         /* ── RIGHT COLUMN ── */
@@ -113,16 +111,16 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
-            gap: 18px;
+            justify-content: center;
+            gap: 20px;
             min-width: 0;
         }
 
-        /* จำนวนเงิน — ใหญ่สุด */
+        /* จำนวนเงิน */
         .tip-amount {
             font-family: 'Orbitron', sans-serif;
             font-weight: 900;
-            font-size: clamp(3.5rem, 10vw, 9rem);
+            font-size: clamp(3rem, 8vw, 8rem);
             color: #ff6a00;
             line-height: 1;
             text-shadow: 0 0 20px rgba(255,106,0,0.9), 0 0 60px rgba(255,106,0,0.5);
@@ -137,17 +135,17 @@
         .cust-name {
             font-family: 'Orbitron', sans-serif;
             font-weight: 700;
-            font-size: clamp(1.4rem, 3.5vw, 3rem);
+            font-size: clamp(1.2rem, 3vw, 2.8rem);
             color: #fff;
             letter-spacing: 3px;
             text-shadow: 0 0 16px rgba(255,255,255,0.35);
         }
 
-        /* ข้อความลูกค้า — ขาว ขอบส้ม กะพริบ */
+        /* ข้อความ */
         .cust-msg {
             font-family: 'Kanit', sans-serif;
             font-weight: 600;
-            font-size: clamp(1.2rem, 3vw, 2.4rem);
+            font-size: clamp(1.1rem, 2.5vw, 2.2rem);
             color: #fff;
             line-height: 1.5;
             -webkit-text-stroke: 1.5px #ff6a00;
@@ -163,11 +161,11 @@
 
         .brand-tag {
             font-family: 'Orbitron', sans-serif;
-            font-size: clamp(0.65rem, 1.5vw, 1rem);
+            font-size: clamp(0.6rem, 1.2vw, 0.95rem);
             color: rgba(255,106,0,0.55);
             letter-spacing: 6px;
             text-transform: uppercase;
-            margin-top: 6px;
+            margin-top: 8px;
         }
 
         /* ── PROGRESS BAR ── */
@@ -210,7 +208,7 @@
 <div id="card">
     <div class="tip-row">
 
-        <!-- รูปลูกค้า (ซ้าย) -->
+        <!-- รูปลูกค้า (ซ้าย) — ใหญ่ขึ้นมาก -->
         <div class="photo-wrap" id="photo-wrap">
             <img id="c-photo" src="" alt="" style="display:none;">
             <div class="photo-placeholder" id="c-placeholder">🎉</div>
@@ -290,13 +288,13 @@
         }
 
         if (d.photo && d.photo.startsWith('data:image')) {
-            cPhoto.src          = d.photo;
+            cPhoto.src           = d.photo;
             cPhoto.style.display = 'block';
-            cPH.style.display   = 'none';
+            cPH.style.display    = 'none';
         } else {
             cPhoto.style.display = 'none';
-            cPH.style.display   = 'flex';
-            cPH.textContent     = '🎉';
+            cPH.style.display    = 'flex';
+            cPH.textContent      = '🎉';
         }
 
         idle.classList.add('hidden');
