@@ -188,6 +188,101 @@
             cursor:pointer;text-decoration:none;transition:0.3s;letter-spacing:1px;
         }
         .soccer-open-btn:hover{background:#22c55e;color:#000;}
+
+        /* ══════════════════════════════════════
+           NEW: ACTIVITY NAV BUTTON
+        ══════════════════════════════════════ */
+        .nav-btn.btn-activity{background:rgba(192,132,252,0.12);border:1px solid var(--pu);color:var(--pu);}
+        .nav-btn.btn-activity.active{background:var(--pu);color:#000;box-shadow:0 0 15px rgba(192,132,252,0.6);}
+
+        /* ══════════════════════════════════════
+           NEW: FLOATING MUSIC PLAYER
+        ══════════════════════════════════════ */
+        .player-bar{
+            position:fixed;left:0;right:0;bottom:0;z-index:1500;
+            display:flex;align-items:center;gap:10px;
+            padding:9px 14px;
+            background:rgba(8,8,12,0.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+            border-top:1px solid rgba(255,106,0,0.35);
+            box-shadow:0 -6px 24px rgba(0,0,0,0.5);
+        }
+        .player-disc{
+            width:34px;height:34px;border-radius:50%;flex:none;
+            background:radial-gradient(circle at 50% 50%,#1a1a22 0%,#1a1a22 28%,var(--or) 29%,var(--or) 33%,#1a1a22 34%);
+            border:1px solid rgba(255,106,0,0.5);
+            animation:spinDisc 3.2s linear infinite;animation-play-state:paused;
+        }
+        .player-disc.spin{animation-play-state:running;}
+        @keyframes spinDisc{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        .player-btn{
+            flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--or);
+            background:rgba(255,106,0,0.12);color:var(--or);font-size:0.85rem;cursor:pointer;
+            display:flex;align-items:center;justify-content:center;transition:0.2s;
+        }
+        .player-btn:hover{background:var(--or);color:#000;}
+        .player-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;}
+        .player-title{font-family:'Orbitron';font-size:0.68rem;color:var(--or2);letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .player-seek{width:100%;height:4px;border-radius:2px;background:rgba(255,255,255,0.12);position:relative;cursor:pointer;}
+        .player-seek-fill{position:absolute;left:0;top:0;height:100%;border-radius:2px;background:linear-gradient(90deg,var(--or),var(--pk));width:0%;}
+        .player-time{flex:none;font-family:'Orbitron';font-size:0.6rem;color:rgba(255,255,255,0.5);min-width:34px;text-align:right;}
+        .player-tap-hint{
+            position:fixed;left:0;right:0;bottom:58px;z-index:1499;
+            text-align:center;font-family:'Kanit';font-size:0.78rem;color:var(--or2);
+            background:rgba(255,106,0,0.12);border-top:1px solid rgba(255,106,0,0.3);
+            padding:6px;pointer-events:none;animation:fadeIn 0.4s ease;
+        }
+        .container{padding-bottom:80px;}
+
+        /* ══════════════════════════════════════
+           NEW: LINEUP PAGE + HOTSPOTS
+        ══════════════════════════════════════ */
+        .lineup-poster-wrap{position:relative;width:100%;border-radius:16px;overflow:hidden;border:1px solid rgba(0,216,238,0.35);margin-bottom:14px;}
+        .lineup-poster-wrap img{width:100%;display:block;}
+        .lineup-hotspot{
+            position:absolute;border:1.5px solid rgba(0,216,238,0);border-radius:10px;
+            cursor:pointer;transition:0.2s;
+        }
+        .lineup-hotspot:active,.lineup-hotspot:hover{border-color:var(--cy);background:rgba(0,216,238,0.15);box-shadow:0 0 18px rgba(0,216,238,0.5);}
+        .lineup-hotspot .hs-tag{
+            position:absolute;bottom:6px;left:6px;font-family:'Orbitron';font-size:0.62rem;
+            background:rgba(0,0,0,0.6);color:var(--cy);padding:3px 7px;border-radius:6px;
+            border:1px solid rgba(0,216,238,0.5);opacity:0;transition:0.2s;
+        }
+        .lineup-hotspot:hover .hs-tag,.lineup-hotspot:active .hs-tag{opacity:1;}
+        .lineup-hint{text-align:center;color:rgba(255,255,255,0.4);font-size:0.78rem;margin-bottom:16px;}
+        #modal-event .card{margin-bottom:12px;}
+        .ev-date{font-family:'Orbitron';color:var(--cy);font-size:0.85rem;letter-spacing:2px;margin-bottom:6px;}
+        .ev-title{font-family:'Kanit';font-weight:700;font-size:1.3rem;color:#fff;margin-bottom:4px;}
+        .ev-artists{font-family:'Kanit';font-size:0.95rem;color:var(--or2);margin-bottom:18px;}
+        .ev-btns{display:flex;gap:10px;}
+        .ev-btn{flex:1;padding:13px;border-radius:10px;text-align:center;font-family:'Orbitron';font-size:0.72rem;font-weight:700;text-decoration:none;cursor:pointer;letter-spacing:1px;}
+        .ev-btn.book{background:rgba(0,232,120,0.12);border:1px solid var(--gr);color:var(--gr);}
+        .ev-btn.cal{background:rgba(0,216,238,0.12);border:1px solid var(--cy);color:var(--cy);}
+
+        /* ══════════════════════════════════════
+           NEW: ACTIVITY / CHECK-IN CONTEST PAGE
+        ══════════════════════════════════════ */
+        .round-banner{background:linear-gradient(135deg,rgba(192,132,252,0.15),rgba(255,45,120,0.1));border:1px solid var(--pu);border-radius:16px;padding:16px;text-align:center;margin-bottom:18px;}
+        .round-banner .rb-label{font-family:'Orbitron';font-size:0.68rem;color:var(--pu);letter-spacing:2px;}
+        .round-banner .rb-days{font-family:'Orbitron';font-size:1.6rem;color:#fff;margin:4px 0;}
+        .round-banner .rb-sub{font-family:'Kanit';font-size:0.78rem;color:rgba(255,255,255,0.55);}
+        .ck-photo-box{width:100%;height:170px;margin-bottom:12px;}
+        .leaderboard{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+        .lb-item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 12px;}
+        .lb-medal{font-size:1.2rem;width:26px;text-align:center;}
+        .lb-photo{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:none;background:#222;}
+        .lb-name{flex:1;font-family:'Kanit';font-size:0.85rem;color:#fff;}
+        .lb-likes{font-family:'Orbitron';font-size:0.8rem;color:var(--pk);}
+        .feed-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+        .feed-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+        .feed-card img{width:100%;height:120px;object-fit:cover;display:block;background:#111;}
+        .feed-card .fc-body{padding:8px 10px;}
+        .feed-card .fc-name{font-family:'Kanit';font-size:0.78rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .fc-like-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px;}
+        .like-btn{background:rgba(255,45,120,0.12);border:1px solid var(--pk);color:var(--pk);border-radius:8px;padding:5px 9px;font-family:'Orbitron';font-size:0.68rem;cursor:pointer;transition:0.2s;}
+        .like-btn.liked{background:var(--pk);color:#fff;}
+        .like-btn:disabled{opacity:0.55;cursor:default;}
+        .empty-feed{text-align:center;color:rgba(255,255,255,0.35);font-family:'Kanit';font-size:0.85rem;padding:30px 0;}
     </style>
 </head>
 <body>
@@ -204,13 +299,29 @@
         <a class="nav-btn btn-promo" onclick="toggleModal('modal-promo')"><span>🔥</span>PROMOTION</a>
         <a class="nav-btn btn-fb" onclick="openFB()"><span>📘</span>FACEBOOK</a>
         <a class="nav-btn btn-book" onclick="nav('book')"><span>🪑</span>จองโต๊ะ</a>
-        <a class="nav-btn btn-lineup" onclick="toggleModal('modal-lineup')"><span>🎧</span>LINEUP</a>
+        <a class="nav-btn btn-lineup" onclick="nav('lineup')"><span>🎧</span>LINEUP</a>
         <a class="nav-btn btn-soccer" onclick="nav('soccer')"><span>⚽</span>ดูบอลสด</a>
+        <a class="nav-btn btn-activity" onclick="nav('activity')"><span>🎉</span>กิจกรรม</a>
     </div>
 </header>
 
 <div class="marquee">
     <span>★ SUPPORT YOUR DJ ★ BANGRU KALASIN ★ LIVE ON SCREEN ★ SCAN & PAY ★ BOOK YOUR TABLE NOW ★</span>
+</div>
+
+<!-- ══════════ FLOATING MUSIC PLAYER ══════════ -->
+<div id="player-tap-hint" class="player-tap-hint" style="display:none;">🔊 แตะที่ไหนก็ได้บนหน้าจอ เพื่อเปิดเพลง</div>
+<div class="player-bar">
+    <div class="player-disc" id="player-disc"></div>
+    <button class="player-btn" id="player-btn" onclick="togglePlay()">▶</button>
+    <div class="player-mid">
+        <div class="player-title">🎧 BANGRU LIVE MIX — NON STOP</div>
+        <div class="player-seek" id="player-seek" onclick="seekAudio(event)">
+            <div class="player-seek-fill" id="player-seek-fill"></div>
+        </div>
+    </div>
+    <div class="player-time" id="player-time">0:00</div>
+    <audio id="bg-audio" src="assets/audio/bangru-live-mix.mp3" loop preload="auto"></audio>
 </div>
 
 <div class="container">
@@ -440,6 +551,56 @@
         </a>
     </div>
 
+    <!-- ══════════ LINEUP PAGE (interactive) ══════════ -->
+    <div id="page-lineup" class="page-section">
+        <p class="soccer-header" style="color:var(--cy);text-shadow:0 0 15px rgba(0,216,238,0.5);">🎧 AUGUST LINEUP</p>
+        <div class="lineup-poster-wrap">
+            <img src="lineup.png" alt="Bangru Kalasin August Lineup">
+            <div class="lineup-hotspot" style="left:2%;top:15%;width:47%;height:26%;" onclick="showEvent(0)"><span class="hs-tag">2 AUG · Mikeky</span></div>
+            <div class="lineup-hotspot" style="left:51%;top:15%;width:47%;height:26%;" onclick="showEvent(1)"><span class="hs-tag">7 AUG · Ko Folk</span></div>
+            <div class="lineup-hotspot" style="left:2%;top:41.5%;width:47%;height:24.5%;" onclick="showEvent(2)"><span class="hs-tag">8 AUG · G2 x Maxky</span></div>
+            <div class="lineup-hotspot" style="left:51%;top:41.5%;width:47%;height:24.5%;" onclick="showEvent(3)"><span class="hs-tag">14 AUG · Deksomboon</span></div>
+            <div class="lineup-hotspot" style="left:2%;top:66.5%;width:47%;height:25%;" onclick="showEvent(4)"><span class="hs-tag">21 AUG · Ninuch</span></div>
+            <div class="lineup-hotspot" style="left:51%;top:66.5%;width:47%;height:25%;" onclick="showEvent(5)"><span class="hs-tag">28 AUG · Typhoon</span></div>
+        </div>
+        <p class="lineup-hint">👆 แตะที่การ์ดของแต่ละวัน เพื่อดูรายละเอียด + จองโต๊ะ</p>
+    </div>
+
+    <!-- ══════════ ACTIVITY / CHECK-IN CONTEST PAGE ══════════ -->
+    <div id="page-activity" class="page-section">
+        <div class="round-banner">
+            <div class="rb-label">🎉 ROUND ปัจจุบัน</div>
+            <div class="rb-days" id="rb-days">--</div>
+            <div class="rb-sub" id="rb-sub">เช็คอิน • ลงรูป • ยอดไลก์เยอะสุดรับรางวัลทุก 15 วัน</div>
+        </div>
+
+        <div class="card">
+            <span class="card-title">📸 เช็คอินวันนี้</span>
+            <label class="upload-box ck-photo-box" id="ck-box">
+                <input type="file" hidden accept="image/*" onchange="prevCheckin(this)">
+                <div id="ck-ui" style="text-align:center;color:#888;font-size:0.85rem;">📷<br>แตะเพื่ออัปโหลดรูปตัวเอง</div>
+                <img id="ck-img">
+            </label>
+            <input type="text" id="ck-name" class="f-input" placeholder="ชื่อ / ชื่อเล่น">
+            <input type="text" id="ck-fb" class="f-input" placeholder="ลิงก์ Facebook (ไม่บังคับ)">
+            <label style="display:flex;align-items:center;gap:8px;font-size:0.8rem;color:rgba(255,255,255,0.6);margin-bottom:12px;">
+                <input type="checkbox" id="ck-follow" style="width:16px;height:16px;">
+                ฉันได้ติดตามเพจ Facebook ร้านแล้ว
+            </label>
+            <button id="btn-checkin" class="btn-main ready" onclick="submitCheckin()">✅ เช็คอิน & ร่วมกิจกรรม</button>
+        </div>
+
+        <div class="card">
+            <span class="card-title">🏆 อันดับยอดไลก์สูงสุด (Top 3)</span>
+            <div class="leaderboard" id="leaderboard"></div>
+        </div>
+
+        <div class="card">
+            <span class="card-title">🔥 ฟีดเช็คอินล่าสุด</span>
+            <div class="feed-grid" id="feed-grid"><div class="empty-feed">กำลังโหลด...</div></div>
+        </div>
+    </div>
+
 </div><!-- container -->
 
 <!-- ══════════ BOOKING POPUP OVERLAY ══════════ -->
@@ -470,10 +631,20 @@
     </div>
 </div>
 
-<!-- LINEUP MODAL -->
-<div id="modal-lineup" class="modal">
-    <button class="close-modal" onclick="toggleModal('modal-lineup')">&times;</button>
-    <img src="lineup.png" style="width:100%;max-width:400px;border-radius:15px;border:2px solid var(--cy);">
+<!-- EVENT DETAIL MODAL (opened from LINEUP hotspots) -->
+<div id="modal-event" class="modal">
+    <button class="close-modal" onclick="toggleModal('modal-event')">&times;</button>
+    <div style="width:100%;max-width:420px;">
+        <div class="card">
+            <div class="ev-date" id="ev-date">--</div>
+            <div class="ev-title" id="ev-title">--</div>
+            <div class="ev-artists" id="ev-artists">--</div>
+            <div class="ev-btns">
+                <a class="ev-btn book" onclick="goBookFromEvent()">🪑 จองโต๊ะ</a>
+                <a class="ev-btn cal" id="ev-cal-link" target="_blank">📅 เพิ่มปฏิทิน</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -501,6 +672,7 @@
         document.querySelector('.btn-'+p).classList.add('active');
         if(p==='book') initMap();
         if(p==='soccer') loadSoccer();
+        if(p==='activity') initActivity();
     }
     function toggleModal(id){document.getElementById(id).classList.toggle('active');}
     function openFB(){
@@ -641,6 +813,189 @@
     document.getElementById('book-overlay').addEventListener('click',function(e){
         if(e.target===this) closeBookPopup();
     });
+
+    /* ══════════════════════════════════════════════
+       NEW: FLOATING MUSIC PLAYER
+       (mobile browsers block autoplay-with-sound, so we
+       try immediately, and if blocked we arm a one-time
+       "tap anywhere" listener to start it on first touch)
+    ══════════════════════════════════════════════ */
+    const bgAudio=document.getElementById('bg-audio');
+    const playerBtn=document.getElementById('player-btn');
+    const playerDisc=document.getElementById('player-disc');
+    const playerHint=document.getElementById('player-tap-hint');
+
+    function fmtTime(s){
+        if(!isFinite(s)) return '0:00';
+        const m=Math.floor(s/60), sec=Math.floor(s%60);
+        return m+':'+(sec<10?'0':'')+sec;
+    }
+    function setPlayingUI(isPlaying){
+        playerBtn.textContent=isPlaying?'⏸':'▶';
+        playerDisc.classList.toggle('spin',isPlaying);
+    }
+    function togglePlay(){
+        if(bgAudio.paused){ bgAudio.play().catch(()=>{}); } else { bgAudio.pause(); }
+    }
+    function seekAudio(e){
+        const bar=document.getElementById('player-seek');
+        const pct=(e.clientX-bar.getBoundingClientRect().left)/bar.offsetWidth;
+        if(bgAudio.duration) bgAudio.currentTime=pct*bgAudio.duration;
+    }
+    bgAudio.addEventListener('play',()=>setPlayingUI(true));
+    bgAudio.addEventListener('pause',()=>setPlayingUI(false));
+    bgAudio.addEventListener('timeupdate',()=>{
+        const pct=bgAudio.duration?(bgAudio.currentTime/bgAudio.duration*100):0;
+        document.getElementById('player-seek-fill').style.width=pct+'%';
+        document.getElementById('player-time').textContent=fmtTime(bgAudio.currentTime);
+    });
+    function armTapToPlay(){
+        playerHint.style.display='block';
+        const startOnce=()=>{
+            bgAudio.play().then(()=>{playerHint.style.display='none';}).catch(()=>{});
+            document.removeEventListener('touchstart',startOnce);
+            document.removeEventListener('click',startOnce);
+        };
+        document.addEventListener('touchstart',startOnce,{once:true});
+        document.addEventListener('click',startOnce,{once:true});
+    }
+    (function tryAutoplay(){
+        const p=bgAudio.play();
+        if(p&&p.catch) p.catch(()=>armTapToPlay());
+    })();
+
+    /* ══════════════════════════════════════════════
+       NEW: LINEUP DATA + EVENT DETAIL MODAL
+    ══════════════════════════════════════════════ */
+    const lineupData=[
+        {date:'2 AUG 2026',title:'หลี้ดิลาบ Party',artists:'[MIKE LAB] DJ Mikeky',iso:'20260802T210000',end:'20260803T020000'},
+        {date:'7 AUG 2026',title:'MONEY หน้าหวานแก๊งค์ KOFOLK Party',artists:'DJ Ko Folk (SONIC)',iso:'20260807T210000',end:'20260808T020000'},
+        {date:'8 AUG 2026',title:'08.08.26 Party',artists:'DJ G2 x MC Maxky',iso:'20260808T210000',end:'20260809T020000'},
+        {date:'14 AUG 2026',title:'เด็กสุมบุญ Party [DEK SOMBOON]',artists:'DJ Tom Deksomboon x MC Nack Humyoy',iso:'20260814T210000',end:'20260815T020000'},
+        {date:'21 AUG 2026',title:'เอวหนูดิ้นะ Party',artists:'DJ Ninuch x MC Black Velvet',iso:'20260821T210000',end:'20260822T020000'},
+        {date:'28 AUG 2026',title:'สุดป้าย Party',artists:'MC Mos Hello x DJ Typhoon',iso:'20260828T210000',end:'20260829T020000'},
+    ];
+    function showEvent(i){
+        const ev=lineupData[i];
+        document.getElementById('ev-date').textContent=ev.date;
+        document.getElementById('ev-title').textContent=ev.title;
+        document.getElementById('ev-artists').textContent=ev.artists;
+        const calUrl='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('BANGRU KALASIN — '+ev.title)+'&dates='+ev.iso+'/'+ev.end+'&location='+encodeURIComponent('Bangru Kalasin Club & Bar');
+        document.getElementById('ev-cal-link').href=calUrl;
+        toggleModal('modal-event');
+    }
+    function goBookFromEvent(){
+        toggleModal('modal-event');
+        nav('book');
+    }
+
+    /* ══════════════════════════════════════════════
+       NEW: ACTIVITY / 15-DAY CHECK-IN CONTEST
+       Round key auto-rotates every 15 days from ROUND_START.
+       Likes use a Firebase transaction (server-side safe count)
+       plus a localStorage guard so the same phone can't spam-like
+       the same entry from this page.
+    ══════════════════════════════════════════════ */
+    const ROUND_START=new Date('2026-08-01T00:00:00+07:00').getTime();
+    const ROUND_MS=15*24*60*60*1000;
+    let ckPhotoData='', activityInited=false;
+
+    function currentRoundInfo(){
+        const now=Date.now();
+        const roundNum=Math.floor((now-ROUND_START)/ROUND_MS);
+        const roundStart=ROUND_START+roundNum*ROUND_MS;
+        const roundEnd=roundStart+ROUND_MS;
+        const daysLeft=Math.max(0,Math.ceil((roundEnd-now)/(24*60*60*1000)));
+        return {key:'r'+roundNum, daysLeft};
+    }
+    function prevCheckin(input){
+        if(input.files&&input.files[0]){
+            const r=new FileReader();
+            r.onload=e=>{
+                ckPhotoData=e.target.result;
+                document.getElementById('ck-img').src=ckPhotoData;
+                document.getElementById('ck-img').style.display='block';
+                document.getElementById('ck-ui').style.display='none';
+                document.getElementById('ck-box').classList.add('done');
+            };
+            r.readAsDataURL(input.files[0]);
+        }
+    }
+    async function submitCheckin(){
+        const name=document.getElementById('ck-name').value.trim();
+        if(!name) return alert('กรอกชื่อก่อนนะ');
+        if(!ckPhotoData) return alert('กรุณาอัปโหลดรูปก่อน');
+        const btn=document.getElementById('btn-checkin');
+        btn.disabled=true; btn.textContent='กำลังส่ง...';
+        try{
+            const {key}=currentRoundInfo();
+            await db.ref('checkins/'+key).push({
+                name, photo:ckPhotoData,
+                fb:document.getElementById('ck-fb').value.trim(),
+                followed:document.getElementById('ck-follow').checked,
+                likes:0, ts:Date.now()
+            });
+            alert('✅ เช็คอินสำเร็จ! ชวนเพื่อนมากดไลก์ให้เยอะๆ');
+            document.getElementById('ck-name').value='';
+            document.getElementById('ck-fb').value='';
+            document.getElementById('ck-follow').checked=false;
+            document.getElementById('ck-img').style.display='none';
+            document.getElementById('ck-ui').style.display='block';
+            document.getElementById('ck-box').classList.remove('done');
+            ckPhotoData='';
+        }catch(e){ alert('Error: '+e.message); }
+        btn.disabled=false; btn.textContent='✅ เช็คอิน & ร่วมกิจกรรม';
+    }
+    function likeEntry(roundKey,id,btnEl){
+        const likedSetKey='liked_'+roundKey;
+        const liked=JSON.parse(localStorage.getItem(likedSetKey)||'[]');
+        if(liked.includes(id)) return;
+        db.ref('checkins/'+roundKey+'/'+id+'/likes').transaction(v=>(v||0)+1);
+        liked.push(id);
+        localStorage.setItem(likedSetKey,JSON.stringify(liked));
+        btnEl.classList.add('liked'); btnEl.disabled=true; btnEl.textContent='❤ Liked';
+    }
+    function initActivity(){
+        const {key,daysLeft}=currentRoundInfo();
+        document.getElementById('rb-days').textContent='เหลืออีก '+daysLeft+' วัน';
+        document.getElementById('rb-sub').textContent='รอบปัจจุบัน: '+key+' • สรุปยอดไลก์ทุก 15 วัน';
+        if(activityInited) return; // listener already attached
+        activityInited=true;
+        const likedSetKey='liked_'+key;
+        const liked=JSON.parse(localStorage.getItem(likedSetKey)||'[]');
+        db.ref('checkins/'+key).on('value',snap=>{
+            const data=snap.val()||{};
+            const entries=Object.keys(data).map(id=>({id,...data[id]}));
+            entries.sort((a,b)=>(b.likes||0)-(a.likes||0));
+
+            // leaderboard: top 3
+            const lb=document.getElementById('leaderboard');
+            const medals=['🥇','🥈','🥉'];
+            lb.innerHTML=entries.slice(0,3).map((e,i)=>
+                `<div class="lb-item"><span class="lb-medal">${medals[i]}</span>
+                 <img class="lb-photo" src="${e.photo}"><span class="lb-name">${e.name}</span>
+                 <span class="lb-likes">❤ ${e.likes||0}</span></div>`
+            ).join('') || '<div class="empty-feed">ยังไม่มีคนเช็คอิน</div>';
+
+            // feed: everyone, newest first
+            const feed=document.getElementById('feed-grid');
+            const byTime=[...entries].sort((a,b)=>b.ts-a.ts);
+            feed.innerHTML=byTime.map(e=>{
+                const already=liked.includes(e.id);
+                return `<div class="feed-card">
+                    <img src="${e.photo}">
+                    <div class="fc-body">
+                        <div class="fc-name">${e.name}</div>
+                        <div class="fc-like-row">
+                            <button class="like-btn ${already?'liked':''}" ${already?'disabled':''}
+                                onclick="likeEntry('${key}','${e.id}',this)">${already?'❤ Liked':'🤍 Like'}</button>
+                            <span class="lb-likes">${e.likes||0}</span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('') || '<div class="empty-feed">ยังไม่มีคนเช็คอินวันนี้ เป็นคนแรกเลย!</div>';
+        });
+    }
 </script>
 </body>
 </html>
